@@ -1,2 +1,2 @@
 # bsa.dll
-Project to create a flexible DLL file based on the xEdit framework to interface with BSA files.
+Project to produce an asset file map, including files in nested BSA files, from an input zip, rar, or 7z archive.
