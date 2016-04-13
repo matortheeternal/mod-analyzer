@@ -21,7 +21,7 @@ namespace ModAssetMapper {
                     string entryPath = entry.Key;
                     textBlock.Inlines.Add(entryPath + "\n");
                     string ext = Path.GetExtension(entryPath);
-                    if (ext == "bsa") {
+                    if (ext == ".bsa") {
                         entry.WriteToDirectory(@".\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
                         // TODO: do bsa stuff next
                     }
