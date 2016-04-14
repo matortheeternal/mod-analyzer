@@ -1,17 +1,33 @@
 ﻿using Microsoft.Win32;
 using SharpCompress.Archive;
 using SharpCompress.Common;
-using SharpCompress.Reader;
 using System.IO;
 using System.Windows;
+using System.Reflection;
+using BA2Lib;
 
 namespace ModAssetMapper {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+        BA2NET ba2 = new BA2NET();
+
         public MainWindow() {
             InitializeComponent();
+        }
+
+        public void HandleBSA(IArchiveEntry entry) {
+            entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string bsaPath = rootPath + "\\bsas\\" + entry.Key;
+            if (ba2.Open(bsaPath)) {
+                string[] entries = ba2.GetNameTable();
+                for (int i = 0; i < entries.Length; i++) {
+                    textBlock.Inlines.Add(entry.Key + "\\" + entries[i] + "\n");
+                }
+            }
         }
 
         public void GetEntryMap(string path) {
@@ -21,9 +37,8 @@ namespace ModAssetMapper {
                     string entryPath = entry.Key;
                     textBlock.Inlines.Add(entryPath + "\n");
                     string ext = Path.GetExtension(entryPath);
-                    if (ext == ".bsa") {
-                        entry.WriteToDirectory(@".\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
-                        // TODO: do bsa stuff next
+                    if (ext == ".BA2") {
+                        HandleBSA(entry);
                     }
                 }
             }
