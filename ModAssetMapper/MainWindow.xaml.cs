@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using SharpCompress.Archive;
 using SharpCompress.Common;
+using System;
 using System.IO;
 using System.Windows;
 using System.Reflection;
@@ -37,7 +38,8 @@ namespace ModAssetMapper {
                     string entryPath = entry.Key;
                     textBlock.Inlines.Add(entryPath + "\n");
                     string ext = Path.GetExtension(entryPath);
-                    if (ext == ".BA2") {
+                    if ((String.Equals(ext, ".ba2", StringComparison.OrdinalIgnoreCase)) || 
+                        (String.Equals(ext, ".bsa", StringComparison.OrdinalIgnoreCase))) {
                         HandleBSA(entry);
                     }
                 }
