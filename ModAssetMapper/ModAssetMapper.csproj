@@ -39,6 +39,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>lib\BA2Lib.dll</HintPath>
     </Reference>
+    <Reference Include="libbsa">
+      <HintPath>lib\libbsa.dll</HintPath>
+    </Reference>
     <Reference Include="SharpCompress, Version=0.11.6.0, Culture=neutral, PublicKeyToken=beaf6f427e128133, processorArchitecture=MSIL">
       <HintPath>..\packages\sharpcompress.0.11.6\lib\net40\SharpCompress.dll</HintPath>
       <Private>True</Private>

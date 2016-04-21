@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows;
 using System.Reflection;
 using BA2Lib;
+using libbsa;
 
 namespace ModAssetMapper {
 
@@ -14,17 +15,30 @@ namespace ModAssetMapper {
     /// </summary>
     public partial class MainWindow : Window {
         BA2NET ba2 = new BA2NET();
+        BSANET bsa = new BSANET();
 
         public MainWindow() {
             InitializeComponent();
+        }
+
+        public void HandleBA2(IArchiveEntry entry) {
+            entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string bsaPath = rootPath + "\\bsas\\" + entry.Key;
+            if (ba2.Open(bsaPath)) {
+                string[] entries = ba2.GetNameTable();
+                for (int i = 0; i < entries.Length; i++) {
+                    textBlock.Inlines.Add(entry.Key + "\\" + entries[i] + "\n");
+                }
+            }
         }
 
         public void HandleBSA(IArchiveEntry entry) {
             entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string bsaPath = rootPath + "\\bsas\\" + entry.Key;
-            if (ba2.Open(bsaPath)) {
-                string[] entries = ba2.GetNameTable();
+            if (bsa.bsa_open(bsaPath) == 0) {
+                string[] entries = bsa.bsa_get_assets(".*");
                 for (int i = 0; i < entries.Length; i++) {
                     textBlock.Inlines.Add(entry.Key + "\\" + entries[i] + "\n");
                 }
@@ -38,8 +52,9 @@ namespace ModAssetMapper {
                     string entryPath = entry.Key;
                     textBlock.Inlines.Add(entryPath + "\n");
                     string ext = Path.GetExtension(entryPath);
-                    if ((String.Equals(ext, ".ba2", StringComparison.OrdinalIgnoreCase)) || 
-                        (String.Equals(ext, ".bsa", StringComparison.OrdinalIgnoreCase))) {
+                    if (String.Equals(ext, ".ba2", StringComparison.OrdinalIgnoreCase)) {
+                        HandleBA2(entry);
+                    } else if (String.Equals(ext, ".bsa", StringComparison.OrdinalIgnoreCase)) {
                         HandleBSA(entry);
                     }
                 }
