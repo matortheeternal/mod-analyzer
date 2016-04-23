@@ -1,14 +1,15 @@
-﻿<Window x:Class="ModAssetMapper.MainWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:ModAssetMapper"
-        mc:Ignorable="d"
-        Title="Mod Asset Mapper" Height="410" Width="800" MinWidth="410" MinHeight="410">
-    <Window.Resources>
+﻿<UserControl x:Class="ModAssetMapper.Views.WelcomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ModAssetMapper.Views"
+             mc:Ignorable="d"
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=WelcomeViewModel}">
+    <UserControl.Resources>
         <Color x:Key="PartiallyTransparent">#33000000</Color>
-    </Window.Resources>
+    </UserControl.Resources>
+
     <Grid Margin="0" Background="#FF292929">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="38*"/>
@@ -28,7 +29,7 @@
                 </LinearGradientBrush>
             </ScrollViewer.OpacityMask>
         </ScrollViewer>
-        <Button x:Name="browse_button" Content="Browse" Margin="315,187,0,0" VerticalAlignment="Top" Click="browse_button_Click" Height="32" FontSize="17.333" Foreground="#FFC3C3C3" BorderBrush="Black" MinWidth="75" MinHeight="32" HorizontalAlignment="Left" Grid.RowSpan="2" Grid.Column="1" Width="75">
+        <Button x:Name="browse_button" Content="Browse" Margin="315,187,0,0" VerticalAlignment="Top" Click="browse_button_Click" Height="32" FontSize="17.333" Foreground="#FFC3C3C3" BorderBrush="Black" MinWidth="75" MinHeight="32" HorizontalAlignment="Left" Grid.RowSpan="2" Grid.Column="1" Width="75" Command="{Binding BrowseCommand, Mode=OneTime}">
             <Button.Background>
                 <LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
                     <GradientStop Color="#FF3E3E3E"/>
@@ -48,4 +49,4 @@
             </Button.Background>
         </Button>
     </Grid>
-</Window>
+</UserControl>

@@ -11,8 +11,9 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Windows.Documents;
 using System.ComponentModel;
+using MahApps.Metro.Controls;
 
-namespace ModAssetMapper {
+namespace ModAssetMapper.Views {
 
     public class AssetFileList {
         public List<String> assets { get; set; }
@@ -25,13 +26,13 @@ namespace ModAssetMapper {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : Window {
+    public partial class MainView : MetroWindow {
         BA2NET ba2 = new BA2NET();
         BSANET bsa = new BSANET();
         AssetFileList list = new AssetFileList();
         int visibility_mode = 0;
 
-        public MainWindow() {
+        public MainView() {
             InitializeComponent();
         }
 
