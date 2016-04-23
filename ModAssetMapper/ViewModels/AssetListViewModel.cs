@@ -26,6 +26,8 @@ namespace ModAssetMapper.ViewModels
         public AssetListViewModel(AssetArchiveService assetArchiveService)
         {
             _assetArchiveService = assetArchiveService;
+
+            Assets = new ObservableCollection<string>();
         }
 
         private void LoadAssets()

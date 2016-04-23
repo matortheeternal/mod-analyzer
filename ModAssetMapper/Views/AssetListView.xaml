@@ -6,7 +6,9 @@
              xmlns:local="clr-namespace:ModAssetMapper.Views"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AssetListViewModel}">
-    <Grid>
-        <ListBox ItemsSource="{Binding Assets, Mode=OneWay}" />
-    </Grid>
+    <StackPanel Orientation="Vertical">
+        <Label Content="Assets" Style="{StaticResource DescriptionHeaderStyle}" />
+        <ListBox ItemsSource="{Binding Assets, Mode=OneWay}" BorderBrush="{DynamicResource AccentColorBrush}"
+                 BorderThickness="0 1 0 0"/>
+    </StackPanel>
 </UserControl>

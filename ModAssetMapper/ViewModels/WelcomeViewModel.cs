@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using ModAssetMapper.Messages;
-using SharpCompress.Archive;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -21,7 +20,7 @@ namespace ModAssetMapper.ViewModels
             OpenFileDialog openFileDialog = new OpenFileDialog
             {
                 Title = "Please select a file...",
-                Filter = "Zip File (*.zip)|*.zip|GZip (*.gzip)|*.gzip|Tar (*.tar)|*.tar|Rar (*.rar)|*.rar|7Zip (*.7z)|*.7z"
+                Filter = "Archive Files (*.zip, *.gzip, *.tar, *.rar, *.7z)|*.zip;*.gzip;*.tar;*.rar;*.7z"
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)

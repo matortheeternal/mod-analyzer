@@ -1,4 +1,7 @@
+using BA2Lib;
 using GalaSoft.MvvmLight.Ioc;
+using libbsa;
+using ModAssetMapper.Services;
 
 namespace ModAssetMapper.ViewModels
 {
@@ -8,6 +11,9 @@ namespace ModAssetMapper.ViewModels
         {
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<WelcomeViewModel>();
+            SimpleIoc.Default.Register<BA2NET>();
+            SimpleIoc.Default.Register<BSANET>();
+            SimpleIoc.Default.Register<AssetArchiveService>();
             SimpleIoc.Default.Register<AssetListViewModel>();
         }
 
