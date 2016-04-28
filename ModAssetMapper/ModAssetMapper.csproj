@@ -113,6 +113,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="lib\BA2Lib.dll" />
+    <Content Include="lib\libbsa.dll" />
+    <Content Include="lib\ModDumpLib.dll" />
     <Resource Include="mod-picker256.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

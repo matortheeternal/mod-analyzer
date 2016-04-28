@@ -10,10 +10,9 @@ using libbsa;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Windows.Documents;
-using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace ModAssetMapper {
-
     public class AssetFileList {
         public List<String> assets { get; set; }
         public AssetFileList() {
@@ -21,11 +20,32 @@ namespace ModAssetMapper {
         }
     }
 
+    public static class ModDump {
+        /// <summary>
+        /// Linking Delphi DLL for dumping plugins
+        /// </summary>
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern void StartModDump();
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern void EndModDump();
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern string GetBuffer();
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern void SetGameMode(int mode);
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern bool Prepare(string FilePath);
+        [DllImport(@"ModDumpLib.dll")]
+        public static extern bool Dump();
+    }
+
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window {
+
+        // link to BA2Net
+        // link to BSANet
         BA2NET ba2 = new BA2NET();
         BSANET bsa = new BSANET();
         AssetFileList list = new AssetFileList();
@@ -33,6 +53,13 @@ namespace ModAssetMapper {
 
         public MainWindow() {
             InitializeComponent();
+            ModDump.StartModDump();
+        }
+
+        ~MainWindow() {
+            ba2.Dispose();
+            bsa.bsa_close();
+            ModDump.EndModDump();
         }
 
         public void HandleBA2(IArchiveEntry entry) {
@@ -62,6 +89,30 @@ namespace ModAssetMapper {
                     list.assets.Add(entryPath);
                 }
             }
+        }
+
+        public void HandlePlugin(IArchiveEntry entry) {
+            entry.WriteToDirectory(@".\\Skyrim", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string pluginPath = "Skyrim\\" + entry.Key;
+            //TODO: This should be dynamic
+            ModDump.SetGameMode(1);
+
+            // prepare plugin file for dumping
+            if (!ModDump.Prepare(pluginPath)) {
+                LogMessage(ModDump.GetBuffer());
+                return;
+            }
+
+            // dump the plugin file
+            if (!ModDump.Dump()) {
+                LogMessage(ModDump.GetBuffer());
+                return;
+            }
+
+            // log the results
+            // TODO: This should be handled better.
+            LogMessage(ModDump.GetBuffer());
         }
 
         public void LogMessage(string message) {
@@ -97,6 +148,14 @@ namespace ModAssetMapper {
                         ProgressMessage("Extracting BSA at " + entryPath);
                         HandleBSA(entry);
                         ProgressMessage("Analyzing archive entries...");
+                    } else if (String.Equals(ext, ".esp", StringComparison.OrdinalIgnoreCase)) {
+                        ProgressMessage("Extracting ESP at " + entryPath);
+                        HandlePlugin(entry);
+                        ProgressMessage("Analyzing plugin file...");
+                    } else if (String.Equals(ext, ".esm", StringComparison.OrdinalIgnoreCase)) {
+                        ProgressMessage("Extracting ESM at " + entryPath);
+                        HandlePlugin(entry);
+                        ProgressMessage("Analyzing plugin file...");
                     }
                 }
             }
