@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Windows.Documents;
 using System.Runtime.InteropServices;
 
-namespace ModAssetMapper {
+namespace ModAnalyzer {
     public class AssetFileList {
         public List<String> assets { get; set; }
         public AssetFileList() {
