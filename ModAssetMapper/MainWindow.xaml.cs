@@ -50,16 +50,23 @@ namespace ModAssetMapper {
         BSANET bsa = new BSANET();
         AssetFileList list = new AssetFileList();
         int visibility_mode = 0;
+        int gameMode = 1;
+        string DataPath;
 
         public MainWindow() {
             InitializeComponent();
             ModDump.StartModDump();
+            GetDataPath();
         }
 
         ~MainWindow() {
             ba2.Dispose();
             bsa.bsa_close();
             ModDump.EndModDump();
+        }
+
+        public void GetDataPath() {
+            DataPath = "C:\\SteamLibrary\\steamapps\\common\\Skyrim\\data\\";
         }
 
         public void HandleBA2(IArchiveEntry entry) {
@@ -92,11 +99,14 @@ namespace ModAssetMapper {
         }
 
         public void HandlePlugin(IArchiveEntry entry) {
-            entry.WriteToDirectory(@".\\Skyrim", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string pluginPath = "Skyrim\\" + entry.Key;
+            string pluginPath = DataPath + entry.Key;
+            bool deleteAfter = false;
+            if (!File.Exists(pluginPath)) {
+                deleteAfter = true;
+                entry.WriteToDirectory(DataPath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            }
             //TODO: This should be dynamic
-            ModDump.SetGameMode(1);
+            ModDump.SetGameMode(gameMode);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(pluginPath)) {
@@ -113,6 +123,10 @@ namespace ModAssetMapper {
             // log the results
             // TODO: This should be handled better.
             LogMessage(ModDump.GetBuffer());
+
+            if (deleteAfter) {
+                File.Delete(pluginPath);
+            }
         }
 
         public void LogMessage(string message) {
