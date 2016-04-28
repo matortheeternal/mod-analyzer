@@ -122,7 +122,7 @@ namespace ModAssetMapper {
 
             // log the results
             // TODO: This should be handled better.
-            LogMessage(ModDump.GetBuffer());
+            //LogMessage(ModDump.GetBuffer());
 
             if (deleteAfter) {
                 File.Delete(pluginPath);
