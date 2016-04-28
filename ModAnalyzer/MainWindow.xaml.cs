@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Windows.Documents;
 using System.Runtime.InteropServices;
+using System.Text;
 
 namespace ModAnalyzer {
     public class AssetFileList {
@@ -28,11 +29,11 @@ namespace ModAnalyzer {
         public static extern void StartModDump();
         [DllImport(@"ModDumpLib.dll")]
         public static extern void EndModDump();
-        [DllImport(@"ModDumpLib.dll")]
-        public static extern string GetBuffer();
+        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern void GetBuffer(StringBuilder str, int len);
         [DllImport(@"ModDumpLib.dll")]
         public static extern void SetGameMode(int mode);
-        [DllImport(@"ModDumpLib.dll")]
+        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern bool Prepare(string FilePath);
         [DllImport(@"ModDumpLib.dll")]
         public static extern bool Dump();
@@ -107,22 +108,26 @@ namespace ModAnalyzer {
             }
             //TODO: This should be dynamic
             ModDump.SetGameMode(gameMode);
+            StringBuilder msg = new StringBuilder(4096);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(pluginPath)) {
-                LogMessage(ModDump.GetBuffer());
+                ModDump.GetBuffer(msg, msg.Capacity);
+                LogMessage(msg.ToString());
                 return;
             }
 
             // dump the plugin file
             if (!ModDump.Dump()) {
-                LogMessage(ModDump.GetBuffer());
+                ModDump.GetBuffer(msg, msg.Capacity);
+                LogMessage(msg.ToString());
                 return;
             }
 
             // log the results
             // TODO: This should be handled better.
-            //LogMessage(ModDump.GetBuffer());
+            ModDump.GetBuffer(msg, msg.Capacity);
+            LogMessage(msg.ToString());
 
             if (deleteAfter) {
                 File.Delete(pluginPath);
