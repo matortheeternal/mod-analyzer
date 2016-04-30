@@ -270,9 +270,10 @@ namespace ModAnalyzer {
                 GetEntryMap(openFileDialog.FileName);
 
                 // write entry file tree to json file
-                String filename = Path.GetFileNameWithoutExtension(openFileDialog.FileName);
+                string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                String filename = rootPath + "\\" + Path.GetFileNameWithoutExtension(openFileDialog.FileName);
                 loading_label.Content = "Saving JSON to " + filename + ".json...";
-                File.WriteAllText(@".\" + filename + ".json", JsonConvert.SerializeObject(list));
+                File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(analysis));
                 loading_label.Content = "All done.  JSON file saved to "+ filename + ".json";
             }
         }
