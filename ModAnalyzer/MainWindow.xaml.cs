@@ -58,7 +58,6 @@ namespace ModAnalyzer {
 
     public class ModAnalysis {
         public List<String> assets { get; set; }
-        public AssetFileList() {
         public List<PluginDump> plugins { get; set; }
         public ModAnalysis() {
             assets = new List<string>();
@@ -77,11 +76,13 @@ namespace ModAnalyzer {
         [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern void GetBuffer(StringBuilder str, int len);
         [DllImport(@"ModDumpLib.dll")]
+        public static extern void FlushBuffer();
+        [DllImport(@"ModDumpLib.dll")]
         public static extern void SetGameMode(int mode);
         [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern bool Prepare(string FilePath);
-        [DllImport(@"ModDumpLib.dll")]
-        public static extern bool Dump();
+        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool Dump(StringBuilder str, int len);
     }
 
 
@@ -94,7 +95,7 @@ namespace ModAnalyzer {
         // link to BSANet
         BA2NET ba2 = new BA2NET();
         BSANET bsa = new BSANET();
-        AssetFileList list = new AssetFileList();
+        ModAnalysis analysis = new ModAnalysis();
         int visibility_mode = 0;
         int gameMode = 1;
         string DataPath;
@@ -125,7 +126,7 @@ namespace ModAnalyzer {
                 for (int i = 0; i < entries.Length; i++) {
                     String entryPath = entry.Key + "\\" + entries[i];
                     LogMessage(entryPath);
-                    list.assets.Add(entryPath);
+                    analysis.assets.Add(entryPath);
                 }
             }
         }
@@ -139,7 +140,7 @@ namespace ModAnalyzer {
                 for (int i = 0; i < entries.Length; i++) {
                     String entryPath = entry.Key + "\\" + entries[i];
                     LogMessage(entryPath);
-                    list.assets.Add(entryPath);
+                    analysis.assets.Add(entryPath);
                 }
             }
         }
@@ -201,7 +202,7 @@ namespace ModAnalyzer {
                 // for non-directory entries, store the 
                 if (!entry.IsDirectory) {
                     string entryPath = entry.Key;
-                    list.assets.Add(entryPath);
+                    analysis.assets.Add(entryPath);
                     LogMessage(entryPath);
                     string ext = Path.GetExtension(entryPath);
                     if (String.Equals(ext, ".ba2", StringComparison.OrdinalIgnoreCase)) {
@@ -271,7 +272,8 @@ namespace ModAnalyzer {
         }
 
         private void reset_button_Click(object sender, RoutedEventArgs e) {
-            list.assets.Clear();
+            analysis.assets.Clear();
+            analysis.plugins.Clear();
             textBlock.Text = "";
             toggleControlVisibility();
         }
