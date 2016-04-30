@@ -16,13 +16,13 @@ using System.Text;
 namespace ModAnalyzer {
     public class PluginRecordGroup {
         public string sig { get; set; }
-        public int new_records { get; set; }
-        public int override_records { get; set; }
+        public int record_count { get; set; }
+        public int override_count { get; set; }
     }
 
     public class OverrideRecord {
-        public string formid { get; set; }
-        public string signature { get; set; }
+        public string fid { get; set; }
+        public string sig { get; set; }
     }
 
     public class PluginError {
@@ -40,8 +40,8 @@ namespace ModAnalyzer {
         public string author { get; set; }
         public string crc_hash { get; set; }
         public string file_size { get; set; }
-        public string new_records { get; set; }
-        public string override_records { get; set; }
+        public string record_count { get; set; }
+        public string override_count { get; set; }
         public List<String> masters { get; set; }
         public List<String> dummy_masters { get; set; }
         public List<PluginRecordGroup> plugin_record_groups { get; set; }
