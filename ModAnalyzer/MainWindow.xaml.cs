@@ -164,11 +164,17 @@ namespace ModAnalyzer {
             }
 
             // dump the plugin file
-            if (!ModDump.Dump()) {
+            int maxDumpSize = 4 * 1024 * 1024; // 4MB maximum dump size
+            StringBuilder json = new StringBuilder(maxDumpSize);
+            if (!ModDump.Dump(json, maxDumpSize)) {
                 ModDump.GetBuffer(msg, msg.Capacity);
                 LogMessage(msg.ToString());
                 return;
             }
+
+            // deserialize the json
+            PluginDump pd = JsonConvert.DeserializeObject<PluginDump>(json.ToString());
+            analysis.plugins.Add(pd);
 
             // log the results
             // TODO: This should be handled better.
