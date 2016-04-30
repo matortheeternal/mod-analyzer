@@ -181,12 +181,12 @@ namespace ModAnalyzer {
         }
 
         public void LogMessage(string message) {
-            if (textBlock.Inlines.Count == 0) {
+            //if (textBlock.Inlines.Count == 0) {
                 textBlock.Inlines.Add(message + "\n");
-            }
-            else {
-                textBlock.Inlines.InsertBefore(textBlock.Inlines.FirstInline, new Run(message + "\n"));
-            }
+            //}
+            //else {
+            //    textBlock.Inlines.InsertBefore(textBlock.Inlines.FirstInline, new Run(message + "\n"));
+            //}
         }
 
         public void ProgressMessage(string message) {
