@@ -14,10 +14,55 @@ using System.Runtime.InteropServices;
 using System.Text;
 
 namespace ModAnalyzer {
-    public class AssetFileList {
+    public class PluginRecordGroup {
+        public string sig { get; set; }
+        public int new_records { get; set; }
+        public int override_records { get; set; }
+    }
+
+    public class OverrideRecord {
+        public string formid { get; set; }
+        public string signature { get; set; }
+    }
+
+    public class PluginError {
+        public int type { get; set; }
+        public string signature { get; set; }
+        public string form_id { get; set; }
+        public string name { get; set; }
+        public string path { get; set; }
+        public string data { get; set; }
+    }
+
+    public class PluginDump {
+        public string filename { get; set; }
+        public string description { get; set; }
+        public string author { get; set; }
+        public string crc_hash { get; set; }
+        public string file_size { get; set; }
+        public string new_records { get; set; }
+        public string override_records { get; set; }
+        public List<String> masters { get; set; }
+        public List<String> dummy_masters { get; set; }
+        public List<PluginRecordGroup> plugin_record_groups { get; set; }
+        public List<OverrideRecord> overrides { get; set; }
+        public List<PluginError> plugin_errors { get; set; }
+        public PluginDump() {
+            masters = new List<string>();
+            dummy_masters = new List<string>();
+            plugin_record_groups = new List<PluginRecordGroup>();
+            overrides = new List<OverrideRecord>();
+            plugin_errors = new List<PluginError>();
+        }
+    }
+
+    public class ModAnalysis {
         public List<String> assets { get; set; }
         public AssetFileList() {
+        public List<PluginDump> plugins { get; set; }
+        public ModAnalysis() {
             assets = new List<string>();
+            plugins = new List<PluginDump>();
         }
     }
 
