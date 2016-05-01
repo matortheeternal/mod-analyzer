@@ -207,7 +207,7 @@ namespace ModAnalyzer {
             foreach (var entry in archive.Entries) {
                 // for non-directory entries, store the 
                 if (!entry.IsDirectory) {
-                    string entryPath = entry.Key;
+                    string entryPath = entry.Key.Replace('/', '\\');
                     analysis.assets.Add(entryPath);
                     LogMessage(entryPath);
                     string ext = Path.GetExtension(entryPath);
