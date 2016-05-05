@@ -1,19 +1,19 @@
-﻿using Microsoft.Win32;
+﻿using BA2Lib;
+using libbsa;
+using Microsoft.Win32;
+using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
-using System.IO;
-using System.Windows;
-using System.Reflection;
-using BA2Lib;
-using libbsa;
-using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Windows.Documents;
+using System.IO;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows;
 
-namespace ModAnalyzer {
+namespace ModAnalyzer
+{
     public class PluginRecordGroup {
         public string sig { get; set; }
         public int record_count { get; set; }
