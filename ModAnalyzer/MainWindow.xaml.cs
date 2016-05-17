@@ -21,7 +21,7 @@ namespace ModAnalyzer
     }
 
     public class OverrideRecord {
-        public string fid { get; set; }
+        public int fid { get; set; }
         public string sig { get; set; }
     }
 
