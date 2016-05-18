@@ -42,13 +42,13 @@ namespace ModAnalyzer
         public string file_size { get; set; }
         public string record_count { get; set; }
         public string override_count { get; set; }
-        public List<String> masters { get; set; }
+        public List<String> master_filenames { get; set; }
         public List<String> dummy_masters { get; set; }
         public List<PluginRecordGroup> plugin_record_groups { get; set; }
         public List<OverrideRecord> overrides { get; set; }
         public List<PluginError> plugin_errors { get; set; }
         public PluginDump() {
-            masters = new List<string>();
+            master_filenames = new List<string>();
             dummy_masters = new List<string>();
             plugin_record_groups = new List<PluginRecordGroup>();
             overrides = new List<OverrideRecord>();
