@@ -26,7 +26,7 @@ namespace ModAnalyzer
     }
 
     public class PluginError {
-        public int type { get; set; }
+        public int group { get; set; }
         public string signature { get; set; }
         public int form_id { get; set; }
         public string name { get; set; }
