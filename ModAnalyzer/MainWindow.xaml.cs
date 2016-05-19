@@ -154,7 +154,7 @@ namespace ModAnalyzer
             }
             //TODO: This should be dynamic
             ModDump.SetGameMode(gameMode);
-            StringBuilder msg = new StringBuilder(4096);
+            StringBuilder msg = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(pluginPath)) {
