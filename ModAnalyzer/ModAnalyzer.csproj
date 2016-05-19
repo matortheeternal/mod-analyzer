@@ -127,9 +127,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\BA2Lib.dll" />
-    <Content Include="lib\libbsa.dll" />
-    <Content Include="lib\ModDumpLib.dll" />
+    <Content Include="lib\BA2Lib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\libbsa.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="lib\ModDumpLib.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="mod-picker256.png" />
   </ItemGroup>
   <ItemGroup>

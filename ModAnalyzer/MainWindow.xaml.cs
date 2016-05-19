@@ -69,19 +69,19 @@ namespace ModAnalyzer
         /// <summary>
         /// Linking Delphi DLL for dumping plugins
         /// </summary>
-        [DllImport(@"ModDumpLib.dll")]
+        [DllImport(@"lib\ModDumpLib.dll")]
         public static extern void StartModDump();
-        [DllImport(@"ModDumpLib.dll")]
+        [DllImport(@"lib\ModDumpLib.dll")]
         public static extern void EndModDump();
-        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        [DllImport(@"lib\ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern void GetBuffer(StringBuilder str, int len);
-        [DllImport(@"ModDumpLib.dll")]
+        [DllImport(@"lib\ModDumpLib.dll")]
         public static extern void FlushBuffer();
-        [DllImport(@"ModDumpLib.dll")]
+        [DllImport(@"lib\ModDumpLib.dll")]
         public static extern void SetGameMode(int mode);
-        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        [DllImport(@"lib\ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern bool Prepare(string FilePath);
-        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        [DllImport(@"lib\ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern bool Dump(StringBuilder str, int len);
     }
 
