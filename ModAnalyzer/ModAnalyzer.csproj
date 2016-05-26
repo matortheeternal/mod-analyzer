@@ -114,6 +114,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="MasterPlugin.cs" />
     <Compile Include="ModAnalysis.cs" />
     <Compile Include="ModDump.cs" />
     <Compile Include="OverrideRecord.cs" />
