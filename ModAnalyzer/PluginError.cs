@@ -2,11 +2,11 @@
 {
     public class PluginError
     {
-        public int Group { get; set; }
-        public string Signature { get; set; }
-        public int Form_Id { get; set; }
-        public string Name { get; set; }
-        public string Path { get; set; }
-        public string Data { get; set; }
+        public int group { get; set; }
+        public string signature { get; set; }
+        public int form_Id { get; set; }
+        public string name { get; set; }
+        public string path { get; set; }
+        public string data { get; set; }
     }
 }

@@ -4,13 +4,13 @@ namespace ModAnalyzer
 {
     public class ModAnalysis
     {
-        public List<string> Assets { get; set; }
-        public List<PluginDump> Plugins { get; set; }
+        public List<string> assets { get; set; }
+        public List<PluginDump> plugins { get; set; }
 
         public ModAnalysis()
         {
-            Assets = new List<string>();
-            Plugins = new List<PluginDump>();
+            assets = new List<string>();
+            plugins = new List<PluginDump>();
         }
     }
 }

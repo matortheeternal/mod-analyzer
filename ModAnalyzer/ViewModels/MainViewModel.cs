@@ -92,7 +92,7 @@ namespace ModAnalyzer.ViewModels
                     continue;
 
                 string entryPath = entry.Key.Replace('/', '\\');
-                _modAnalysis.Assets.Add(entryPath);
+                _modAnalysis.assets.Add(entryPath);
 
                 LogMessages.Add(entryPath);
 
@@ -136,7 +136,7 @@ namespace ModAnalyzer.ViewModels
                 for (int i = 0; i < entries.Length; i++)
                 {
                     string entryPath = entry.Key + "\\" + entries[i];
-                    _modAnalysis.Assets.Add(entryPath);
+                    _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
                 }
             }
@@ -155,7 +155,7 @@ namespace ModAnalyzer.ViewModels
                 for (int i = 0; i < entries.Length; i++)
                 {
                     string entryPath = entry.Key + "\\" + entries[i];
-                    _modAnalysis.Assets.Add(entryPath);
+                    _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
                 }
             }
@@ -198,7 +198,7 @@ namespace ModAnalyzer.ViewModels
             }
             
             PluginDump pluginDump = JsonConvert.DeserializeObject<PluginDump>(json.ToString());
-            _modAnalysis.Plugins.Add(pluginDump);
+            _modAnalysis.plugins.Add(pluginDump);
 
             // log the results
             // TODO: This should be handled better.

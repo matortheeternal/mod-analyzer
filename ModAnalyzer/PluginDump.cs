@@ -3,28 +3,25 @@ using System.Collections.Generic;
 
 namespace ModAnalyzer
 {
-    public class PluginDump
-    {
-        public string FileName { get; set; }
-        public string Description { get; set; }
-        public string Author { get; set; }
-        public string CRC_Hash { get; set; }
-        public string File_Size { get; set; }
-        public string Record_Count { get; set; }
-        public string Override_Count { get; set; }
-        public List<String> Master_FileName { get; set; }
-        public List<String> Dummy_Masters { get; set; }
-        public List<PluginRecordGroup> Plugin_Record_Groups { get; set; }
-        public List<OverrideRecord> Overrides { get; set; }
-        public List<PluginError> Plugin_Errors { get; set; }
-
-        public PluginDump()
-        {
-            Master_FileName = new List<string>();
-            Dummy_Masters = new List<string>();
-            Plugin_Record_Groups = new List<PluginRecordGroup>();
-            Overrides = new List<OverrideRecord>();
-            Plugin_Errors = new List<PluginError>();
+    public class PluginDump {
+        public string filename { get; set; }
+        public string description { get; set; }
+        public string author { get; set; }
+        public string crc_hash { get; set; }
+        public string file_size { get; set; }
+        public string record_count { get; set; }
+        public string override_count { get; set; }
+        public List<String> dummy_masters { get; set; }
+        public List<MasterPlugin> master_plugins { get; set; }
+        public List<PluginRecordGroup> plugin_record_groups { get; set; }
+        public List<OverrideRecord> overrides { get; set; }
+        public List<PluginError> plugin_errors { get; set; }
+        public PluginDump() {
+            dummy_masters = new List<string>();
+            master_plugins = new List<MasterPlugin>();
+            plugin_record_groups = new List<PluginRecordGroup>();
+            overrides = new List<OverrideRecord>();
+            plugin_errors = new List<PluginError>();
         }
     }
 }
