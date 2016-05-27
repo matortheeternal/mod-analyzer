@@ -70,13 +70,13 @@ namespace ModAnalyzer.ViewModels
                 //textBlock.Text = "";
                 
                 GetEntryMap(openFileDialog.FileName);
-                
-                string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                String filename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(openFileDialog.FileName));
 
-                ProgressMessage = "Saving JSON to " + filename + ".json...";
-                File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-                ProgressMessage = "All done.  JSON file saved to "+ filename + ".json";
+                string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                String dumpFilename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(openFileDialog.FileName)) + ".json";
+
+                ProgressMessage = "Saving JSON to " + dumpFilename + "...";
+                File.WriteAllText(dumpFilename, JsonConvert.SerializeObject(_modAnalysis));
+                ProgressMessage = "All done.  JSON file saved to "+ dumpFilename;
             }
         }
 
@@ -147,7 +147,7 @@ namespace ModAnalyzer.ViewModels
             entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string bsaPath = Path.Combine(rootPath, @"\bsas\", entry.Key);
+            string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
 
             if (_bsaManager.bsa_open(bsaPath) == 0)
             {
@@ -163,15 +163,15 @@ namespace ModAnalyzer.ViewModels
 
         public void HandlePlugin(IArchiveEntry entry)
         {
-            string dataPath = @"C:\SteamLibrary\steamapps\common\Skyrim\data";
-
-            string pluginPath = Path.Combine(dataPath, entry.Key);
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string pluginsPath = Path.Combine(rootPath, "plugins");
+            string pluginPath = Path.Combine(rootPath, "plugins", entry.Key);
 
             bool deleteAfter = false;
             if (!File.Exists(pluginPath))
             {
                 deleteAfter = true;
-                entry.WriteToDirectory(dataPath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+                entry.WriteToDirectory(pluginsPath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
             }
 
             //TODO: This should be dynamic
