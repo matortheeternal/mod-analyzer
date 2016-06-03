@@ -1,0 +1,24 @@
+﻿<UserControl x:Class="ModAnalyzer.Views.HomeView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ModAnalyzer.Views"
+             mc:Ignorable="d">
+    <Grid>
+        <DockPanel LastChildFill="True" HorizontalAlignment="Center">
+            <StatusBar VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}">
+                <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
+            </StatusBar>
+
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+                <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
+
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                    <Label Content="Drag and drop a mod archive or" FontSize="16" />
+                    <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
+                </StackPanel>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</UserControl>

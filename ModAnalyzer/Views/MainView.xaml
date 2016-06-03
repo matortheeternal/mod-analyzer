@@ -13,23 +13,5 @@
         Title="Mod Asset Mapper" 
         Height="410" Width="800" MinWidth="410" MinHeight="410"
         DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}">
-    <Window.Resources>
-        <Color x:Key="PartiallyTransparent">#33000000</Color>
-    </Window.Resources>
-    <DockPanel LastChildFill="True" HorizontalAlignment="Center">
-        <StatusBar VerticalAlignment="Bottom" DockPanel.Dock="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}">
-            <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
-        </StatusBar>
-
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-            <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
-
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                <Label Content="Drag and drop a mod archive or" FontSize="16" />
-                <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
-            </StackPanel>
-
-            <ListBox ItemsSource="{Binding LogMessages, Mode=OneWay}" />
-        </StackPanel>
-    </DockPanel>
+    
 </Window>
