@@ -1,6 +1,8 @@
 ﻿using BA2Lib;
 using GalaSoft.MvvmLight;
 using libbsa;
+using ModAnalyzer.Domain;
+using ModAnalyzer.Messages;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
@@ -28,6 +30,27 @@ namespace ModAnalyzer.ViewModels
             ModDump.StartModDump();
 
             LogMessages = new ObservableCollection<string>();
+
+            MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
+        }
+
+        private void SendProgressMessage(string message)
+        {
+            MessengerInstance.Send(new ProgressMessage(message));
+        }
+
+        private void OnFileSelectedMessage(FileSelectedMessage message)
+        {
+            LogMessages.Clear();
+
+            GetEntryMap(message.FilePath);
+
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string filename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(message.FilePath));
+
+            SendProgressMessage("Saving JSON to " + filename + ".json...");
+            File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
+            SendProgressMessage("All done.  JSON file saved to " + filename + ".json");
         }
 
         ~AnalysisViewModel()
@@ -41,7 +64,7 @@ namespace ModAnalyzer.ViewModels
         {
             IArchive archive = ArchiveFactory.Open(@path);
 
-            ProgressMessage = "Analyzing archive entries...";
+            SendProgressMessage("Analyzing archive entries...");
 
             foreach (IArchiveEntry entry in archive.Entries)
             {
@@ -58,20 +81,20 @@ namespace ModAnalyzer.ViewModels
                 switch (extension)
                 {
                     case ".BA2":
-                        ProgressMessage = "Extracting BA2 at " + entryPath;
+                        SendProgressMessage("Extracting BA2 at " + entryPath); 
                         HandleBA2(entry);
-                        ProgressMessage = "Analyzing archive entries...";
+                        SendProgressMessage("Analyzing archive entries...");
                         break;
                     case ".BSA":
-                        ProgressMessage = "Extracting BSA at " + entryPath;
+                        SendProgressMessage("Extracting BSA at " + entryPath);
                         HandleBSA(entry);
-                        ProgressMessage = "Analyzing archive entries...";
+                        SendProgressMessage("Analyzing archive entries..."); 
                         break;
                     case ".ESP":
                     case ".ESM":
-                        ProgressMessage = "Extracting " + extension + " at " + entryPath;
+                        SendProgressMessage("Extracting " + extension + " at " + entryPath);
                         HandlePlugin(entry);
-                        ProgressMessage = "Analyzing plugin file...";
+                        SendProgressMessage("Analyzing plugin file...");
                         break;
                 }
             }
@@ -81,7 +104,7 @@ namespace ModAnalyzer.ViewModels
         {
             entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
 
-            ProgressMessage = "BSA extracted, Analyzing entries...";
+            SendProgressMessage("BSA extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string ba2Path = Path.Combine(rootPath, @"\bsas\", entry.Key);

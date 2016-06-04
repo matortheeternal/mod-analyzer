@@ -1,4 +1,4 @@
-﻿namespace ModAnalyzer
+﻿namespace ModAnalyzer.Domain
 {
     public class PluginRecordGroup
     {

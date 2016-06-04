@@ -1,5 +1,6 @@
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using ModAnalyzer.Messages;
 using Newtonsoft.Json;
 using System;
 using System.IO;
@@ -24,6 +25,8 @@ namespace ModAnalyzer.ViewModels
         public MainViewModel()
         {
             BrowseCommand = new RelayCommand(Browse);
+
+            MessengerInstance.Register<string>(this, message => ProgressMessage = message);
         }
         
         private void Browse()
@@ -32,27 +35,10 @@ namespace ModAnalyzer.ViewModels
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
-                // toggle control visibility
-                //toggleControlVisibility();
-
-                LogMessages.Clear();
-                
                 ProgressMessage = "Loading " + openFileDialog.FileName + "...";
 
-                // reset listing to empty
-                //textBlock.Text = "";
-                
-                GetEntryMap(openFileDialog.FileName);
-                
-                string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                String filename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(openFileDialog.FileName));
-
-                ProgressMessage = "Saving JSON to " + filename + ".json...";
-                File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-                ProgressMessage = "All done.  JSON file saved to "+ filename + ".json";
+                MessengerInstance.Send(new FileSelectedMessage(openFileDialog.FileName));
             }
         }
-
-        
     }
 }

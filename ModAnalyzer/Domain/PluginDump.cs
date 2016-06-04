@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ModAnalyzer
+namespace ModAnalyzer.Domain
 {
     public class PluginDump
     {
