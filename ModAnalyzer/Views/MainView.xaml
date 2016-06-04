@@ -3,6 +3,9 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:viewModels="clr-namespace:ModAnalyzer.ViewModels"
+        xmlns:views="clr-namespace:ModAnalyzer.Views"
         xmlns:local="clr-namespace:ModAssetMapper"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
@@ -13,5 +16,20 @@
         Title="Mod Asset Mapper" 
         Height="410" Width="800" MinWidth="410" MinHeight="410"
         DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}">
-    
+    <Window.Resources>
+        <DataTemplate DataType="{x:Type viewModels:AnalysisViewModel}">
+            <views:AnalysisView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">
+            <views:HomeView />
+        </DataTemplate>
+    </Window.Resources>
+
+    <DockPanel>
+        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Bottom">
+            <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
+        </StatusBar>
+
+        <ContentControl Content="{Binding CurrentViewModel, Mode=TwoWay}" />
+    </DockPanel>
 </Window>

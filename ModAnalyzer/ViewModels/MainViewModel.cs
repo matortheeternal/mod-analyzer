@@ -1,19 +1,13 @@
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.CommandWpf;
 using ModAnalyzer.Messages;
-using Newtonsoft.Json;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Windows.Forms;
-using System.Windows.Input;
+using ModAssetMapper;
 
 namespace ModAnalyzer.ViewModels
 {
     public class MainViewModel : ViewModelBase
     {
-        public ICommand BrowseCommand { get; set; }
-        
+        private readonly ViewModelLocator _viewModelLocator;
+
         private string _progressMessage;
 
         public string ProgressMessage
@@ -22,23 +16,23 @@ namespace ModAnalyzer.ViewModels
             set { Set(nameof(ProgressMessage), ref _progressMessage, value); }
         }
 
-        public MainViewModel()
-        {
-            BrowseCommand = new RelayCommand(Browse);
+        private ViewModelBase _currentViewModel;
 
-            MessengerInstance.Register<string>(this, message => ProgressMessage = message);
+        public ViewModelBase CurrentViewModel
+        {
+            get { return _currentViewModel; }
+            set { Set(nameof(CurrentViewModel), ref _currentViewModel, value); }
         }
         
-        private void Browse()
+        public MainViewModel()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select a mod archive", Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar" };
+            _viewModelLocator = (ViewModelLocator)App.Current.Resources["ViewModelLocator"];
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-            {
-                ProgressMessage = "Loading " + openFileDialog.FileName + "...";
+            CurrentViewModel = _viewModelLocator.AnalysisViewModel;
+            CurrentViewModel = _viewModelLocator.HomeViewModel;
 
-                MessengerInstance.Send(new FileSelectedMessage(openFileDialog.FileName));
-            }
+            MessengerInstance.Register<FileSelectedMessage>(this, message => CurrentViewModel = _viewModelLocator.AnalysisViewModel);
+            MessengerInstance.Register<ProgressMessage>(this, message => ProgressMessage = message.Message);
         }
     }
 }

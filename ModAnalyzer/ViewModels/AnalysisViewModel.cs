@@ -43,6 +43,8 @@ namespace ModAnalyzer.ViewModels
         {
             LogMessages.Clear();
 
+            SendProgressMessage("Loading " + message.FilePath + "...");
+
             GetEntryMap(message.FilePath);
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
