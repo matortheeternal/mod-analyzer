@@ -193,9 +193,7 @@
     <Content Include="lib\libbsa.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\ModDumpLib.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="ModDumpLib.dll" />
     <Resource Include="Views\mod-picker256.png" />
   </ItemGroup>
   <ItemGroup>
