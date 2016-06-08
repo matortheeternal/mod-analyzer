@@ -117,14 +117,15 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void HandleBA2(IArchiveEntry entry)
+        public void HandleBA2(IArchiveEntry entry) 
         {
+            Directory.CreateDirectory(@".\\bsas");
             entry.WriteToDirectory(@".\\bsas", ExtractOptions.Overwrite);
 
             ProgressMessage = "BSA extracted, Analyzing entries...";
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string ba2Path = Path.Combine(rootPath, @"\bsas\", Path.GetFileName(entry.Key));
+            string ba2Path = Path.Combine(rootPath, @"\\bsas\\", Path.GetFileName(entry.Key));
 
             if (_ba2Manager.Open(ba2Path))
             {
@@ -141,6 +142,7 @@ namespace ModAnalyzer.ViewModels
 
         public void HandleBSA(IArchiveEntry entry)
         {
+            Directory.CreateDirectory(@".\\bsas");
             entry.WriteToDirectory(@".\\bsas", ExtractOptions.Overwrite);
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -162,6 +164,7 @@ namespace ModAnalyzer.ViewModels
         {
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string pluginsPath = Path.Combine(rootPath, "plugins");
+            Directory.CreateDirectory(pluginsPath);
             string pluginPath = Path.Combine(rootPath, "plugins", Path.GetFileName(entry.Key));
 
             bool deleteAfter = false;
