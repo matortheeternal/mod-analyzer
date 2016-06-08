@@ -29,8 +29,6 @@ namespace ModAnalyzer.ViewModels
             
             GameService.game = GameService.getGame("Skyrim");
 
-            ModDump.StartModDump();
-
             LogMessages = new ObservableCollection<string>();
 
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
@@ -61,7 +59,6 @@ namespace ModAnalyzer.ViewModels
         {
             _ba2Manager.Dispose();
             _bsaManager.bsa_close();
-            ModDump.EndModDump();
         }
 
         private void GetEntryMap(string path)
