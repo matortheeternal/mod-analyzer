@@ -26,8 +26,11 @@ namespace ModAnalyzer.ViewModels
             _ba2Manager = new BA2NET();
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
-            
+
+            // set game mode to Skyrim
+            // TODO: Make this dynamic from GUI
             GameService.game = GameService.getGame("Skyrim");
+            ModDump.SetGameMode(GameService.game.gameMode);
 
             LogMessages = new ObservableCollection<string>();
 
@@ -82,20 +85,22 @@ namespace ModAnalyzer.ViewModels
                 switch (extension)
                 {
                     case ".BA2":
-                        SendProgressMessage("Extracting BA2 at " + entryPath); 
+                        SendProgressMessage("Extracting BA2 at " + entryPath);
                         HandleBA2(entry);
-                        SendProgressMessage("Analyzing archive entries...");
                         break;
                     case ".BSA":
                         SendProgressMessage("Extracting BSA at " + entryPath);
                         HandleBSA(entry);
-                        SendProgressMessage("Analyzing archive entries..."); 
                         break;
                     case ".ESP":
                     case ".ESM":
-                        SendProgressMessage("Extracting " + extension + " at " + entryPath);
-                        HandlePlugin(entry);
                         SendProgressMessage("Analyzing plugin file...");
+                        try {
+                            HandlePlugin(entry);
+                        } catch (System.Exception e) {
+                            LogMessages.Add("Failed to analyze plugin.");
+                            LogMessages.Add("Exception:"+e.Message);
+                        }
                         break;
                 }
             }
@@ -149,9 +154,6 @@ namespace ModAnalyzer.ViewModels
             // prepare mod dump and message buffer
             ModDump.StartModDump();
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
-
-            // set current game mode
-            ModDump.SetGameMode(GameService.game.gameMode);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(Path.GetFileName(entry.Key)))
