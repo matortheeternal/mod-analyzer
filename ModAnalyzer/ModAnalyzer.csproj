@@ -116,9 +116,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="GameService.cs" />
-    <Compile Include="MasterPlugin.cs" />
-    <Compile Include="GameMode.cs" />
+    <Compile Include="Domain\GameService.cs" />
+    <Compile Include="Domain\MasterPlugin.cs" />
+    <Compile Include="Domain\GameMode.cs" />
     <Compile Include="Domain\ModAnalysis.cs" />
     <Compile Include="Domain\ModDump.cs" />
     <Compile Include="Domain\OverrideRecord.cs" />
