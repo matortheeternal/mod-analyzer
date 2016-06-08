@@ -1,7 +1,7 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ModAnalyzer
+namespace ModAnalyzer.Domain
 {
     public static class ModDump
     {

@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="ModAnalyzer.Views.AnalysisView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ModAnalyzer.Views"
+             mc:Ignorable="d"
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AnalysisViewModel}">
+    <DockPanel LastChildFill="True">
+        <ScrollViewer DockPanel.Dock="Top">
+            <ListBox ItemsSource="{Binding LogMessages, Mode=OneWay}" />
+        </ScrollViewer>
+        
+        <Button Content="RESET" />
+    </DockPanel>
+</UserControl>
