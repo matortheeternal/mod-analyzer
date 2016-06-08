@@ -21,7 +21,6 @@ namespace ModAnalyzer.ViewModels
         private readonly BA2NET _ba2Manager;
         private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
-        private String dataPath;
 
         public ICommand BrowseCommand { get; set; }
         public ObservableCollection<string> LogMessages { get; set; }
@@ -40,7 +39,7 @@ namespace ModAnalyzer.ViewModels
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
 
-            GetDataPath();
+            GameService.game = GameService.getGame("Skyrim");
 
             LogMessages = new ObservableCollection<string>();
 
@@ -53,14 +52,12 @@ namespace ModAnalyzer.ViewModels
             _bsaManager.bsa_close();
         }
 
-        public void GetDataPath() {
-            // TODO: This should be loaded from the registry
-            dataPath = "C:\\SteamLibrary\\steamapps\\common\\Skyrim\\Data\\";
-        }
-
         private void Browse()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select a mod archive", Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar" };
+            OpenFileDialog openFileDialog = new OpenFileDialog {
+                Title = "Select a mod archive",
+                Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar"
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
             {
@@ -170,26 +167,15 @@ namespace ModAnalyzer.ViewModels
 
         public void HandlePlugin(IArchiveEntry entry)
         {
-            //string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            //string pluginsPath = Path.Combine(rootPath, "plugins");
-            //Directory.CreateDirectory(pluginsPath);
-            string pluginPath = Path.Combine(dataPath, Path.GetFileName(entry.Key));
-
-            bool deleteAfter = false;
-            if (!File.Exists(pluginPath))
-            {
-                deleteAfter = true;
-                entry.WriteToDirectory(dataPath, ExtractOptions.Overwrite);
-            }
-
+            // prepare mod dump and message buffer
             ModDump.StartModDump();
-            //TODO: This should be dynamic
-            ModDump.SetGameMode(1);
-
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
+            // set current game mode
+            ModDump.SetGameMode(GameService.game.gameMode);
+
             // prepare plugin file for dumping
-            if (!ModDump.Prepare(pluginPath))
+            if (!ModDump.Prepare(Path.GetFileName(entry.Key)))
             {
                 ModDump.GetBuffer(message, message.Capacity);
                 LogMessages.Add(message.ToString());
@@ -197,9 +183,8 @@ namespace ModAnalyzer.ViewModels
             }
 
             // dump the plugin file
-            int maxDumpSize = 4 * 1024 * 1024; // 4MB maximum dump size
-            StringBuilder json = new StringBuilder(maxDumpSize);
-            if (!ModDump.Dump(json, maxDumpSize))
+            StringBuilder json = new StringBuilder(4 * 1024 * 1024); // 4MB maximum dump size
+            if (!ModDump.Dump(json, json.Capacity))
             {
                 ModDump.GetBuffer(message, message.Capacity);
                 LogMessages.Add(message.ToString());
@@ -213,11 +198,6 @@ namespace ModAnalyzer.ViewModels
             // TODO: This should be handled better.
             ModDump.GetBuffer(message, message.Capacity);
             LogMessages.Add(message.ToString());
-
-            if (deleteAfter)
-            {
-                File.Delete(pluginPath);
-            }
 
             // Finalize ModDump
             ModDump.EndModDump();
