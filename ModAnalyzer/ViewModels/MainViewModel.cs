@@ -39,8 +39,6 @@ namespace ModAnalyzer.ViewModels
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
 
-            ModDump.StartModDump();
-
             LogMessages = new ObservableCollection<string>();
 
             BrowseCommand = new RelayCommand(Browse);
@@ -50,7 +48,6 @@ namespace ModAnalyzer.ViewModels
         {
             _ba2Manager.Dispose();
             _bsaManager.bsa_close();
-            ModDump.EndModDump();
         }
 
         private void Browse()
@@ -174,6 +171,7 @@ namespace ModAnalyzer.ViewModels
                 entry.WriteToDirectory(pluginsPath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
             }
 
+            ModDump.StartModDump();
             //TODO: This should be dynamic
             ModDump.SetGameMode(1);
 
@@ -209,6 +207,9 @@ namespace ModAnalyzer.ViewModels
             {
                 File.Delete(pluginPath);
             }
+
+            // Finalize ModDump
+            ModDump.EndModDump();
         }
     }
 }
