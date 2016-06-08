@@ -119,12 +119,12 @@ namespace ModAnalyzer.ViewModels
 
         public void HandleBA2(IArchiveEntry entry)
         {
-            entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            entry.WriteToDirectory(@".\\bsas", ExtractOptions.Overwrite);
 
             ProgressMessage = "BSA extracted, Analyzing entries...";
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string ba2Path = Path.Combine(rootPath, @"\bsas\", entry.Key);
+            string ba2Path = Path.Combine(rootPath, @"\bsas\", Path.GetFileName(entry.Key));
 
             if (_ba2Manager.Open(ba2Path))
             {
@@ -141,10 +141,10 @@ namespace ModAnalyzer.ViewModels
 
         public void HandleBSA(IArchiveEntry entry)
         {
-            entry.WriteToDirectory(@".\\bsas", ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+            entry.WriteToDirectory(@".\\bsas", ExtractOptions.Overwrite);
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
+            string bsaPath = Path.Combine(rootPath, "bsas", Path.GetFileName(entry.Key));
 
             if (_bsaManager.bsa_open(bsaPath) == 0)
             {
@@ -162,13 +162,13 @@ namespace ModAnalyzer.ViewModels
         {
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string pluginsPath = Path.Combine(rootPath, "plugins");
-            string pluginPath = Path.Combine(rootPath, "plugins", entry.Key);
+            string pluginPath = Path.Combine(rootPath, "plugins", Path.GetFileName(entry.Key));
 
             bool deleteAfter = false;
             if (!File.Exists(pluginPath))
             {
                 deleteAfter = true;
-                entry.WriteToDirectory(pluginsPath, ExtractOptions.ExtractFullPath | ExtractOptions.Overwrite);
+                entry.WriteToDirectory(pluginsPath, ExtractOptions.Overwrite);
             }
 
             ModDump.StartModDump();
