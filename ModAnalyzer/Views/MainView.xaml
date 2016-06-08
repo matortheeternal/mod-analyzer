@@ -13,7 +13,7 @@
         TextElement.FontWeight="Regular"
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        Title="Mod Asset Mapper" 
+        Title="Mod Analyzer" 
         Height="410" Width="800" MinWidth="410" MinHeight="410"
         DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}">
     <Window.Resources>
