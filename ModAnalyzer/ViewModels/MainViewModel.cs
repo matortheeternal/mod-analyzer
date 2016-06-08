@@ -21,6 +21,7 @@ namespace ModAnalyzer.ViewModels
         private readonly BA2NET _ba2Manager;
         private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
+        private String dataPath;
 
         public ICommand BrowseCommand { get; set; }
         public ObservableCollection<string> LogMessages { get; set; }
@@ -39,6 +40,8 @@ namespace ModAnalyzer.ViewModels
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
 
+            GetDataPath();
+
             LogMessages = new ObservableCollection<string>();
 
             BrowseCommand = new RelayCommand(Browse);
@@ -48,6 +51,11 @@ namespace ModAnalyzer.ViewModels
         {
             _ba2Manager.Dispose();
             _bsaManager.bsa_close();
+        }
+
+        public void GetDataPath() {
+            // TODO: This should be loaded from the registry
+            dataPath = "C:\\SteamLibrary\\steamapps\\common\\Skyrim\\Data\\";
         }
 
         private void Browse()
@@ -162,16 +170,16 @@ namespace ModAnalyzer.ViewModels
 
         public void HandlePlugin(IArchiveEntry entry)
         {
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string pluginsPath = Path.Combine(rootPath, "plugins");
-            Directory.CreateDirectory(pluginsPath);
-            string pluginPath = Path.Combine(rootPath, "plugins", Path.GetFileName(entry.Key));
+            //string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            //string pluginsPath = Path.Combine(rootPath, "plugins");
+            //Directory.CreateDirectory(pluginsPath);
+            string pluginPath = Path.Combine(dataPath, Path.GetFileName(entry.Key));
 
             bool deleteAfter = false;
             if (!File.Exists(pluginPath))
             {
                 deleteAfter = true;
-                entry.WriteToDirectory(pluginsPath, ExtractOptions.Overwrite);
+                entry.WriteToDirectory(dataPath, ExtractOptions.Overwrite);
             }
 
             ModDump.StartModDump();
