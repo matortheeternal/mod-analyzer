@@ -29,6 +29,7 @@ namespace ModAnalyzer.ViewModels
 
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
+            ModDump.StartModDump();
             GameService.game = GameService.getGame("Skyrim");
             ModDump.SetGameMode(GameService.game.gameMode);
 
@@ -154,7 +155,6 @@ namespace ModAnalyzer.ViewModels
         public void HandlePlugin(IArchiveEntry entry)
         {
             // prepare mod dump and message buffer
-            ModDump.StartModDump();
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
@@ -181,9 +181,7 @@ namespace ModAnalyzer.ViewModels
             // TODO: This should be handled better.
             ModDump.GetBuffer(message, message.Capacity);
             LogMessages.Add(message.ToString());
-            
-            // Finalize ModDump
-            ModDump.EndModDump();
+            ModDump.FlushBuffer();
         }
     }
 }
