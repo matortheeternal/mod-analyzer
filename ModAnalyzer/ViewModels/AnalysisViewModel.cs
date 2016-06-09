@@ -114,7 +114,7 @@ namespace ModAnalyzer.ViewModels
             SendProgressMessage("BSA extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string ba2Path = Path.Combine(rootPath, @"\bsas\", entry.Key);
+            string ba2Path = Path.Combine(rootPath, "bsas", entry.Key);
 
             if (_ba2Manager.Open(ba2Path))
             {
@@ -122,7 +122,7 @@ namespace ModAnalyzer.ViewModels
 
                 for (int i = 0; i < entries.Length; i++)
                 {
-                    string entryPath = entry.Key + "\\" + entries[i];
+                    string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
                 }
@@ -132,17 +132,17 @@ namespace ModAnalyzer.ViewModels
         public void HandleBSA(IArchiveEntry entry)
         {
             Directory.CreateDirectory(@".\bsas");
-            entry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
+            entry.WriteToDirectory(@".\bsas\", ExtractOptions.Overwrite);
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string bsaPath = Path.Combine(rootPath, @"\bsas\", entry.Key);
+            string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
 
             if (_bsaManager.bsa_open(bsaPath) == 0)
             {
                 string[] entries = _bsaManager.bsa_get_assets(".*");
                 for (int i = 0; i < entries.Length; i++)
                 {
-                    string entryPath = entry.Key + "\\" + entries[i];
+                    string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
                 }
