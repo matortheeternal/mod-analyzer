@@ -111,7 +111,7 @@ namespace ModAnalyzer.ViewModels
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
-            SendProgressMessage("BSA extracted, Analyzing entries...");
+            SendProgressMessage("BA2 extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string ba2Path = Path.Combine(rootPath, "bsas", entry.Key);
@@ -133,6 +133,8 @@ namespace ModAnalyzer.ViewModels
         {
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas\", ExtractOptions.Overwrite);
+
+            SendProgressMessage("BSA extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
