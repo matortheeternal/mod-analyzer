@@ -6,6 +6,7 @@ using ModAnalyzer.Messages;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reflection;
@@ -61,6 +62,7 @@ namespace ModAnalyzer.ViewModels {
 
         private void GetEntryMap(string path) {
             IArchive archive = ArchiveFactory.Open(@path);
+            List<IArchiveEntry> plugins = new List<IArchiveEntry>();
 
             SendProgressMessage("Analyzing archive entries...");
 
@@ -87,14 +89,35 @@ namespace ModAnalyzer.ViewModels {
                         break;
                     case ".ESP":
                     case ".ESM":
-                        SendProgressMessage("Analyzing plugin file...");
-                        try {
-                            HandlePlugin(entry);
-                        } catch (System.Exception e) {
-                            LogMessages.Add("Failed to analyze plugin.");
-                            LogMessages.Add("Exception:"+e.Message);
-                        }
+                        ExtractPlugin(entry);
+                        plugins.Add(entry);
                         break;
+                }
+            }
+
+            // handle plugins
+            LogMessages.Add("Extracting and analyzing plugins...");
+            foreach (IArchiveEntry entry in plugins) {
+                try {
+                    ExtractPlugin(entry);
+                    HandlePlugin(entry);
+                }
+                catch (System.Exception e) {
+                    LogMessages.Add("Failed to analyze plugin.");
+                    LogMessages.Add("Exception:" + e.Message);
+                }
+            }
+
+            // restore backup plugins
+            LogMessages.Add("Restoring plugins...");
+            foreach (IArchiveEntry entry in plugins) {
+                try {
+                    RevertPlugin(entry);
+                }
+                catch (System.Exception e) {
+                    LogMessages.Add("Failed to revert plugin!");
+                    LogMessages.Add("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!");
+                    LogMessages.Add("Exception:" + e.Message);
                 }
             }
         }
@@ -136,6 +159,28 @@ namespace ModAnalyzer.ViewModels {
                     LogMessages.Add(entryPath);
                 }
             }
+        }
+
+        public void RevertPlugin(IArchiveEntry entry) {
+            string dataPath = GameService.getDataPath();
+            string filename = Path.GetFileName(entry.Key);
+            string filepath = dataPath + filename;
+            if (File.Exists(filepath + ".bak")) {
+                File.Delete(filepath);
+                File.Move(filepath + ".bak", filepath);
+            }
+        }
+
+        public void ExtractPlugin(IArchiveEntry entry) {
+            string dataPath = GameService.getDataPath();
+            string filename = Path.GetFileName(entry.Key);
+            string filepath = dataPath + filename;
+            // move existing file if present
+            if (File.Exists(filepath) && !File.Exists(filepath + ".bak")) {
+                File.Move(filepath, filepath + ".bak");
+            }
+            // extract file
+            entry.WriteToDirectory(dataPath, ExtractOptions.Overwrite);
         }
 
         public void HandlePlugin(IArchiveEntry entry) {
