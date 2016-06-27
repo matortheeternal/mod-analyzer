@@ -11,18 +11,15 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace ModAnalyzer.ViewModels
-{
-    public class AnalysisViewModel : ViewModelBase
-    {
+namespace ModAnalyzer.ViewModels {
+    public class AnalysisViewModel : ViewModelBase {
         private readonly BA2NET _ba2Manager;
         private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
 
         public ObservableCollection<string> LogMessages { get; set; }
 
-        public AnalysisViewModel()
-        {
+        public AnalysisViewModel() {
             _ba2Manager = new BA2NET();
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
@@ -38,13 +35,11 @@ namespace ModAnalyzer.ViewModels
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
         }
 
-        private void SendProgressMessage(string message)
-        {
+        private void SendProgressMessage(string message) {
             MessengerInstance.Send(new ProgressMessage(message));
         }
 
-        private void OnFileSelectedMessage(FileSelectedMessage message)
-        {
+        private void OnFileSelectedMessage(FileSelectedMessage message) {
             LogMessages.Clear();
 
             SendProgressMessage("Loading " + message.FilePath + "...");
@@ -59,20 +54,18 @@ namespace ModAnalyzer.ViewModels
             SendProgressMessage("All done.  JSON file saved to " + filename + ".json");
         }
 
-        ~AnalysisViewModel()
-        {
+        ~AnalysisViewModel() {
             _ba2Manager.Dispose();
             _bsaManager.bsa_close();
         }
 
-        private void GetEntryMap(string path)
-        {
+        private void GetEntryMap(string path) {
             IArchive archive = ArchiveFactory.Open(@path);
 
             SendProgressMessage("Analyzing archive entries...");
 
-            foreach (IArchiveEntry entry in archive.Entries)
-            {
+            // loop through archive entries
+            foreach (IArchiveEntry entry in archive.Entries) {
                 if (entry.IsDirectory)
                     continue;
 
@@ -83,8 +76,7 @@ namespace ModAnalyzer.ViewModels
 
                 string extension = Path.GetExtension(entryPath).ToUpper();
 
-                switch (extension)
-                {
+                switch (extension) {
                     case ".BA2":
                         SendProgressMessage("Extracting BA2 at " + entryPath);
                         HandleBA2(entry);
@@ -107,8 +99,7 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void HandleBA2(IArchiveEntry entry)
-        {
+        public void HandleBA2(IArchiveEntry entry) {
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
@@ -117,12 +108,10 @@ namespace ModAnalyzer.ViewModels
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string ba2Path = Path.Combine(rootPath, "bsas", entry.Key);
 
-            if (_ba2Manager.Open(ba2Path))
-            {
+            if (_ba2Manager.Open(ba2Path)) {
                 string[] entries = _ba2Manager.GetNameTable();
 
-                for (int i = 0; i < entries.Length; i++)
-                {
+                for (int i = 0; i < entries.Length; i++) {
                     string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
@@ -130,8 +119,7 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void HandleBSA(IArchiveEntry entry)
-        {
+        public void HandleBSA(IArchiveEntry entry) {
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas\", ExtractOptions.Overwrite);
 
@@ -140,11 +128,9 @@ namespace ModAnalyzer.ViewModels
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
 
-            if (_bsaManager.bsa_open(bsaPath) == 0)
-            {
+            if (_bsaManager.bsa_open(bsaPath) == 0) {
                 string[] entries = _bsaManager.bsa_get_assets(".*");
-                for (int i = 0; i < entries.Length; i++)
-                {
+                for (int i = 0; i < entries.Length; i++) {
                     string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
                     LogMessages.Add(entryPath);
@@ -152,14 +138,12 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void HandlePlugin(IArchiveEntry entry)
-        {
+        public void HandlePlugin(IArchiveEntry entry) {
             // prepare mod dump and message buffer
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
-            if (!ModDump.Prepare(Path.GetFileName(entry.Key)))
-            {
+            if (!ModDump.Prepare(Path.GetFileName(entry.Key))) {
                 ModDump.GetBuffer(message, message.Capacity);
                 LogMessages.Add(message.ToString());
                 return;
@@ -167,8 +151,7 @@ namespace ModAnalyzer.ViewModels
 
             // dump the plugin file
             StringBuilder json = new StringBuilder(4 * 1024 * 1024); // 4MB maximum dump size
-            if (!ModDump.Dump(json, json.Capacity))
-            {
+            if (!ModDump.Dump(json, json.Capacity)) {
                 ModDump.GetBuffer(message, message.Capacity);
                 LogMessages.Add(message.ToString());
                 return;
