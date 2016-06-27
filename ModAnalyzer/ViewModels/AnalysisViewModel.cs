@@ -47,7 +47,13 @@ namespace ModAnalyzer.ViewModels {
 
             SendProgressMessage("Loading " + message.FilePath + "...");
 
-            GetEntryMap(message.FilePath);
+            try {
+                GetEntryMap(message.FilePath);
+            }
+            catch (System.Exception e) {
+                LogMessages.Add("Failed to analyze archive.");
+                LogMessages.Add("Exception:" + e.Message);
+            }
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string filename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(message.FilePath));
