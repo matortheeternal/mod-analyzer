@@ -1,4 +1,6 @@
 ﻿using System;
+using IniParser;
+using IniParser.Model;
 
 namespace ModAnalyzer
 {
@@ -6,6 +8,7 @@ namespace ModAnalyzer
     {
         public static string dataPath { get; set; }
         public static Game game { get; set; }
+        private static IniData settings;
 
         private static Game[] gameModes = {
             new Game { longName = "Fallout New Vegas", gameName = "FalloutNV", gameMode = 0, exeName = "FalloutNV.exe", appIDs = "22380,2028016" },
@@ -22,6 +25,20 @@ namespace ModAnalyzer
                 }
             }
             return null;
+        }
+
+        public static void loadIni() {
+            var parser = new FileIniDataParser();
+            settings = parser.ReadFile("settings.ini");
+        }
+
+        public static string getDataPath() {
+            if (settings == null) {
+                loadIni();
+            }
+            string key = game.gameName + "Path";
+            key = Char.ToLowerInvariant(key[0]) + key.Substring(1);
+            return settings["Games"][key];
         }
     }
 }
