@@ -167,13 +167,10 @@ namespace ModAnalyzer.ViewModels {
             string dataPath = GameService.getDataPath();
             string filename = Path.GetFileName(entry.Key);
             string filepath = dataPath + filename;
-            bool originalExtracted = extracted.IndexOf(filepath) > -1;
 
+            File.Delete(filepath);
             if (File.Exists(filepath + ".bak")) {
-                File.Delete(filepath);
                 File.Move(filepath + ".bak", filepath);
-            } else if (originalExtracted) {
-                File.Delete(filepath);
             }
         }
 
@@ -183,14 +180,12 @@ namespace ModAnalyzer.ViewModels {
             string filepath = dataPath + filename;
             bool alreadyExtracted = extracted.IndexOf(filepath) > -1;
 
+            // track extraction
             if (!alreadyExtracted) {
+                extracted.Add(filepath);
                 // move existing file if present
                 if (File.Exists(filepath) && !File.Exists(filepath + ".bak")) {
                     File.Move(filepath, filepath + ".bak");
-                }
-                // else add to extracted list
-                else {
-                    extracted.Add(filepath);
                 }
             }
 
