@@ -17,6 +17,7 @@ namespace ModAnalyzer.ViewModels {
         private readonly BA2NET _ba2Manager;
         private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
+        private List<string> extracted;
 
         public ObservableCollection<string> LogMessages { get; set; }
 
@@ -24,6 +25,7 @@ namespace ModAnalyzer.ViewModels {
             _ba2Manager = new BA2NET();
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
+            extracted = new List<string>();
 
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
@@ -165,9 +167,13 @@ namespace ModAnalyzer.ViewModels {
             string dataPath = GameService.getDataPath();
             string filename = Path.GetFileName(entry.Key);
             string filepath = dataPath + filename;
+            bool originalExtracted = extracted.IndexOf(filepath) > -1;
+
             if (File.Exists(filepath + ".bak")) {
                 File.Delete(filepath);
                 File.Move(filepath + ".bak", filepath);
+            } else if (originalExtracted) {
+                File.Delete(filepath);
             }
         }
 
@@ -175,10 +181,19 @@ namespace ModAnalyzer.ViewModels {
             string dataPath = GameService.getDataPath();
             string filename = Path.GetFileName(entry.Key);
             string filepath = dataPath + filename;
-            // move existing file if present
-            if (File.Exists(filepath) && !File.Exists(filepath + ".bak")) {
-                File.Move(filepath, filepath + ".bak");
+            bool alreadyExtracted = extracted.IndexOf(filepath) > -1;
+
+            if (!alreadyExtracted) {
+                // move existing file if present
+                if (File.Exists(filepath) && !File.Exists(filepath + ".bak")) {
+                    File.Move(filepath, filepath + ".bak");
+                }
+                // else add to extracted list
+                else {
+                    extracted.Add(filepath);
+                }
             }
+
             // extract file
             entry.WriteToDirectory(dataPath, ExtractOptions.Overwrite);
         }
