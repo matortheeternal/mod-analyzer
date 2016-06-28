@@ -18,6 +18,7 @@ namespace ModAnalyzer.ViewModels {
         private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
         private List<string> extracted;
+        private List<IArchiveEntry> plugins;
 
         public ObservableCollection<string> LogMessages { get; set; }
 
@@ -26,6 +27,7 @@ namespace ModAnalyzer.ViewModels {
             _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
             extracted = new List<string>();
+            plugins = new List<IArchiveEntry>();
 
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
@@ -49,6 +51,10 @@ namespace ModAnalyzer.ViewModels {
 
             try {
                 GetEntryMap(message.FilePath);
+                if (plugins.Count > 0) {
+                    HandlePlugins();
+                    RevertPlugins();
+                }
             }
             catch (System.Exception e) {
                 LogMessages.Add("Failed to analyze archive.");
@@ -70,7 +76,6 @@ namespace ModAnalyzer.ViewModels {
 
         private void GetEntryMap(string path) {
             IArchive archive = ArchiveFactory.Open(@path);
-            List<IArchiveEntry> plugins = new List<IArchiveEntry>();
 
             SendProgressMessage("Analyzing archive entries...");
 
@@ -102,8 +107,9 @@ namespace ModAnalyzer.ViewModels {
                         break;
                 }
             }
+        }
 
-            // handle plugins
+        public void HandlePlugins() {
             LogMessages.Add("Extracting and analyzing plugins...");
             foreach (IArchiveEntry entry in plugins) {
                 try {
@@ -115,8 +121,9 @@ namespace ModAnalyzer.ViewModels {
                     LogMessages.Add("Exception:" + e.Message);
                 }
             }
+        }
 
-            // restore backup plugins
+        public void RevertPlugins() {
             LogMessages.Add("Restoring plugins...");
             foreach (IArchiveEntry entry in plugins) {
                 try {
