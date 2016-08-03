@@ -1,5 +1,6 @@
 ﻿using BA2Lib;
 using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.CommandWpf;
 using libbsa;
 using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
@@ -8,9 +9,11 @@ using SharpCompress.Archive;
 using SharpCompress.Common;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
     public class AnalysisViewModel : ViewModelBase {
@@ -20,6 +23,8 @@ namespace ModAnalyzer.ViewModels {
         private List<string> extracted;
         private List<IArchiveEntry> plugins;
 
+        public ICommand ResetCommand { get; set; }
+        public ICommand ViewOutputCommand { get; set; }
         public ObservableCollection<string> LogMessages { get; set; }
 
         public AnalysisViewModel() {
@@ -34,7 +39,9 @@ namespace ModAnalyzer.ViewModels {
             ModDump.StartModDump();
             GameService.game = GameService.getGame("Skyrim");
             ModDump.SetGameMode(GameService.game.gameMode);
-
+            
+            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
+            ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
             LogMessages = new ObservableCollection<string>();
 
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
@@ -45,6 +52,9 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void OnFileSelectedMessage(FileSelectedMessage message) {
+            if (!Directory.Exists("output"))
+                Directory.CreateDirectory("output");
+
             LogMessages.Clear();
 
             SendProgressMessage("Loading " + message.FilePath + "...");
@@ -62,7 +72,7 @@ namespace ModAnalyzer.ViewModels {
             }
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string filename = Path.Combine(rootPath, Path.GetFileNameWithoutExtension(message.FilePath));
+            string filename = Path.Combine(rootPath, "output", Path.GetFileNameWithoutExtension(message.FilePath));
 
             SendProgressMessage("Saving JSON to " + filename + ".json...");
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));

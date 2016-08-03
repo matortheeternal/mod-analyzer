@@ -1,12 +1,11 @@
-﻿using GalaSoft.MvvmLight.Messaging;
-
-namespace ModAnalyzer.Messages
+﻿namespace ModAnalyzer.Messages
 {
-    public class FileSelectedMessage : MessageBase
+    public class FileSelectedMessage : NavigationMessage
     {
         public string FilePath { get; set; }
 
         public FileSelectedMessage(string filePath)
+            : base(Page.Analysis)
         {
             FilePath = filePath;
         }
