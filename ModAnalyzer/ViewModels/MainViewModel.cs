@@ -1,4 +1,3 @@
-using System;
 using GalaSoft.MvvmLight;
 using ModAnalyzer.Messages;
 using ModAssetMapper;
@@ -30,6 +29,8 @@ namespace ModAnalyzer.ViewModels
             _viewModelLocator = (ViewModelLocator)App.Current.Resources["ViewModelLocator"];
             
             CurrentViewModel = _viewModelLocator.HomeViewModel;
+
+            ProgressMessage = "Ready...";
 
             MessengerInstance.Register<NavigationMessage>(this, true, OnNavigationMessageReceived);
             MessengerInstance.Register<ProgressMessage>(this, message => ProgressMessage = message.Message);
