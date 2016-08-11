@@ -4,11 +4,14 @@ using GalaSoft.MvvmLight.CommandWpf;
 using libbsa;
 using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
+using ModAssetMapper;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -24,6 +27,8 @@ namespace ModAnalyzer.ViewModels
         private ModAnalysis _modAnalysis;
         private List<string> extracted;
         private List<IArchiveEntry> plugins;
+        private BackgroundWorker _backgroundWorker;
+        private BackgroundWorker _backgroundWorker2;
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
@@ -36,6 +41,16 @@ namespace ModAnalyzer.ViewModels
             _modAnalysis = new ModAnalysis();
             extracted = new List<string>();
             plugins = new List<IArchiveEntry>();
+
+            _backgroundWorker = new BackgroundWorker();
+            _backgroundWorker.DoWork += _backgroundWorker_DoWork;
+            _backgroundWorker.WorkerReportsProgress = true;
+            _backgroundWorker.ProgressChanged += _backgroundWorker_ProgressChanged;
+
+            _backgroundWorker2 = new BackgroundWorker();
+            _backgroundWorker2.DoWork += _backgroundWorker2_DoWork;
+            _backgroundWorker2.WorkerReportsProgress = true;
+            _backgroundWorker2.ProgressChanged += _backgroundWorker2_ProgressChanged;
 
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
@@ -50,52 +65,17 @@ namespace ModAnalyzer.ViewModels
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
         }
 
-        private void SendProgressMessage(string message)
+        private void _backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            MessengerInstance.Send(new ProgressMessage(message));
+            App.Current.Dispatcher.Invoke((Action)delegate { LogMessages.Add(e.UserState.ToString()); });
+            
         }
 
-        private void OnFileSelectedMessage(FileSelectedMessage message)
+        private void _backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
         {
-            if (!Directory.Exists("output"))
-                Directory.CreateDirectory("output");
+            BackgroundWorker backgroundWorker = sender as BackgroundWorker;
 
-            LogMessages.Clear();
-
-            SendProgressMessage("Loading " + message.FilePath + "...");
-
-            try
-            {
-                GetEntryMap(message.FilePath);
-                if (plugins.Count > 0)
-                {
-                    HandlePlugins();
-                    RevertPlugins();
-                }
-            }
-            catch (System.Exception e)
-            {
-                LogMessages.Add("Failed to analyze archive.");
-                LogMessages.Add("Exception:" + e.Message);
-            }
-
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string filename = Path.Combine(rootPath, "output", Path.GetFileNameWithoutExtension(message.FilePath));
-
-            SendProgressMessage("Saving JSON to " + filename + ".json...");
-            File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-            SendProgressMessage("All done.  JSON file saved to " + filename + ".json");
-        }
-
-        ~AnalysisViewModel()
-        {
-            _ba2Manager.Dispose();
-            _bsaManager.bsa_close();
-        }
-
-        private void GetEntryMap(string path)
-        {
-            IArchive archive = ArchiveFactory.Open(@path);
+            IArchive archive = ArchiveFactory.Open(e.Argument.ToString());
 
             SendProgressMessage("Analyzing archive entries...");
 
@@ -108,7 +88,7 @@ namespace ModAnalyzer.ViewModels
                 string entryPath = entry.Key.Replace('/', '\\');
                 _modAnalysis.assets.Add(entryPath);
 
-                LogMessages.Add(entryPath);
+                backgroundWorker.ReportProgress(0, entryPath);
 
                 string extension = Path.GetExtension(entryPath).ToUpper();
 
@@ -129,6 +109,65 @@ namespace ModAnalyzer.ViewModels
                         break;
                 }
             }
+        }
+
+        private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            LogMessages.Add(e.UserState.ToString());
+        }
+
+        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            BackgroundWorker worker = sender as BackgroundWorker;
+            worker.ReportProgress(0,"Processing wave 1");
+
+            if (!Directory.Exists("output"))
+                Directory.CreateDirectory("output");
+
+            string filePath = e.Argument.ToString();
+
+            LogMessages.Clear();
+
+            SendProgressMessage("Loading " + filePath + "...");
+
+            try
+            {
+                _backgroundWorker2.RunWorkerAsync(filePath);
+
+                if (plugins.Count > 0)
+                {
+                    HandlePlugins();
+                    RevertPlugins();
+                }
+            }
+            catch (Exception exception)
+            {
+                LogMessages.Add("Failed to analyze archive.");
+                LogMessages.Add("Exception:" + exception.Message);
+            }
+
+            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string filename = Path.Combine(rootPath, "output", Path.GetFileNameWithoutExtension(filePath));
+
+            SendProgressMessage("Saving JSON to " + filename + ".json...");
+            File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
+            SendProgressMessage("All done.  JSON file saved to " + filename + ".json");
+        }
+
+        private void SendProgressMessage(string message)
+        {
+            MessengerInstance.Send(new ProgressMessage(message));
+        }
+
+        private void OnFileSelectedMessage(FileSelectedMessage message)
+        {
+            _backgroundWorker.RunWorkerAsync(message.FilePath);
+        }
+
+        ~AnalysisViewModel()
+        {
+            _ba2Manager.Dispose();
+            _bsaManager.bsa_close();
         }
 
         public void HandlePlugins()
