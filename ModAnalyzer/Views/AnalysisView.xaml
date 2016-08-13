@@ -11,7 +11,11 @@
             <Button Content="RESET" Command="{Binding ResetCommand, Mode=OneTime}" />
             <Button Content="VIEW OUTPUT" Command="{Binding ViewOutputCommand, Mode=OneTime}" Margin="5 0 0 0" />
         </StackPanel>
-        
+
+        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Bottom">
+            <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
+        </StatusBar>
+
         <ScrollViewer DockPanel.Dock="Top">
             <TextBox Text="{Binding Log, Mode=OneWay}" />
         </ScrollViewer>

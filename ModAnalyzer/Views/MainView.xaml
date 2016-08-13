@@ -26,10 +26,6 @@
     </Window.Resources>
 
     <DockPanel>
-        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Bottom">
-            <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
-        </StatusBar>
-
         <ContentControl Content="{Binding CurrentViewModel, Mode=TwoWay}" />
     </DockPanel>
 </Window>

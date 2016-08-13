@@ -31,7 +31,7 @@ namespace ModAnalyzer.ViewModels
             CurrentViewModel = _viewModelLocator.HomeViewModel;
 
             MessengerInstance.Register<NavigationMessage>(this, true, OnNavigationMessageReceived);
-            MessengerInstance.Register<ProgressMessage>(this, message => ProgressMessage = message.Message);
+            MessengerInstance.Register<UIMessage>(this, message => ProgressMessage = message.Message);
         }
 
         private void OnNavigationMessageReceived(NavigationMessage message)

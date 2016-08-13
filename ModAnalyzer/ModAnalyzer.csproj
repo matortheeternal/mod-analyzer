@@ -153,7 +153,7 @@
     <Compile Include="Domain\PluginRecordGroup.cs" />
     <Compile Include="Messages\FileSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
-    <Compile Include="Messages\ProgressMessage.cs" />
+    <Compile Include="Messages\UIMessage.cs" />
     <Compile Include="Utils\IArchiveEntryExtensions.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
