@@ -1,4 +1,3 @@
-using System;
 using GalaSoft.MvvmLight;
 using ModAnalyzer.Messages;
 using ModAssetMapper;

@@ -7,6 +7,7 @@ using ModAnalyzer.Messages;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -27,7 +28,14 @@ namespace ModAnalyzer.ViewModels
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
-        public ObservableCollection<string> LogMessages { get; set; }
+
+        private string _log;
+
+        public string Log
+        {
+            get { return _log; }
+            set { Set(nameof(Log), ref _log, value); }
+        }
 
         public AnalysisViewModel()
         {
@@ -45,7 +53,7 @@ namespace ModAnalyzer.ViewModels
 
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
-            LogMessages = new ObservableCollection<string>();
+            Log = string.Empty;
 
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
         }
@@ -55,12 +63,17 @@ namespace ModAnalyzer.ViewModels
             MessengerInstance.Send(new ProgressMessage(message));
         }
 
+        private void AddLogMessage(string message)
+        {
+            Log += message + Environment.NewLine;
+        }
+
         private void OnFileSelectedMessage(FileSelectedMessage message)
         {
             if (!Directory.Exists("output"))
                 Directory.CreateDirectory("output");
 
-            LogMessages.Clear();
+            Log = string.Empty;
 
             SendProgressMessage("Loading " + message.FilePath + "...");
 
@@ -73,10 +86,10 @@ namespace ModAnalyzer.ViewModels
                     RevertPlugins();
                 }
             }
-            catch (System.Exception e)
+            catch (Exception e)
             {
-                LogMessages.Add("Failed to analyze archive.");
-                LogMessages.Add("Exception:" + e.Message);
+                AddLogMessage("Failed to analyze archive.");
+                AddLogMessage("Exception:" + e.Message);
             }
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -108,7 +121,7 @@ namespace ModAnalyzer.ViewModels
                 string entryPath = entry.Key.Replace('/', '\\');
                 _modAnalysis.assets.Add(entryPath);
 
-                LogMessages.Add(entryPath);
+                AddLogMessage(entryPath);
 
                 string extension = Path.GetExtension(entryPath).ToUpper();
 
@@ -133,7 +146,7 @@ namespace ModAnalyzer.ViewModels
 
         public void HandlePlugins()
         {
-            LogMessages.Add("Extracting and analyzing plugins...");
+            AddLogMessage("Extracting and analyzing plugins...");
             foreach (IArchiveEntry entry in plugins)
             {
                 try
@@ -141,28 +154,28 @@ namespace ModAnalyzer.ViewModels
                     ExtractPlugin(entry);
                     HandlePlugin(entry);
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
-                    LogMessages.Add("Failed to analyze plugin.");
-                    LogMessages.Add("Exception:" + e.Message);
+                    AddLogMessage("Failed to analyze plugin.");
+                    AddLogMessage("Exception:" + e.Message);
                 }
             }
         }
 
         public void RevertPlugins()
         {
-            LogMessages.Add("Restoring plugins...");
+            AddLogMessage("Restoring plugins...");
             foreach (IArchiveEntry entry in plugins)
             {
                 try
                 {
                     RevertPlugin(entry);
                 }
-                catch (System.Exception e)
+                catch (Exception e)
                 {
-                    LogMessages.Add("Failed to revert plugin!");
-                    LogMessages.Add("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!");
-                    LogMessages.Add("Exception:" + e.Message);
+                    AddLogMessage("Failed to revert plugin!");
+                    AddLogMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!");
+                    AddLogMessage("Exception:" + e.Message);
                 }
             }
         }
@@ -185,7 +198,7 @@ namespace ModAnalyzer.ViewModels
                 {
                     string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
-                    LogMessages.Add(entryPath);
+                    AddLogMessage(entryPath);
                 }
             }
         }
@@ -207,7 +220,7 @@ namespace ModAnalyzer.ViewModels
                 {
                     string entryPath = Path.Combine(entry.Key, entries[i]);
                     _modAnalysis.assets.Add(entryPath);
-                    LogMessages.Add(entryPath);
+                    AddLogMessage(entryPath);
                 }
             }
         }
@@ -256,7 +269,7 @@ namespace ModAnalyzer.ViewModels
             if (!ModDump.Prepare(Path.GetFileName(entry.Key)))
             {
                 ModDump.GetBuffer(message, message.Capacity);
-                LogMessages.Add(message.ToString());
+                AddLogMessage(message.ToString());
                 return;
             }
 
@@ -265,7 +278,7 @@ namespace ModAnalyzer.ViewModels
             if (!ModDump.Dump(json, json.Capacity))
             {
                 ModDump.GetBuffer(message, message.Capacity);
-                LogMessages.Add(message.ToString());
+                AddLogMessage(message.ToString());
                 return;
             }
 
@@ -275,7 +288,7 @@ namespace ModAnalyzer.ViewModels
             // log the results
             // TODO: This should be handled better.
             ModDump.GetBuffer(message, message.Capacity);
-            LogMessages.Add(message.ToString());
+            AddLogMessage(message.ToString());
             ModDump.FlushBuffer();
         }
     }

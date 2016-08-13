@@ -13,7 +13,7 @@
         </StackPanel>
         
         <ScrollViewer DockPanel.Dock="Top">
-            <ListBox ItemsSource="{Binding LogMessages, Mode=OneWay}" />
+            <TextBox Text="{Binding Log, Mode=OneWay}" />
         </ScrollViewer>
     </DockPanel>
 </UserControl>
