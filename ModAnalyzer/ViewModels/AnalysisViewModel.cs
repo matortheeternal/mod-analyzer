@@ -9,7 +9,6 @@ using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
@@ -58,7 +57,7 @@ namespace ModAnalyzer.ViewModels
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
         }
 
-        private void SendProgressMessage(string message)
+        private void PostProgressMessage(string message)
         {
             MessengerInstance.Send(new ProgressMessage(message));
         }
@@ -75,11 +74,11 @@ namespace ModAnalyzer.ViewModels
 
             Log = string.Empty;
 
-            SendProgressMessage("Loading " + message.FilePath + "...");
+            PostProgressMessage("Loading " + message.FilePath + "...");
 
             try
             {
-                GetEntryMap(message.FilePath);
+                GetModArchiveEntryMap(message.FilePath);
                 if (plugins.Count > 0)
                 {
                     HandlePlugins();
@@ -95,9 +94,9 @@ namespace ModAnalyzer.ViewModels
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string filename = Path.Combine(rootPath, "output", Path.GetFileNameWithoutExtension(message.FilePath));
 
-            SendProgressMessage("Saving JSON to " + filename + ".json...");
+            PostProgressMessage("Saving JSON to " + filename + ".json...");
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-            SendProgressMessage("All done.  JSON file saved to " + filename + ".json");
+            PostProgressMessage("All done.  JSON file saved to " + filename + ".json");
         }
 
         ~AnalysisViewModel()
@@ -106,42 +105,43 @@ namespace ModAnalyzer.ViewModels
             _bsaManager.bsa_close();
         }
 
-        private void GetEntryMap(string path)
+        private void GetModArchiveEntryMap(string path)
         {
-            IArchive archive = ArchiveFactory.Open(@path);
-
-            SendProgressMessage("Analyzing archive entries...");
-
-            // loop through archive entries
-            foreach (IArchiveEntry entry in archive.Entries)
+            using (IArchive archive = ArchiveFactory.Open(@path))
             {
-                if (entry.IsDirectory)
-                    continue;
+                PostProgressMessage("Analyzing archive entries...");
 
-                string entryPath = entry.Key.Replace('/', '\\');
-                _modAnalysis.assets.Add(entryPath);
-
-                AddLogMessage(entryPath);
-
-                string extension = Path.GetExtension(entryPath).ToUpper();
-
-                switch (extension)
+                // loop through archive entries
+                foreach (IArchiveEntry entry in archive.Entries)
                 {
-                    case ".BA2":
-                        SendProgressMessage("Extracting BA2 at " + entryPath);
-                        HandleBA2(entry);
-                        break;
-                    case ".BSA":
-                        SendProgressMessage("Extracting BSA at " + entryPath);
-                        HandleBSA(entry);
-                        break;
-                    case ".ESP":
-                    case ".ESM":
-                        ExtractPlugin(entry);
-                        plugins.Add(entry);
-                        break;
+                    if (entry.IsDirectory)
+                        continue;
+
+                    string entryPath = entry.Key.Replace('/', '\\');
+                    _modAnalysis.assets.Add(entryPath);
+
+                    AddLogMessage(entryPath);
+
+                    string extension = Path.GetExtension(entryPath).ToUpper();
+
+                    switch (extension)
+                    {
+                        case ".BA2":
+                            PostProgressMessage("Extracting BA2 at " + entryPath);
+                            HandleBA2(entry);
+                            break;
+                        case ".BSA":
+                            PostProgressMessage("Extracting BSA at " + entryPath);
+                            HandleBSA(entry);
+                            break;
+                        case ".ESP":
+                        case ".ESM":
+                            ExtractPlugin(entry);
+                            plugins.Add(entry);
+                            break;
+                    }
                 }
-            }
+            }  
         }
 
         public void HandlePlugins()
@@ -185,7 +185,7 @@ namespace ModAnalyzer.ViewModels
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
-            SendProgressMessage("BA2 extracted, Analyzing entries...");
+            PostProgressMessage("BA2 extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string ba2Path = Path.Combine(rootPath, "bsas", entry.Key);
@@ -208,7 +208,7 @@ namespace ModAnalyzer.ViewModels
             Directory.CreateDirectory(@".\bsas");
             entry.WriteToDirectory(@".\bsas\", ExtractOptions.Overwrite);
 
-            SendProgressMessage("BSA extracted, Analyzing entries...");
+            PostProgressMessage("BSA extracted, Analyzing entries...");
 
             string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
