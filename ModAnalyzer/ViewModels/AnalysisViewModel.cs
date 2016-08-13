@@ -19,6 +19,7 @@ using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels
 {
+    // TODO: move a lot of this out of the ViewModel into a service class
     public class AnalysisViewModel : ViewModelBase
     {
         private readonly BA2NET _ba2Manager;
@@ -118,8 +119,7 @@ namespace ModAnalyzer.ViewModels
             using (IArchive archive = ArchiveFactory.Open(@path))
             {
                 PostProgressMessage("Analyzing archive entries...");
-
-                // loop through archive entries
+                
                 foreach (IArchiveEntry modArchiveEntry in archive.Entries)
                 {
                     if (modArchiveEntry.IsDirectory)
