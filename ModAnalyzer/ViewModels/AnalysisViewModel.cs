@@ -79,7 +79,7 @@ namespace ModAnalyzer.ViewModels
 
             using (IArchive archive = ArchiveFactory.Open(@path))
             {
-                (sender as BackgroundWorker).ReportProgress(0, new UIMessage(MessageType.ProgressMessage, "Analyzing archive entries..."));
+                (sender as BackgroundWorker).ReportProgress(0, new UIMessage(MessageType.ProgressMessage, "Loading " + Path.GetFileName(path) + "..."));
 
                 foreach (IArchiveEntry modArchiveEntry in archive.Entries)
                 {
