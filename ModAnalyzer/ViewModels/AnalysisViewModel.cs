@@ -22,8 +22,6 @@ namespace ModAnalyzer.ViewModels
     // TODO: move a lot of this out of the ViewModel into a service class
     public class AnalysisViewModel : ViewModelBase
     {
-        private readonly BA2NET _ba2Manager;
-        private readonly BSANET _bsaManager;
         private ModAnalysis _modAnalysis;
         private List<string> extracted;
         private List<IArchiveEntry> plugins;
@@ -41,8 +39,6 @@ namespace ModAnalyzer.ViewModels
 
         public AnalysisViewModel()
         {
-            _ba2Manager = new BA2NET();
-            _bsaManager = new BSANET();
             _modAnalysis = new ModAnalysis();
             extracted = new List<string>();
             plugins = new List<IArchiveEntry>();
@@ -108,12 +104,6 @@ namespace ModAnalyzer.ViewModels
             PostProgressMessage("All done.  JSON file saved to " + filename + ".json");
         }
 
-        ~AnalysisViewModel()
-        {
-            _ba2Manager.Dispose();
-            _bsaManager.bsa_close();
-        }
-
         private void GetModArchiveEntryMap(string path)
         {
             using (IArchive archive = ArchiveFactory.Open(@path))
@@ -125,11 +115,6 @@ namespace ModAnalyzer.ViewModels
                     if (modArchiveEntry.IsDirectory)
                         continue;
 
-                    string entryPath = modArchiveEntry.GetEntryPath();
-                    _modAnalysis.assets.Add(entryPath);
-
-                    AddLogMessage(entryPath);
-
                     ProcessModArchiveEntry(modArchiveEntry);
                 }
             }  
@@ -137,11 +122,16 @@ namespace ModAnalyzer.ViewModels
 
         private void ProcessModArchiveEntry(IArchiveEntry modArchiveEntry)
         {
+            string entryPath = modArchiveEntry.GetEntryPath();
+            _modAnalysis.assets.Add(entryPath);
+
+            AddLogMessage(entryPath);
+
             switch (modArchiveEntry.GetEntryExtesion())
             {
                 case ".BA2":
                 case ".BSA":
-                    PostProgressMessage("Extracting " + modArchiveEntry.GetEntryExtesion() + " at " + modArchiveEntry.GetEntryPath());
+                    PostProgressMessage("Extracting " + modArchiveEntry.GetEntryExtesion() + " at " + entryPath);
                     ExtractAssetArchive(modArchiveEntry);
                     break;
                 case ".ESP":
