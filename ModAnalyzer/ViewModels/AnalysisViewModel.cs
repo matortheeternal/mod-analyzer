@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using libbsa;
 using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
+using ModAnalyzer.Utils;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
@@ -112,36 +113,39 @@ namespace ModAnalyzer.ViewModels
                 PostProgressMessage("Analyzing archive entries...");
 
                 // loop through archive entries
-                foreach (IArchiveEntry entry in archive.Entries)
+                foreach (IArchiveEntry modArchiveEntry in archive.Entries)
                 {
-                    if (entry.IsDirectory)
+                    if (modArchiveEntry.IsDirectory)
                         continue;
 
-                    string entryPath = entry.Key.Replace('/', '\\');
+                    string entryPath = modArchiveEntry.GetEntryPath();
                     _modAnalysis.assets.Add(entryPath);
 
                     AddLogMessage(entryPath);
 
-                    string extension = Path.GetExtension(entryPath).ToUpper();
-
-                    switch (extension)
-                    {
-                        case ".BA2":
-                            PostProgressMessage("Extracting BA2 at " + entryPath);
-                            HandleBA2(entry);
-                            break;
-                        case ".BSA":
-                            PostProgressMessage("Extracting BSA at " + entryPath);
-                            HandleBSA(entry);
-                            break;
-                        case ".ESP":
-                        case ".ESM":
-                            ExtractPlugin(entry);
-                            plugins.Add(entry);
-                            break;
-                    }
+                    ProcessModArchiveEntry(modArchiveEntry);
                 }
             }  
+        }
+
+        private void ProcessModArchiveEntry(IArchiveEntry modArchiveEntry)
+        {
+            switch (extension)
+            {
+                case ".BA2":
+                    PostProgressMessage("Extracting BA2 at " + entryPath);
+                    HandleBA2(modArchiveEntry);
+                    break;
+                case ".BSA":
+                    PostProgressMessage("Extracting BSA at " + entryPath);
+                    HandleBSA(modArchiveEntry);
+                    break;
+                case ".ESP":
+                case ".ESM":
+                    ExtractPlugin(modArchiveEntry);
+                    plugins.Add(modArchiveEntry);
+                    break;
+            }
         }
 
         public void HandlePlugins()
