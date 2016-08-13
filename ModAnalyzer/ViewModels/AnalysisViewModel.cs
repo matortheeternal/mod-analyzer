@@ -50,7 +50,7 @@ namespace ModAnalyzer.ViewModels
             _backgroundWorker2 = new BackgroundWorker();
             _backgroundWorker2.DoWork += _backgroundWorker2_DoWork;
             _backgroundWorker2.WorkerReportsProgress = true;
-            _backgroundWorker2.ProgressChanged += _backgroundWorker_ProgressChanged;
+            _backgroundWorker2.ProgressChanged += _backgroundWorker2_ProgressChanged;
 
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
@@ -58,16 +58,17 @@ namespace ModAnalyzer.ViewModels
             GameService.game = GameService.getGame("Skyrim");
             ModDump.SetGameMode(GameService.game.gameMode);
 
-            ResetCommand = new RelayCommand(() =>
-            {
-                MessengerInstance.Send(new NavigationMessage(Page.Home));
-                SendProgressMessage("Ready...");
-            });
-
+            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
             LogMessages = new ObservableCollection<string>();
 
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
+        }
+
+        private void _backgroundWorker2_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        {
+            App.Current.Dispatcher.Invoke((Action)delegate { LogMessages.Add(e.UserState.ToString()); });
+            
         }
 
         private void _backgroundWorker2_DoWork(object sender, DoWorkEventArgs e)
@@ -112,7 +113,7 @@ namespace ModAnalyzer.ViewModels
 
         private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            App.Current.Dispatcher.Invoke((Action)delegate { LogMessages.Add(e.UserState.ToString()); });
+            LogMessages.Add(e.UserState.ToString());
         }
 
         private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
