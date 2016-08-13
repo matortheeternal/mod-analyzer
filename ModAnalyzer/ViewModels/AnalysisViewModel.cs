@@ -12,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Input;
@@ -45,6 +46,9 @@ namespace ModAnalyzer.ViewModels
             extracted = new List<string>();
             plugins = new List<IArchiveEntry>();
 
+            Directory.CreateDirectory("output");
+            Directory.CreateDirectory(@".\bsas");
+
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
             ModDump.StartModDump();
@@ -68,11 +72,14 @@ namespace ModAnalyzer.ViewModels
             Log += message + Environment.NewLine;
         }
 
+        private void AddLogMessages(List<string> messages)
+        {
+            foreach (string message in messages)
+                Log += message + Environment.NewLine;
+        }
+
         private void OnFileSelectedMessage(FileSelectedMessage message)
         {
-            if (!Directory.Exists("output"))
-                Directory.CreateDirectory("output");
-
             Log = string.Empty;
 
             PostProgressMessage("Loading " + message.FilePath + "...");
@@ -130,15 +137,12 @@ namespace ModAnalyzer.ViewModels
 
         private void ProcessModArchiveEntry(IArchiveEntry modArchiveEntry)
         {
-            switch (extension)
+            switch (modArchiveEntry.GetEntryExtesion())
             {
                 case ".BA2":
-                    PostProgressMessage("Extracting BA2 at " + entryPath);
-                    HandleBA2(modArchiveEntry);
-                    break;
                 case ".BSA":
-                    PostProgressMessage("Extracting BSA at " + entryPath);
-                    HandleBSA(modArchiveEntry);
+                    PostProgressMessage("Extracting " + modArchiveEntry.GetEntryExtesion() + " at " + modArchiveEntry.GetEntryPath());
+                    ExtractAssetArchive(modArchiveEntry);
                     break;
                 case ".ESP":
                 case ".ESM":
@@ -184,49 +188,51 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void HandleBA2(IArchiveEntry entry)
+        private void ExtractAssetArchive(IArchiveEntry assetArchiveEntry)
         {
-            Directory.CreateDirectory(@".\bsas");
-            entry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
+            assetArchiveEntry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
-            PostProgressMessage("BA2 extracted, Analyzing entries...");
+            PostProgressMessage(assetArchiveEntry.GetEntryExtesion() + " extracted, analyzing entries...");
 
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string ba2Path = Path.Combine(rootPath, "bsas", entry.Key);
+            string assetArchivePath = Path.Combine("bsas", assetArchiveEntry.Key);
 
-            if (_ba2Manager.Open(ba2Path))
-            {
-                string[] entries = _ba2Manager.GetNameTable();
+            string[] assets;
 
-                for (int i = 0; i < entries.Length; i++)
-                {
-                    string entryPath = Path.Combine(entry.Key, entries[i]);
-                    _modAnalysis.assets.Add(entryPath);
-                    AddLogMessage(entryPath);
-                }
-            }
+            if (assetArchiveEntry.GetEntryExtesion().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase))
+                assets = ExtractBSAArchive(assetArchivePath);
+            else
+                assets = ExtractBA2Archive(assetArchivePath);
+
+            List<string> assetEntryPaths = assets.Select(asset => Path.Combine(assetArchiveEntry.Key, asset)).ToList();
+            _modAnalysis.assets.AddRange(assetEntryPaths);
+            AddLogMessages(assetEntryPaths);
         }
 
-        public void HandleBSA(IArchiveEntry entry)
+        private string[] ExtractBSAArchive(string bsaPath)
         {
-            Directory.CreateDirectory(@".\bsas");
-            entry.WriteToDirectory(@".\bsas\", ExtractOptions.Overwrite);
+            string[] entries = null;
 
-            PostProgressMessage("BSA extracted, Analyzing entries...");
+            BSANET bsaManager = new BSANET();
 
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string bsaPath = Path.Combine(rootPath, "bsas", entry.Key);
+            if (bsaManager.bsa_open(bsaPath) == 0)
+                entries = bsaManager.bsa_get_assets(".*");
 
-            if (_bsaManager.bsa_open(bsaPath) == 0)
+            bsaManager.bsa_close();
+
+            return entries;
+        }
+
+        private string[] ExtractBA2Archive(string ba2Path)
+        {
+            string[] entries = null;
+
+            using (BA2NET ba2Manager = new BA2NET())
             {
-                string[] entries = _bsaManager.bsa_get_assets(".*");
-                for (int i = 0; i < entries.Length; i++)
-                {
-                    string entryPath = Path.Combine(entry.Key, entries[i]);
-                    _modAnalysis.assets.Add(entryPath);
-                    AddLogMessage(entryPath);
-                }
+                if (ba2Manager.Open(ba2Path))
+                    entries = ba2Manager.GetNameTable();
             }
+
+            return entries;
         }
 
         public void RevertPlugin(IArchiveEntry entry)
