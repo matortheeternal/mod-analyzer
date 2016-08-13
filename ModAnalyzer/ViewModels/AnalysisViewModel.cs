@@ -23,7 +23,7 @@ namespace ModAnalyzer.ViewModels
     public class AnalysisViewModel : ViewModelBase
     {
         private ModAnalysis _modAnalysis;
-        private List<string> _extracted;
+        private List<string> _extractedPlugins;
         private List<IArchiveEntry> _plugins;
         private Game _game;
 
@@ -41,7 +41,7 @@ namespace ModAnalyzer.ViewModels
         public AnalysisViewModel()
         {
             _modAnalysis = new ModAnalysis();
-            _extracted = new List<string>();
+            _extractedPlugins = new List<string>();
             _plugins = new List<IArchiveEntry>();
 
             Directory.CreateDirectory("output");
@@ -55,7 +55,6 @@ namespace ModAnalyzer.ViewModels
 
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
-            Log = string.Empty;
 
             MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
         }
@@ -85,11 +84,6 @@ namespace ModAnalyzer.ViewModels
             try
             {
                 GetModArchiveEntryMap(message.FilePath);
-                if (_plugins.Count > 0)
-                {
-                    HandlePlugins();
-                    RevertPlugins();
-                }
             }
             catch (Exception e)
             {
@@ -97,8 +91,12 @@ namespace ModAnalyzer.ViewModels
                 AddLogMessage("Exception:" + e.Message);
             }
 
-            string rootPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            string filename = Path.Combine(rootPath, "output", Path.GetFileNameWithoutExtension(message.FilePath));
+            SaveOutputFile(message.FilePath);
+        }
+
+        private void SaveOutputFile(string filePath)
+        {
+            string filename = Path.Combine("output", Path.GetFileNameWithoutExtension(filePath));
 
             PostProgressMessage("Saving JSON to " + filename + ".json...");
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
@@ -133,25 +131,28 @@ namespace ModAnalyzer.ViewModels
                 case ".BA2":
                 case ".BSA":
                     PostProgressMessage("Extracting " + modArchiveEntry.GetEntryExtesion() + " at " + entryPath);
-                    ExtractAssetArchive(modArchiveEntry);
+                    AnalyzeAssetArchive(modArchiveEntry);
                     break;
                 case ".ESP":
                 case ".ESM":
-                    ExtractPlugin(modArchiveEntry);
-                    _plugins.Add(modArchiveEntry);
+                    // Don't analyze the plugin yet. All plugins will be analyzed after asset archives.
+                    _plugins.Add(modArchiveEntry); 
                     break;
             }
+
+            if (_plugins.Any())
+                AnalyzePlugins();
         }
 
-        public void HandlePlugins()
+        public void AnalyzePlugins()
         {
             AddLogMessage("Extracting and analyzing plugins...");
-            foreach (IArchiveEntry entry in _plugins)
+
+            foreach (IArchiveEntry plugin in _plugins)
             {
                 try
                 {
-                    ExtractPlugin(entry);
-                    HandlePlugin(entry);
+                    ProcessPlugin(plugin);
                 }
                 catch (Exception e)
                 {
@@ -161,25 +162,8 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        public void RevertPlugins()
-        {
-            AddLogMessage("Restoring plugins...");
-            foreach (IArchiveEntry entry in _plugins)
-            {
-                try
-                {
-                    RevertPlugin(entry);
-                }
-                catch (Exception e)
-                {
-                    AddLogMessage("Failed to revert plugin!");
-                    AddLogMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!");
-                    AddLogMessage("Exception:" + e.Message);
-                }
-            }
-        }
-
-        private void ExtractAssetArchive(IArchiveEntry assetArchiveEntry)
+        // TODO: BackgroundWorker here
+        private void AnalyzeAssetArchive(IArchiveEntry assetArchiveEntry)
         {
             assetArchiveEntry.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
@@ -190,16 +174,16 @@ namespace ModAnalyzer.ViewModels
             string[] assets;
 
             if (assetArchiveEntry.GetEntryExtesion().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase))
-                assets = ExtractBSAArchive(assetArchivePath);
+                assets = GetBSAAssets(assetArchivePath);
             else
-                assets = ExtractBA2Archive(assetArchivePath);
+                assets = GetBA2Assets(assetArchivePath);
 
             List<string> assetEntryPaths = assets.Select(asset => Path.Combine(assetArchiveEntry.Key, asset)).ToList();
             _modAnalysis.assets.AddRange(assetEntryPaths);
             AddLogMessages(assetEntryPaths);
         }
 
-        private string[] ExtractBSAArchive(string bsaPath)
+        private string[] GetBSAAssets(string bsaPath)
         {
             string[] entries = null;
 
@@ -213,7 +197,7 @@ namespace ModAnalyzer.ViewModels
             return entries;
         }
 
-        private string[] ExtractBA2Archive(string ba2Path)
+        private string[] GetBA2Assets(string ba2Path)
         {
             string[] entries = null;
 
@@ -226,42 +210,60 @@ namespace ModAnalyzer.ViewModels
             return entries;
         }
 
+        private void ProcessPlugin(IArchiveEntry entry)
+        {
+            try
+            {
+                ExtractPlugin(entry);
+                AnalyzePlugin(entry);
+                RevertPlugin(entry);
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+
         public void RevertPlugin(IArchiveEntry entry)
         {
-            string dataPath = GameService.GetGamePath(_game);
-            string filename = Path.GetFileName(entry.Key);
-            string filepath = dataPath + filename;
-
-            File.Delete(filepath);
-            if (File.Exists(filepath + ".bak"))
+            try
             {
-                File.Move(filepath + ".bak", filepath);
+                string dataPath = GameService.GetGamePath(_game);
+                string fileName = Path.GetFileName(entry.Key);
+                string filePath = dataPath + fileName;
+
+                File.Delete(filePath);
+
+                if (File.Exists(filePath + ".bak"))
+                    File.Move(filePath + ".bak", filePath);
+            }
+            catch (Exception e)
+            {
+                AddLogMessage("Failed to revert plugin!");
+                AddLogMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!"); // TODO: show dialog message
+                AddLogMessage("Exception:" + e.Message);
             }
         }
 
         public void ExtractPlugin(IArchiveEntry entry)
         {
-            string dataPath = GameService.GetGamePath(_game);
-            string filename = Path.GetFileName(entry.Key);
-            string filepath = dataPath + filename;
-            bool alreadyExtracted = _extracted.IndexOf(filepath) > -1;
-
-            // track extraction
+            string gameDataPath = GameService.GetGamePath(_game);
+            string pluginFileName = Path.GetFileName(entry.Key);
+            string pluginFilePath = gameDataPath + pluginFileName; // TODO: use Path.Combine
+            bool alreadyExtracted = _extractedPlugins.Contains(pluginFilePath);
+            
             if (!alreadyExtracted)
             {
-                _extracted.Add(filepath);
-                // move existing file if present
-                if (File.Exists(filepath) && !File.Exists(filepath + ".bak"))
-                {
-                    File.Move(filepath, filepath + ".bak");
-                }
+                _extractedPlugins.Add(pluginFilePath);
+
+                if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak"))
+                    File.Move(pluginFilePath, pluginFilePath + ".bak");
             }
-
-            // extract file
-            entry.WriteToDirectory(dataPath, ExtractOptions.Overwrite);
+            
+            entry.WriteToDirectory(gameDataPath, ExtractOptions.Overwrite);
         }
-
-        public void HandlePlugin(IArchiveEntry entry)
+        
+        public void AnalyzePlugin(IArchiveEntry entry)
         {
             // prepare mod dump and message buffer
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
