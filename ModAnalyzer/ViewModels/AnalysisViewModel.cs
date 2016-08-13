@@ -23,8 +23,9 @@ namespace ModAnalyzer.ViewModels
     public class AnalysisViewModel : ViewModelBase
     {
         private ModAnalysis _modAnalysis;
-        private List<string> extracted;
-        private List<IArchiveEntry> plugins;
+        private List<string> _extracted;
+        private List<IArchiveEntry> _plugins;
+        private Game _game;
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
@@ -40,8 +41,8 @@ namespace ModAnalyzer.ViewModels
         public AnalysisViewModel()
         {
             _modAnalysis = new ModAnalysis();
-            extracted = new List<string>();
-            plugins = new List<IArchiveEntry>();
+            _extracted = new List<string>();
+            _plugins = new List<IArchiveEntry>();
 
             Directory.CreateDirectory("output");
             Directory.CreateDirectory(@".\bsas");
@@ -49,8 +50,8 @@ namespace ModAnalyzer.ViewModels
             // set game mode to Skyrim
             // TODO: Make this dynamic from GUI
             ModDump.StartModDump();
-            GameService.game = GameService.getGame("Skyrim");
-            ModDump.SetGameMode(GameService.game.gameMode);
+            _game = GameService.GetGame("Skyrim");
+            ModDump.SetGameMode(_game.gameMode);
 
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
@@ -84,7 +85,7 @@ namespace ModAnalyzer.ViewModels
             try
             {
                 GetModArchiveEntryMap(message.FilePath);
-                if (plugins.Count > 0)
+                if (_plugins.Count > 0)
                 {
                     HandlePlugins();
                     RevertPlugins();
@@ -137,7 +138,7 @@ namespace ModAnalyzer.ViewModels
                 case ".ESP":
                 case ".ESM":
                     ExtractPlugin(modArchiveEntry);
-                    plugins.Add(modArchiveEntry);
+                    _plugins.Add(modArchiveEntry);
                     break;
             }
         }
@@ -145,7 +146,7 @@ namespace ModAnalyzer.ViewModels
         public void HandlePlugins()
         {
             AddLogMessage("Extracting and analyzing plugins...");
-            foreach (IArchiveEntry entry in plugins)
+            foreach (IArchiveEntry entry in _plugins)
             {
                 try
                 {
@@ -163,7 +164,7 @@ namespace ModAnalyzer.ViewModels
         public void RevertPlugins()
         {
             AddLogMessage("Restoring plugins...");
-            foreach (IArchiveEntry entry in plugins)
+            foreach (IArchiveEntry entry in _plugins)
             {
                 try
                 {
@@ -227,7 +228,7 @@ namespace ModAnalyzer.ViewModels
 
         public void RevertPlugin(IArchiveEntry entry)
         {
-            string dataPath = GameService.getDataPath();
+            string dataPath = GameService.GetGamePath(_game);
             string filename = Path.GetFileName(entry.Key);
             string filepath = dataPath + filename;
 
@@ -240,15 +241,15 @@ namespace ModAnalyzer.ViewModels
 
         public void ExtractPlugin(IArchiveEntry entry)
         {
-            string dataPath = GameService.getDataPath();
+            string dataPath = GameService.GetGamePath(_game);
             string filename = Path.GetFileName(entry.Key);
             string filepath = dataPath + filename;
-            bool alreadyExtracted = extracted.IndexOf(filepath) > -1;
+            bool alreadyExtracted = _extracted.IndexOf(filepath) > -1;
 
             // track extraction
             if (!alreadyExtracted)
             {
-                extracted.Add(filepath);
+                _extracted.Add(filepath);
                 // move existing file if present
                 if (File.Exists(filepath) && !File.Exists(filepath + ".bak"))
                 {
