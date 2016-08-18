@@ -26,8 +26,8 @@ namespace ModAnalyzer.ViewModels
         private ModAnalysis _modAnalysis;
         private List<string> _extractedPlugins;
         private List<IArchiveEntry> _plugins;
-        private Game _game;
         private BackgroundWorker _assetArchiveAnalyzerBackgroundWorker;
+        private ModAnalyzerService _modAnalyzerService;
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
@@ -57,15 +57,7 @@ namespace ModAnalyzer.ViewModels
             _assetArchiveAnalyzerBackgroundWorker = new BackgroundWorker { WorkerReportsProgress = true };
             _assetArchiveAnalyzerBackgroundWorker.ProgressChanged += _assetArchiveAnalyzerBackgroundWorker_ProgressChanged;
             _assetArchiveAnalyzerBackgroundWorker.DoWork += _assetArchiveAnalyzerBackgroundWorker_DoWork;
-
-            Directory.CreateDirectory("output");
-            Directory.CreateDirectory(@".\bsas");
-
-            // set game mode to Skyrim
-            // TODO: Make this dynamic from GUI
-            ModDump.StartModDump();
-            _game = GameService.GetGame("Skyrim");
-            ModDump.SetGameMode(_game.gameMode);
+            
 
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
@@ -93,7 +85,7 @@ namespace ModAnalyzer.ViewModels
             }
         }
 
-        private void _assetArchiveAnalyzerBackgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void _assetArchiveAnalyzerBackgroundWorker_ProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             UIMessage uiMessage = e.UserState as UIMessage;
 
@@ -114,15 +106,7 @@ namespace ModAnalyzer.ViewModels
 
             ProgressMessage = "Loading " + message.FilePath + "...";
 
-            try
-            {
-                _assetArchiveAnalyzerBackgroundWorker.RunWorkerAsync(message.FilePath);
-            }
-            catch (Exception e)
-            {
-                AddLogMessage("Failed to analyze archive.");
-                AddLogMessage("Exception:" + e.Message);
-            }
+            _modAnalyzerService.AnalyzeMod(message.FilePath);
         }
 
         private void SaveOutputFile(string filePath)

@@ -142,18 +142,22 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
     <Compile Include="Domain\GameService.cs" />
     <Compile Include="Domain\MasterPlugin.cs" />
     <Compile Include="Domain\Game.cs" />
+    <Compile Include="Domain\MessageReporter.cs" />
     <Compile Include="Domain\ModAnalysis.cs" />
+    <Compile Include="Domain\ModAnalyzerService.cs" />
     <Compile Include="Domain\ModDump.cs" />
     <Compile Include="Domain\OverrideRecord.cs" />
+    <Compile Include="Domain\PluginAnalyzer.cs" />
     <Compile Include="Domain\PluginDump.cs" />
     <Compile Include="Domain\PluginError.cs" />
     <Compile Include="Domain\PluginRecordGroup.cs" />
+    <Compile Include="Domain\MessageReportedEventArgs.cs" />
     <Compile Include="Messages\FileSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
-    <Compile Include="Messages\UIMessage.cs" />
     <Compile Include="Utils\IArchiveEntryExtensions.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
