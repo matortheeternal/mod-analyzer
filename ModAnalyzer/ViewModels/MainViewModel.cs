@@ -8,14 +8,6 @@ namespace ModAnalyzer.ViewModels
     {
         private readonly ViewModelLocator _viewModelLocator;
 
-        private string _progressMessage;
-
-        public string ProgressMessage
-        {
-            get { return _progressMessage; }
-            set { Set(nameof(ProgressMessage), ref _progressMessage, value); }
-        }
-
         private ViewModelBase _currentViewModel;
 
         public ViewModelBase CurrentViewModel
@@ -31,7 +23,6 @@ namespace ModAnalyzer.ViewModels
             CurrentViewModel = _viewModelLocator.HomeViewModel;
 
             MessengerInstance.Register<NavigationMessage>(this, true, OnNavigationMessageReceived);
-            MessengerInstance.Register<UIMessage>(this, message => ProgressMessage = message.Message);
         }
 
         private void OnNavigationMessageReceived(NavigationMessage message)

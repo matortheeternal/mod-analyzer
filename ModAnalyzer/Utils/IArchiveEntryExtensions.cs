@@ -10,7 +10,7 @@ namespace ModAnalyzer.Utils
             return archiveEntry.Key.Replace('/', '\\');
         }
 
-        public static string GetEntryExtesion(this IArchiveEntry archiveEntry)
+        public static string GetEntryExtension(this IArchiveEntry archiveEntry)
         {
             return Path.GetExtension(GetEntryPath(archiveEntry)).ToUpper();
         }
