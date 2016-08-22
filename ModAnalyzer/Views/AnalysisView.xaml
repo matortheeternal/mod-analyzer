@@ -6,11 +6,18 @@
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AnalysisViewModel}">
-    <DockPanel LastChildFill="True">
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="10">
+            <Button Content="RESET" Command="{Binding ResetCommand, Mode=OneTime}" />
+            <Button Content="VIEW OUTPUT" Command="{Binding ViewOutputCommand, Mode=OneTime}" Margin="5 0 0 0" />
+        </StackPanel>
+
+        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Bottom">
+            <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
+        </StatusBar>
+
         <ScrollViewer DockPanel.Dock="Top">
-            <ListBox ItemsSource="{Binding LogMessages, Mode=OneWay}" />
+            <TextBox Text="{Binding Log, Mode=OneWay}" />
         </ScrollViewer>
-        
-        <Button Content="RESET" />
     </DockPanel>
 </UserControl>
