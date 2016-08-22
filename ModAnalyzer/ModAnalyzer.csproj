@@ -79,10 +79,10 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>593A014F6FE78DE1637ABDBCABC002B5E795B664</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>35A6796A94B92298CCE29F367B3361F870484BB1</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>ModAnalyzer_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>ModAnalyzer_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -231,6 +231,7 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <None Include="ModAnalyzer_1_TemporaryKey.pfx" />
     <None Include="ModAnalyzer_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />

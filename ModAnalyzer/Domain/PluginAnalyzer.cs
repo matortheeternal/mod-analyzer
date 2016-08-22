@@ -29,6 +29,7 @@ namespace ModAnalyzer.Domain
         {
             try
             {
+                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Getting plugin dump for " + entry.Key + "..."));
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }

@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 
@@ -33,21 +34,24 @@ namespace ModAnalyzer.Domain
 
         private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            string modArchivePath = e.Argument.ToString();
+            List<string> modArchivePaths = e.Argument as List<string>;
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Loading " + modArchivePath));
-
-            using (IArchive archive = ArchiveFactory.Open(modArchivePath))
+            foreach(string modArchivePath in modArchivePaths)
             {
-                foreach (IArchiveEntry modArchiveEntry in archive.Entries)
+                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Analyzing " + Path.GetFileName(modArchivePath) + "..."));
+
+                using (IArchive archive = ArchiveFactory.Open(modArchivePath))
                 {
-                    if (modArchiveEntry.IsDirectory)
-                        continue;
+                    foreach (IArchiveEntry modArchiveEntry in archive.Entries)
+                    {
+                        if (modArchiveEntry.IsDirectory)
+                            continue;
 
-                    AnalyzeModArchiveEntry(modArchiveEntry);
+                        AnalyzeModArchiveEntry(modArchiveEntry);
+                    }
+
+                    SaveOutputFile(modArchivePath);
                 }
-
-                SaveOutputFile(modArchivePath);
             }
         }
 
@@ -58,9 +62,9 @@ namespace ModAnalyzer.Domain
             MessageReported?.Invoke(this, eventArgs);
         }
 
-        public void AnalyzeMod(string modArchivePath)
+        public void AnalyzeMod(List<string> modArchivePaths)
         {
-            _backgroundWorker.RunWorkerAsync(modArchivePath);
+            _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 
         private void AnalyzeModArchiveEntry(IArchiveEntry modArchiveEntry)

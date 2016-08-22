@@ -26,6 +26,8 @@ namespace ModAnalyzer.Domain
         {
             ExtractArchive(assetArchive);
 
+            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Getting assets from " + assetArchive.GetEntryPath() + "..."));
+
             string extractedArchivePath = Path.Combine("bsas", assetArchive.Key);
 
             List<string> assets;
