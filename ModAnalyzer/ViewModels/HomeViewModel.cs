@@ -17,7 +17,12 @@ namespace ModAnalyzer.ViewModels
 
         private void Browse()
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog { Title = "Select a mod archive", Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar" };
+            OpenFileDialog openFileDialog = new OpenFileDialog
+            {
+                Title = "Select a mod archive",
+                Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar",
+                Multiselect = true
+            };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK)
                 MessengerInstance.Send(new FileSelectedMessage(openFileDialog.FileName));
