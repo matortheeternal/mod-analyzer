@@ -92,16 +92,19 @@ namespace ModAnalyzer.Domain
             return FindArchiveEntry(archive, "fomod/info.xml") != null;
         }
 
-        private void MapEntryToOptionAssets(SortedDictionary<FomodFileNode, ModOption> map, IArchiveEntry entry) 
+        private void MapEntryToOptionAssets(List<Tuple<FomodFileNode, ModOption>> map, IArchiveEntry entry) 
         {
             string entryPath = entry.GetEntryPath();
-            foreach (KeyValuePair<FomodFileNode, ModOption> mapping in map) 
+            foreach (Tuple<FomodFileNode, ModOption> mapping in map) 
             {
-                FomodFileNode fileNode = mapping.Key;
-                ModOption option = mapping.Value;
+                FomodFileNode fileNode = mapping.Item1;
+                ModOption option = mapping.Item2;
 
                 if (entryPath.StartsWith(fileNode.source)) {
                     string mappedPath = entryPath.Replace(fileNode.source, fileNode.destination);
+                    if (mappedPath.StartsWith("\\")) {
+                        mappedPath = mappedPath.Remove(0, 1);
+                    }
                     option.Assets.Add(mappedPath);
                     ReportProgress("  " + option.Name + " -> " + mappedPath);
 
@@ -116,17 +119,17 @@ namespace ModAnalyzer.Domain
         {
             ReportProgress("Parsing FOMOD Options");
             List<ModOption> fomodOptions = new List<ModOption>();
-            SortedDictionary<FomodFileNode, ModOption> fomodFileMap = new SortedDictionary<FomodFileNode, ModOption>();
+            List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
             // STEP 1: Find the fomod\info.xml file and extract it
-            IArchiveEntry infoEntry = FindArchiveEntry(archive, @"fomod\info.xml");
-            Directory.CreateDirectory(@".\info");
-            infoEntry.WriteToDirectory(@".\info", ExtractOptions.Overwrite);
-            ReportProgress("FOMOD Info Extracted" + Environment.NewLine);
+            IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
+            Directory.CreateDirectory(@".\fomod");
+            configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
+            ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
 
             // STEP 2: Parse info.xml and determine what the mod options are
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(@".\info\info.xml");
+            xmlDoc.Load(@".\fomod\ModuleConfig.xml");
 
             // loop through the plugin elements
             XmlNodeList pluginElements = xmlDoc.GetElementsByTagName("plugin");
@@ -143,7 +146,7 @@ namespace ModAnalyzer.Domain
                 foreach (XmlNode childNode in files.ChildNodes) 
                 {
                     FomodFileNode fileNode = new FomodFileNode(childNode);
-                    fomodFileMap.Add(fileNode, option);
+                    fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
                     ReportProgress("  + '" + fileNode.source + "' -> '" + fileNode.destination + "'");
                 }
             }

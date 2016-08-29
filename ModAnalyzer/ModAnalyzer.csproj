@@ -166,6 +166,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\FomodFileNode.cs" />
     <Compile Include="Domain\GameService.cs" />
     <Compile Include="Domain\MasterPlugin.cs" />
     <Compile Include="Domain\Game.cs" />
