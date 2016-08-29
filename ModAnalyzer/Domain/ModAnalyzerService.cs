@@ -100,11 +100,8 @@ namespace ModAnalyzer.Domain
                 FomodFileNode fileNode = mapping.Item1;
                 ModOption option = mapping.Item2;
 
-                if (entryPath.StartsWith(fileNode.source)) {
-                    string mappedPath = entryPath.Replace(fileNode.source, fileNode.destination);
-                    if (mappedPath.StartsWith("\\")) {
-                        mappedPath = mappedPath.Remove(0, 1);
-                    }
+                if (fileNode.MatchesPath(entryPath)) {
+                    string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
                     ReportProgress("  " + option.Name + " -> " + mappedPath);
 
@@ -147,7 +144,7 @@ namespace ModAnalyzer.Domain
                 {
                     FomodFileNode fileNode = new FomodFileNode(childNode);
                     fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
-                    ReportProgress("  + '" + fileNode.source + "' -> '" + fileNode.destination + "'");
+                    ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
                 }
             }
 

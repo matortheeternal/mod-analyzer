@@ -6,18 +6,30 @@ namespace ModAnalyzer.Domain {
     /// Used to store information on a fomod file or folder node
     /// </summary>
     public class FomodFileNode {
-        public string source { get; set; }
-        public string destination { get; set; }
-        public int priority { get; set; }
+        public bool IsFolder { get; set; }
+        public string Source { get; set; }
+        public string Destination { get; set; }
+        public int Priority { get; set; }
 
         public FomodFileNode(XmlNode node)
         {
-            source = node.Attributes["source"].Value;
-            destination = node.Attributes["destination"].Value;
+            IsFolder = node.Name.Equals("folder");
+            Source = node.Attributes["source"].Value;
+            Destination = node.Attributes["destination"].Value;
             if (node.Attributes["priority"] != null)
             {
-                priority = Int32.Parse(node.Attributes["priority"].Value);
+                Priority = Int32.Parse(node.Attributes["priority"].Value);
             }
+        }
+
+        public bool MatchesPath(string path) 
+        {
+            return path.StartsWith(Source + (IsFolder ? "\\" : ""));
+        }
+
+        public string MappedPath(string path) 
+        {
+            return path.Replace(Source + (IsFolder ? "\\" : ""), Destination);
         }
     }
 }
