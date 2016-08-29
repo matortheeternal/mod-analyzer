@@ -38,7 +38,7 @@ namespace ModAnalyzer.Domain
 
             foreach(string modArchivePath in modArchivePaths)
             {
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Analyzing " + Path.GetFileName(modArchivePath) + "..."));
+                ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
 
                 using (IArchive archive = ArchiveFactory.Open(modArchivePath))
                 {
@@ -62,6 +62,12 @@ namespace ModAnalyzer.Domain
             MessageReported?.Invoke(this, eventArgs);
         }
 
+        private void ReportProgress(string msg) 
+        {
+            MessageReportedEventArgs args = MessageReportedEventArgsFactory.CreateLogMessageEventArgs(msg);
+            _backgroundWorker.ReportProgress(0, args);
+        }
+
         public void AnalyzeMod(List<string> modArchivePaths)
         {
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
@@ -72,13 +78,14 @@ namespace ModAnalyzer.Domain
             string entryPath = modArchiveEntry.GetEntryPath();
             _modAnalysis.assets.Add(entryPath);
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(entryPath));
+            ReportProgress(entryPath);
 
             switch (modArchiveEntry.GetEntryExtension())
             {
                 case ".BA2":
                 case ".BSA":
-                    _modAnalysis.assets.AddRange(_assetArchiveAnalyzer.GetAssets(modArchiveEntry));
+                    List<String> assets = _assetArchiveAnalyzer.GetAssets(modArchiveEntry);
+                    _modAnalysis.assets.AddRange(assets);
                     break;
                 case ".ESP":
                 case ".ESM":
@@ -93,9 +100,9 @@ namespace ModAnalyzer.Domain
         {
             string filename = Path.Combine("output", Path.GetFileNameWithoutExtension(filePath));
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Saving JSON to " + filename + ".json..."));
+            ReportProgress("Saving JSON to " + filename + ".json...");
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("All done.  JSON file saved to " + filename + ".json"));
+            ReportProgress("All done.  JSON file saved to " + filename + ".json");
         }
     }
 }
