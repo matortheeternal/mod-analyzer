@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace ModAnalyzer.Domain
 {
@@ -7,10 +8,15 @@ namespace ModAnalyzer.Domain
     /// </summary>
     public class ModOption
     {
+        [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
+        [JsonProperty(PropertyName = "default")]
         public bool IsDefaultOption { get; set; }
+        [JsonProperty(PropertyName = "is_fomod_option")]
         public bool IsFomodOption { get; set; }
+        [JsonProperty(PropertyName = "assets")]
         public List<string> Assets { get; set; }
+        [JsonProperty(PropertyName = "plugins")]
         public List<PluginDump> Plugins { get; set; }
 
         public ModOption()
