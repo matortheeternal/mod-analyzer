@@ -123,13 +123,16 @@ namespace ModAnalyzer.Domain
             List<ModOption> fomodOptions = new List<ModOption>();
             List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
-            // STEP 1: Find the fomod\info.xml file and extract it
+            // STEP 1: Create base fomod option
+            // TODO
+
+            // STEP 2: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
             ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
 
-            // STEP 2: Parse info.xml and determine what the mod options are
+            // STEP 3: Parse info.xml and determine what the mod options are
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\fomod\ModuleConfig.xml");
 
@@ -153,14 +156,14 @@ namespace ModAnalyzer.Domain
                 }
             }
 
-            // STEP 3: Loop through the archive's assets appending them to mod options per mapping
+            // STEP 4: Loop through the archive's assets appending them to mod options per mapping
             ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
             foreach (IArchiveEntry entry in archive.Entries) 
             {
                 MapEntryToOptionAssets(fomodFileMap, entry);
             }
 
-            // STEP 4: Delete any options that have no assets or plugins in them
+            // STEP 5: Delete any options that have no assets or plugins in them
             ReportProgress(Environment.NewLine + "Cleaning up...");
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
