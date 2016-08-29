@@ -91,7 +91,7 @@ namespace ModAnalyzer.Domain
             }
 
             // log the results
-            // TODO: This should be handled better
+            // TODO: This should be handled better - we should use polling to get the buffer continuously
             ModDump.GetBuffer(message, message.Capacity);
             _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(message.ToString()));
             ModDump.FlushBuffer();
