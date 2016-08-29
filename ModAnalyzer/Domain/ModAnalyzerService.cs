@@ -103,7 +103,7 @@ namespace ModAnalyzer.Domain
                 if (entryPath.StartsWith(fileNode.source)) {
                     string mappedPath = entryPath.Replace(fileNode.source, fileNode.destination);
                     option.Assets.Add(mappedPath);
-                    ReportProgress(option.Name + " -> " + mappedPath);
+                    ReportProgress("  " + option.Name + " -> " + mappedPath);
 
                     // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
                     // TODO: Fix that.
@@ -130,33 +130,37 @@ namespace ModAnalyzer.Domain
 
             // loop through the plugin elements
             XmlNodeList pluginElements = xmlDoc.GetElementsByTagName("plugin");
-            ReportProgress(pluginElements.Count + " FOMOD options found");
             foreach (XmlNode node in pluginElements) 
             {
                 ModOption option = new ModOption();
                 option.Name = node.Attributes["name"].Value;
                 option.IsFomodOption = true;
                 fomodOptions.Add(option);
-                
+                ReportProgress("Found FOMOD Option: " + option.Name);
+
                 // loop through the file/folder nodes to create mapping
                 XmlNode files = node["files"];
                 foreach (XmlNode childNode in files.ChildNodes) 
                 {
                     FomodFileNode fileNode = new FomodFileNode(childNode);
                     fomodFileMap.Add(fileNode, option);
+                    ReportProgress("  + '" + fileNode.source + "' -> '" + fileNode.destination + "'");
                 }
             }
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
+            ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
             foreach (IArchiveEntry entry in archive.Entries) 
             {
                 MapEntryToOptionAssets(fomodFileMap, entry);
             }
 
             // STEP 4: Delete any options that have no assets or plugins in them
+            ReportProgress(Environment.NewLine + "Cleaning up...");
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
             // Return the mod options we built
+            ReportProgress("Done.  " + fomodOptions.Count + " FOMOD Options found.");
             return fomodOptions;
         }
 
