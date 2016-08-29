@@ -39,6 +39,7 @@ namespace ModAnalyzer.Domain
             foreach(string modArchivePath in modArchivePaths)
             {
                 ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
+                ModOption currentOption = new ModOption();
 
                 using (IArchive archive = ArchiveFactory.Open(modArchivePath))
                 {
@@ -47,11 +48,13 @@ namespace ModAnalyzer.Domain
                         if (modArchiveEntry.IsDirectory)
                             continue;
 
-                        AnalyzeModArchiveEntry(modArchiveEntry);
+                        AnalyzeModArchiveEntry(modArchiveEntry, currentOption);
                     }
 
                     SaveOutputFile(modArchivePath);
                 }
+
+                _modAnalysis.ModOptions.Add(currentOption);
             }
         }
 
@@ -73,10 +76,10 @@ namespace ModAnalyzer.Domain
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 
-        private void AnalyzeModArchiveEntry(IArchiveEntry modArchiveEntry)
+        private void AnalyzeModArchiveEntry(IArchiveEntry modArchiveEntry, ModOption option)
         {
             string entryPath = modArchiveEntry.GetEntryPath();
-            _modAnalysis.assets.Add(entryPath);
+            option.Assets.Add(entryPath);
 
             ReportProgress(entryPath);
 
@@ -85,13 +88,13 @@ namespace ModAnalyzer.Domain
                 case ".BA2":
                 case ".BSA":
                     List<String> assets = _assetArchiveAnalyzer.GetAssets(modArchiveEntry);
-                    _modAnalysis.assets.AddRange(assets);
+                    option.Assets.AddRange(assets);
                     break;
                 case ".ESP":
                 case ".ESM":
                     PluginDump pluginDump = _pluginAnalyzer.GetPluginDump(modArchiveEntry);
                     if (pluginDump != null)
-                        _modAnalysis.plugins.Add(_pluginAnalyzer.GetPluginDump(modArchiveEntry));
+                        option.Plugins.Add(pluginDump);
                     break;
             }
         }
