@@ -122,7 +122,7 @@ namespace ModAnalyzer.Domain
             IArchiveEntry infoEntry = FindArchiveEntry(archive, @"fomod\info.xml");
             Directory.CreateDirectory(@".\info");
             infoEntry.WriteToDirectory(@".\info", ExtractOptions.Overwrite);
-            ReportProgress("FOMOD Info Extracted");
+            ReportProgress("FOMOD Info Extracted" + Environment.NewLine);
 
             // STEP 2: Parse info.xml and determine what the mod options are
             XmlDocument xmlDoc = new XmlDocument();
