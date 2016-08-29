@@ -39,23 +39,25 @@ namespace ModAnalyzer.Domain
             foreach(string modArchivePath in modArchivePaths)
             {
                 ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
-                ModOption currentOption = new ModOption();
 
                 using (IArchive archive = ArchiveFactory.Open(modArchivePath))
                 {
-                    foreach (IArchiveEntry modArchiveEntry in archive.Entries)
+                    if (IsFomodArchive(archive))
                     {
-                        if (modArchiveEntry.IsDirectory)
-                            continue;
-
-                        AnalyzeModArchiveEntry(modArchiveEntry, currentOption);
+                        List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
+                        _modAnalysis.ModOptions.AddRange(fomodOptions);
                     }
-
-                    SaveOutputFile(modArchivePath);
+                    else
+                    {
+                        ModOption option = AnalyzeNormalArchive(archive);
+                        _modAnalysis.ModOptions.Add(option);
+                    }
                 }
-
-                _modAnalysis.ModOptions.Add(currentOption);
             }
+
+            // TODO: This should get the name of the base mod option or something
+            string filename = modArchivePaths[0];
+            SaveOutputFile(filename);
         }
 
         private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
@@ -69,6 +71,41 @@ namespace ModAnalyzer.Domain
         {
             MessageReportedEventArgs args = MessageReportedEventArgsFactory.CreateLogMessageEventArgs(msg);
             _backgroundWorker.ReportProgress(0, args);
+        }
+
+        private bool IsFomodArchive(IArchive archive) 
+        {
+            foreach (IArchiveEntry modArchiveEntry in archive.Entries) 
+            {
+                if (modArchiveEntry.Key == "fomod") 
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
+        {
+            List<ModOption> fomodOptions = new List<ModOption>();
+            // TODO: FOMOD ARCHIVE ANALYSIS LOGIC
+            // STEP 1: Find the fomod\info.xml file and extract it
+            // STEP 2: Parse info.xml and determine what the mod options are
+            // STEP 3: Loop through the archive's assets appending them to mod options per info.xml
+            // STEP 4: Delete any options that have no assets in them
+            return fomodOptions;
+        }
+
+        private ModOption AnalyzeNormalArchive(IArchive archive) {
+            ModOption option = new ModOption();
+            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
+                if (modArchiveEntry.IsDirectory)
+                    continue;
+
+                AnalyzeModArchiveEntry(modArchiveEntry, option);
+            }
+
+            return option;
         }
 
         public void AnalyzeMod(List<string> modArchivePaths)
