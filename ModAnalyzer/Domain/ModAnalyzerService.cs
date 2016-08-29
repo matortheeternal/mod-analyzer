@@ -79,7 +79,7 @@ namespace ModAnalyzer.Domain
         {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) 
             {
-                if (modArchiveEntry.GetEntryPath() == path) 
+                if (path.Equals(modArchiveEntry.Key)) 
                 {
                     return modArchiveEntry;
                 }
@@ -89,7 +89,7 @@ namespace ModAnalyzer.Domain
 
         private bool IsFomodArchive(IArchive archive) 
         {
-            return FindArchiveEntry(archive, "fomod") != null;
+            return FindArchiveEntry(archive, "fomod/info.xml") != null;
         }
 
         private void MapEntryToOptionAssets(SortedDictionary<FomodFileNode, ModOption> map, IArchiveEntry entry) 
