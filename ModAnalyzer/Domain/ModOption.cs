@@ -18,5 +18,10 @@ namespace ModAnalyzer.Domain
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
         }
+
+        public static bool IsEmpty(ModOption option) 
+        {
+            return (option.Assets.Count == 0) && (option.Plugins.Count == 0);
+        }
     }
 }

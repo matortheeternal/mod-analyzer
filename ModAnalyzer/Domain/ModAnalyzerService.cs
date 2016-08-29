@@ -1,7 +1,9 @@
 ﻿using ModAnalyzer.Utils;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
+using SharpCompress.Common;
 using System;
+using System.Xml;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -73,26 +75,88 @@ namespace ModAnalyzer.Domain
             _backgroundWorker.ReportProgress(0, args);
         }
 
-        private bool IsFomodArchive(IArchive archive) 
+        private IArchiveEntry FindArchiveEntry(IArchive archive, string path) 
         {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) 
             {
-                if (modArchiveEntry.Key == "fomod") 
+                if (modArchiveEntry.GetEntryPath() == path) 
                 {
-                    return true;
+                    return modArchiveEntry;
                 }
             }
-            return false;
+            return null;
+        }
+
+        private bool IsFomodArchive(IArchive archive) 
+        {
+            return FindArchiveEntry(archive, "fomod") != null;
+        }
+
+        private void MapEntryToOptionAssets(SortedDictionary<FomodFileNode, ModOption> map, IArchiveEntry entry) 
+        {
+            string entryPath = entry.GetEntryPath();
+            foreach (KeyValuePair<FomodFileNode, ModOption> mapping in map) 
+            {
+                FomodFileNode fileNode = mapping.Key;
+                ModOption option = mapping.Value;
+
+                if (entryPath.StartsWith(fileNode.source)) {
+                    string mappedPath = entryPath.Replace(fileNode.source, fileNode.destination);
+                    option.Assets.Add(mappedPath);
+                    ReportProgress(option.Name + " -> " + mappedPath);
+
+                    // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
+                    // TODO: Fix that.
+                    AnalyzeModArchiveEntry(entry, option);
+                }
+            }
         }
 
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
         {
+            ReportProgress("Parsing FOMOD Options");
             List<ModOption> fomodOptions = new List<ModOption>();
-            // TODO: FOMOD ARCHIVE ANALYSIS LOGIC
+            SortedDictionary<FomodFileNode, ModOption> fomodFileMap = new SortedDictionary<FomodFileNode, ModOption>();
+
             // STEP 1: Find the fomod\info.xml file and extract it
+            IArchiveEntry infoEntry = FindArchiveEntry(archive, @"fomod\info.xml");
+            Directory.CreateDirectory(@".\info");
+            infoEntry.WriteToDirectory(@".\info", ExtractOptions.Overwrite);
+            ReportProgress("FOMOD Info Extracted");
+
             // STEP 2: Parse info.xml and determine what the mod options are
-            // STEP 3: Loop through the archive's assets appending them to mod options per info.xml
-            // STEP 4: Delete any options that have no assets in them
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.Load(@".\info\info.xml");
+
+            // loop through the plugin elements
+            XmlNodeList pluginElements = xmlDoc.GetElementsByTagName("plugin");
+            ReportProgress(pluginElements.Count + " FOMOD options found");
+            foreach (XmlNode node in pluginElements) 
+            {
+                ModOption option = new ModOption();
+                option.Name = node.Attributes["name"].Value;
+                option.IsFomodOption = true;
+                fomodOptions.Add(option);
+                
+                // loop through the file/folder nodes to create mapping
+                XmlNode files = node["files"];
+                foreach (XmlNode childNode in files.ChildNodes) 
+                {
+                    FomodFileNode fileNode = new FomodFileNode(childNode);
+                    fomodFileMap.Add(fileNode, option);
+                }
+            }
+
+            // STEP 3: Loop through the archive's assets appending them to mod options per mapping
+            foreach (IArchiveEntry entry in archive.Entries) 
+            {
+                MapEntryToOptionAssets(fomodFileMap, entry);
+            }
+
+            // STEP 4: Delete any options that have no assets or plugins in them
+            fomodOptions.RemoveAll(ModOption.IsEmpty);
+
+            // Return the mod options we built
             return fomodOptions;
         }
 
@@ -102,6 +166,12 @@ namespace ModAnalyzer.Domain
                 if (modArchiveEntry.IsDirectory)
                     continue;
 
+                // append entry path to option assets
+                string entryPath = modArchiveEntry.GetEntryPath();
+                option.Assets.Add(entryPath);
+                ReportProgress(entryPath);
+
+                // handle BSAs and plugins
                 AnalyzeModArchiveEntry(modArchiveEntry, option);
             }
 
@@ -113,23 +183,18 @@ namespace ModAnalyzer.Domain
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 
-        private void AnalyzeModArchiveEntry(IArchiveEntry modArchiveEntry, ModOption option)
+        private void AnalyzeModArchiveEntry(IArchiveEntry entry, ModOption option)
         {
-            string entryPath = modArchiveEntry.GetEntryPath();
-            option.Assets.Add(entryPath);
-
-            ReportProgress(entryPath);
-
-            switch (modArchiveEntry.GetEntryExtension())
+            switch (entry.GetEntryExtension())
             {
                 case ".BA2":
                 case ".BSA":
-                    List<String> assets = _assetArchiveAnalyzer.GetAssets(modArchiveEntry);
+                    List<String> assets = _assetArchiveAnalyzer.GetAssets(entry);
                     option.Assets.AddRange(assets);
                     break;
                 case ".ESP":
                 case ".ESM":
-                    PluginDump pluginDump = _pluginAnalyzer.GetPluginDump(modArchiveEntry);
+                    PluginDump pluginDump = _pluginAnalyzer.GetPluginDump(entry);
                     if (pluginDump != null)
                         option.Plugins.Add(pluginDump);
                     break;
