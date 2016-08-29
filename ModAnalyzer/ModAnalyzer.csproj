@@ -173,6 +173,7 @@
     <Compile Include="Domain\ModAnalysis.cs" />
     <Compile Include="Domain\ModAnalyzerService.cs" />
     <Compile Include="Domain\ModDump.cs" />
+    <Compile Include="Domain\ModOption.cs" />
     <Compile Include="Domain\OverrideRecord.cs" />
     <Compile Include="Domain\PluginAnalyzer.cs" />
     <Compile Include="Domain\PluginDump.cs" />
