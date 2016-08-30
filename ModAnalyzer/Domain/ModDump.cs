@@ -21,6 +21,8 @@ namespace ModAnalyzer.Domain
         [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern bool Prepare(string FilePath);
         [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern bool Dump(StringBuilder str, int len);
+        public static extern bool Dump();
+        [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern bool GetDumpResult(StringBuilder str, int len);
     }
 }
