@@ -52,6 +52,8 @@ namespace ModAnalyzer.Domain
                     else
                     {
                         ModOption option = AnalyzeNormalArchive(archive);
+                        option.Name = Path.GetFileName(modArchivePath);
+                        option.Size = archive.TotalUncompressSize;
                         _modAnalysis.ModOptions.Add(option);
                     }
                 }
@@ -94,7 +96,7 @@ namespace ModAnalyzer.Domain
 
         private bool IsFomodArchive(IArchive archive) 
         {
-            return FindArchiveEntry(archive, "fomod/info.xml") != null;
+            return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
         }
 
         private void MapEntryToOptionAssets(List<Tuple<FomodFileNode, ModOption>> map, IArchiveEntry entry) 
@@ -108,6 +110,7 @@ namespace ModAnalyzer.Domain
                 if (fileNode.MatchesPath(entryPath)) {
                     string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
+                    option.Size += entry.Size;
                     ReportProgress("  " + option.Name + " -> " + mappedPath);
 
                     // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
@@ -142,6 +145,7 @@ namespace ModAnalyzer.Domain
             {
                 ModOption option = new ModOption();
                 option.Name = node.Attributes["name"].Value;
+                option.Size = 0;
                 option.IsFomodOption = true;
                 fomodOptions.Add(option);
                 ReportProgress("Found FOMOD Option: " + option.Name);
@@ -174,6 +178,7 @@ namespace ModAnalyzer.Domain
 
         private ModOption AnalyzeNormalArchive(IArchive archive) {
             ModOption option = new ModOption();
+
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
                 if (modArchiveEntry.IsDirectory)
                     continue;
