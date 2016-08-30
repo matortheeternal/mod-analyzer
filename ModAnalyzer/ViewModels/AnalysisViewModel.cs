@@ -40,7 +40,7 @@ namespace ModAnalyzer.ViewModels
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
-            MessengerInstance.Register<FileSelectedMessage>(this, OnFileSelectedMessage);
+            MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelectedMessage);
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e)
@@ -51,11 +51,11 @@ namespace ModAnalyzer.ViewModels
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message));
         }
 
-        private void OnFileSelectedMessage(FileSelectedMessage message)
+        private void OnFilesSelectedMessage(FilesSelectedMessage message)
         {
             Log = string.Empty;
 
-            _modAnalyzerService.AnalyzeMod(message.FilePath);
+            _modAnalyzerService.AnalyzeMod(message.FilePaths);
         }        
     }
 }

@@ -29,6 +29,7 @@ namespace ModAnalyzer.Domain
         {
             try
             {
+                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Getting plugin dump for " + entry.Key + "..."));
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }
@@ -83,18 +84,24 @@ namespace ModAnalyzer.Domain
 
             // dump the plugin file
             StringBuilder json = new StringBuilder(4 * 1024 * 1024); // 4MB maximum dump size
-            if (!ModDump.Dump(json, json.Capacity))
+            if (!ModDump.Dump())
             {
                 ModDump.GetBuffer(message, message.Capacity);
                 _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(Environment.NewLine + message.ToString()));
                 return null;
             }
 
-            // log the results
-            // TODO: This should be handled better - we should use polling to get the buffer continuously
-            ModDump.GetBuffer(message, message.Capacity);
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(message.ToString()));
-            ModDump.FlushBuffer();
+            // use a loop to poll for messages until the dump is ready
+            while (!ModDump.GetDumpResult(json, json.Capacity)) {
+                ModDump.GetBuffer(message, message.Capacity);
+                if (message.Length > 1) {
+                    _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(message.ToString()));
+                    ModDump.FlushBuffer();
+                }
+                // wait 100ms between each polling operation so we don't bring things to a standstill with this while loop
+                // we can do this without locking up the UI because this is happening in a background worker
+                System.Threading.Thread.Sleep(100);
+            }
 
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
         }
