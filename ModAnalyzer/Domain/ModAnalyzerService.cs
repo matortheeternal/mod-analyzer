@@ -16,7 +16,7 @@ namespace ModAnalyzer.Domain
         private readonly BackgroundWorker _backgroundWorker;
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
         private readonly PluginAnalyzer _pluginAnalyzer;
-        private readonly ModAnalysis _modAnalysis;
+        private ModAnalysis _modAnalysis;
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         
@@ -29,13 +29,12 @@ namespace ModAnalyzer.Domain
             _assetArchiveAnalyzer = new AssetArchiveAnalyzer(_backgroundWorker);
             _pluginAnalyzer = new PluginAnalyzer(_backgroundWorker);
 
-            _modAnalysis = new ModAnalysis();
-
             Directory.CreateDirectory("output");
         }
 
-        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e) 
         {
+            _modAnalysis = new ModAnalysis();
             List<string> modArchivePaths = e.Argument as List<string>;
 
             foreach(string modArchivePath in modArchivePaths)
