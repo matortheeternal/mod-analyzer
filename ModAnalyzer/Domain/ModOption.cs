@@ -10,6 +10,8 @@ namespace ModAnalyzer.Domain
     {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
+        [JsonProperty(PropertyName = "size")]
+        public long Size { get; set; }
         [JsonProperty(PropertyName = "default")]
         public bool Default { get; set; }
         [JsonProperty(PropertyName = "is_fomod_option")]
