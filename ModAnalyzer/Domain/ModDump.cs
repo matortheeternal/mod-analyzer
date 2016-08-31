@@ -1,10 +1,8 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ModAnalyzer.Domain
-{
-    public static class ModDump
-    {
+namespace ModAnalyzer.Domain {
+    public static class ModDump {
         /// <summary>
         /// Linking Delphi DLL for dumping plugins
         /// </summary>

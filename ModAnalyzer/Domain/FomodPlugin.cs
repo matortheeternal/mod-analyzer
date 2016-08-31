@@ -52,7 +52,7 @@ namespace ModAnalyzer.Domain {
         }
 
         public bool IsDefault() {
-            return GroupType.Equals("SelectAll") || (!HasSiblings() && 
+            return GroupType.Equals("SelectAll") || (!HasSiblings() &&
                 (GroupType.Equals("SelectAtLeastOne") || GroupType.Equals("SelectExactlyOne")));
         }
     }

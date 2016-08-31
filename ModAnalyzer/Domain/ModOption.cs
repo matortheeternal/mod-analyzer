@@ -1,13 +1,11 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace ModAnalyzer.Domain
-{
+namespace ModAnalyzer.Domain {
     /// <summary>
     /// Represents a logical component of a mod, e.g. the base mod, a patch, or a fomod option.
     /// </summary>
-    public class ModOption
-    {
+    public class ModOption {
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
         [JsonProperty(PropertyName = "size")]
@@ -21,8 +19,7 @@ namespace ModAnalyzer.Domain
         [JsonProperty(PropertyName = "plugins")]
         public List<PluginDump> Plugins { get; set; }
 
-        public ModOption()
-        {
+        public ModOption() {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
             Size = 0;
@@ -37,8 +34,7 @@ namespace ModAnalyzer.Domain
             Size = 0;
         }
 
-        public static bool IsEmpty(ModOption option) 
-        {
+        public static bool IsEmpty(ModOption option) {
             return (option.Assets.Count == 0) && (option.Plugins.Count == 0);
         }
     }

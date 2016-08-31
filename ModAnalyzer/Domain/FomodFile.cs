@@ -12,13 +12,11 @@ namespace ModAnalyzer.Domain {
         public string Destination { get; set; }
         public int Priority { get; set; }
 
-        public FomodFile(XmlNode node)
-        {
+        public FomodFile(XmlNode node) {
             IsFolder = node.Name.Equals("folder");
             Source = node.Attributes["source"].Value;
             Destination = node.Attributes["destination"].Value;
-            if (node.Attributes["priority"] != null)
-            {
+            if (node.Attributes["priority"] != null) {
                 Priority = Int32.Parse(node.Attributes["priority"].Value);
             }
         }
@@ -31,13 +29,11 @@ namespace ModAnalyzer.Domain {
             return files;
         }
 
-        public bool MatchesPath(string path) 
-        {
+        public bool MatchesPath(string path) {
             return path.StartsWith(Source + (IsFolder ? "\\" : ""));
         }
 
-        public string MappedPath(string path) 
-        {
+        public string MappedPath(string path) {
             return path.Replace(Source + (IsFolder ? "\\" : ""), Destination);
         }
     }

@@ -1,9 +1,7 @@
 ﻿using System;
 
-namespace ModAnalyzer
-{
-    public class Game 
-    {
+namespace ModAnalyzer {
+    public class Game {
         public string longName { get; set; }
         public string gameName { get; set; }
         public int gameMode { get; set; }

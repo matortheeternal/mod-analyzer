@@ -8,20 +8,17 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 
-namespace ModAnalyzer.Domain
-{
+namespace ModAnalyzer.Domain {
     // TODO: apply DRY to _backgroundWorker.ReportProgress
-    public class ModAnalyzerService
-    {
+    public class ModAnalyzerService {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
         private readonly PluginAnalyzer _pluginAnalyzer;
         private ModAnalysis _modAnalysis;
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
-        
-        public ModAnalyzerService()
-        {
+
+        public ModAnalyzerService() {
             _backgroundWorker = new BackgroundWorker { WorkerReportsProgress = true };
             _backgroundWorker.DoWork += _backgroundWorker_DoWork;
             _backgroundWorker.ProgressChanged += _backgroundWorker_ProgressChanged;
@@ -32,24 +29,19 @@ namespace ModAnalyzer.Domain
             Directory.CreateDirectory("output");
         }
 
-        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e) 
-        {
+        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
             List<string> modArchivePaths = e.Argument as List<string>;
 
-            foreach(string modArchivePath in modArchivePaths)
-            {
+            foreach (string modArchivePath in modArchivePaths) {
                 ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
 
-                using (IArchive archive = ArchiveFactory.Open(modArchivePath))
-                {
-                    if (IsFomodArchive(archive))
-                    {
+                using (IArchive archive = ArchiveFactory.Open(modArchivePath)) {
+                    if (IsFomodArchive(archive)) {
                         List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
                         _modAnalysis.ModOptions.AddRange(fomodOptions);
                     }
-                    else
-                    {
+                    else {
                         ModOption option = AnalyzeNormalArchive(archive);
                         option.Name = Path.GetFileName(modArchivePath);
                         option.Size = archive.TotalUncompressSize;
@@ -68,46 +60,37 @@ namespace ModAnalyzer.Domain
             SaveOutputFile(filename);
         }
 
-        private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e)
-        {
+        private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
             MessageReportedEventArgs eventArgs = e.UserState as MessageReportedEventArgs;
 
             MessageReported?.Invoke(this, eventArgs);
         }
 
-        private void ReportProgress(string msg) 
-        {
+        private void ReportProgress(string msg) {
             MessageReportedEventArgs args = MessageReportedEventArgsFactory.CreateLogMessageEventArgs(msg);
             _backgroundWorker.ReportProgress(0, args);
         }
 
-        private IArchiveEntry FindArchiveEntry(IArchive archive, string path) 
-        {
-            foreach (IArchiveEntry modArchiveEntry in archive.Entries) 
-            {
-                if (path.Equals(modArchiveEntry.Key)) 
-                {
+        private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
+            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
+                if (path.Equals(modArchiveEntry.Key)) {
                     return modArchiveEntry;
                 }
             }
             return null;
         }
 
-        private bool IsFomodArchive(IArchive archive) 
-        {
+        private bool IsFomodArchive(IArchive archive) {
             return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
         }
 
-        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry) 
-        {
+        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry) {
             string entryPath = entry.GetEntryPath();
-            foreach (Tuple<FomodFile, ModOption> mapping in map) 
-            {
+            foreach (Tuple<FomodFile, ModOption> mapping in map) {
                 FomodFile fileNode = mapping.Item1;
                 ModOption option = mapping.Item2;
 
-                if (fileNode.MatchesPath(entryPath))
-                {
+                if (fileNode.MatchesPath(entryPath)) {
                     string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
@@ -120,8 +103,7 @@ namespace ModAnalyzer.Domain
             }
         }
 
-        private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
-        {
+        private List<ModOption> AnalyzeFomodArchive(IArchive archive) {
             ReportProgress("Parsing FOMOD Options");
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
@@ -136,8 +118,7 @@ namespace ModAnalyzer.Domain
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
-            foreach (IArchiveEntry entry in archive.Entries) 
-            {
+            foreach (IArchiveEntry entry in archive.Entries) {
                 MapEntryToOptionAssets(fomodConfig.FileMap, entry);
             }
 
@@ -169,15 +150,12 @@ namespace ModAnalyzer.Domain
             return option;
         }
 
-        public void AnalyzeMod(List<string> modArchivePaths)
-        {
+        public void AnalyzeMod(List<string> modArchivePaths) {
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 
-        private void AnalyzeModArchiveEntry(IArchiveEntry entry, ModOption option)
-        {
-            switch (entry.GetEntryExtension())
-            {
+        private void AnalyzeModArchiveEntry(IArchiveEntry entry, ModOption option) {
+            switch (entry.GetEntryExtension()) {
                 case ".BA2":
                 case ".BSA":
                     List<String> assets = _assetArchiveAnalyzer.GetAssets(entry);
@@ -192,8 +170,7 @@ namespace ModAnalyzer.Domain
             }
         }
 
-        private void SaveOutputFile(string filePath)
-        {
+        private void SaveOutputFile(string filePath) {
             string filename = Path.Combine("output", Path.GetFileNameWithoutExtension(filePath));
 
             ReportProgress("Saving JSON to " + filename + ".json...");
