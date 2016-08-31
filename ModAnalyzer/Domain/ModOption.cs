@@ -25,6 +25,16 @@ namespace ModAnalyzer.Domain
         {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
+            Size = 0;
+        }
+
+        public ModOption(string Name, bool Default, bool IsFomodOption) {
+            this.Name = Name;
+            this.Default = Default;
+            this.IsFomodOption = IsFomodOption;
+            Assets = new List<string>();
+            Plugins = new List<PluginDump>();
+            Size = 0;
         }
 
         public static bool IsEmpty(ModOption option) 
