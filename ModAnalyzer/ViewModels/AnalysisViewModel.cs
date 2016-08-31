@@ -45,9 +45,9 @@ namespace ModAnalyzer.ViewModels
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e)
         {
-            if (e.MessageType == MessageType.LogMessage)
-                App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
-            else
+            App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
+                
+            if (e.IsStatusMessage)
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message));
         }
 

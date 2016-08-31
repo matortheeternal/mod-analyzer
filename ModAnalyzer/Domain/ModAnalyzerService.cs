@@ -33,8 +33,8 @@ namespace ModAnalyzer.Domain {
             _modAnalysis = new ModAnalysis();
             List<string> modArchivePaths = e.Argument as List<string>;
 
-            foreach (string modArchivePath in modArchivePaths) {
-                ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
+            foreach(string modArchivePath in modArchivePaths) {
+                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(modArchivePath) + "...", true);
 
                 using (IArchive archive = ArchiveFactory.Open(modArchivePath)) {
                     if (IsFomodArchive(archive)) {
@@ -66,11 +66,6 @@ namespace ModAnalyzer.Domain {
             MessageReported?.Invoke(this, eventArgs);
         }
 
-        private void ReportProgress(string msg) {
-            MessageReportedEventArgs args = MessageReportedEventArgsFactory.CreateLogMessageEventArgs(msg);
-            _backgroundWorker.ReportProgress(0, args);
-        }
-
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
                 if (path.Equals(modArchiveEntry.Key)) {
@@ -94,7 +89,7 @@ namespace ModAnalyzer.Domain {
                     string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
-                    ReportProgress("  " + option.Name + " -> " + mappedPath);
+                    _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
                     // TODO: Fix that.
@@ -104,13 +99,15 @@ namespace ModAnalyzer.Domain {
         }
 
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) {
-            ReportProgress("Parsing FOMOD Options");
+            _backgroundWorker.ReportMessage("Parsing FOMOD Options", true);
+            List<ModOption> fomodOptions = new List<ModOption>();
+            List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
-            ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
+            _backgroundWorker.ReportMessage("FOMOD Config Extracted" + Environment.NewLine, true);
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
@@ -123,11 +120,11 @@ namespace ModAnalyzer.Domain {
             }
 
             // STEP 4: Delete any options that have no assets or plugins in them
-            ReportProgress(Environment.NewLine + "Cleaning up...");
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Cleaning up...", true);
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
             // Return the mod options we built
-            ReportProgress("Done.  " + fomodOptions.Count + " FOMOD Options found.");
+            _backgroundWorker.ReportMessage("Done.  " + fomodOptions.Count + " FOMOD Options found.", true);
             return fomodOptions;
         }
 
@@ -141,7 +138,7 @@ namespace ModAnalyzer.Domain {
                 // append entry path to option assets
                 string entryPath = modArchiveEntry.GetEntryPath();
                 option.Assets.Add(entryPath);
-                ReportProgress(entryPath);
+                _backgroundWorker.ReportMessage(entryPath, false);
 
                 // handle BSAs and plugins
                 AnalyzeModArchiveEntry(modArchiveEntry, option);
@@ -173,9 +170,9 @@ namespace ModAnalyzer.Domain {
         private void SaveOutputFile(string filePath) {
             string filename = Path.Combine("output", Path.GetFileNameWithoutExtension(filePath));
 
-            ReportProgress("Saving JSON to " + filename + ".json...");
+            _backgroundWorker.ReportMessage("Saving JSON to " + filename + ".json...", true);
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-            ReportProgress("All done.  JSON file saved to " + filename + ".json");
+            _backgroundWorker.ReportMessage("All done.  JSON file saved to " + filename + ".json", true);
         }
     }
 }
