@@ -166,11 +166,11 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\BackgroundWorkerExtensions.cs" />
     <Compile Include="Domain\FomodFileNode.cs" />
     <Compile Include="Domain\GameService.cs" />
     <Compile Include="Domain\MasterPlugin.cs" />
     <Compile Include="Domain\Game.cs" />
-    <Compile Include="Domain\MessageReportedEventArgsFactory.cs" />
     <Compile Include="Domain\ModAnalysis.cs" />
     <Compile Include="Domain\ModAnalyzerService.cs" />
     <Compile Include="Domain\ModDump.cs" />

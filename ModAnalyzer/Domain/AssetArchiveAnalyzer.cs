@@ -9,8 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
-namespace ModAnalyzer.Domain
-{
+namespace ModAnalyzer.Domain {
     internal class AssetArchiveAnalyzer
     {
         private readonly BackgroundWorker _backgroundWorker;
@@ -26,7 +25,7 @@ namespace ModAnalyzer.Domain
         {
             ExtractArchive(assetArchive);
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Getting assets from " + assetArchive.GetEntryPath() + "..."));
+            _backgroundWorker.ReportMessage("Getting assets from " + assetArchive.GetEntryPath() + "...", true);
 
             string extractedArchivePath = Path.Combine("bsas", assetArchive.Key);
 
@@ -37,18 +36,18 @@ namespace ModAnalyzer.Domain
             else
                 assets = GetBA2Assets(extractedArchivePath).Select(asset => Path.Combine(assetArchive.Key, asset)).ToList();
 
-            assets.ForEach(asset => _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(asset)));
+            assets.ForEach(asset => _backgroundWorker.ReportMessage(asset, false));
 
             return assets;
         }
 
         private void ExtractArchive(IArchiveEntry assetArchive)
         {
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Extracting " + assetArchive.GetEntryExtension() + " at " + assetArchive.GetEntryPath()));
+            _backgroundWorker.ReportMessage("Extracting " + assetArchive.GetEntryExtension() + " at " + assetArchive.GetEntryPath(), true);
 
             assetArchive.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs(assetArchive.GetEntryExtension() + " extracted, analyzing entries..."));
+            _backgroundWorker.ReportMessage(assetArchive.GetEntryExtension() + " extracted, analyzing entries...", true);
         }
 
         private string[] GetBSAAssets(string bsaPath)

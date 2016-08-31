@@ -29,14 +29,14 @@ namespace ModAnalyzer.Domain
         {
             try
             {
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Getting plugin dump for " + entry.Key + "..."));
+                _backgroundWorker.ReportMessage("Getting plugin dump for " + entry.Key + "...", true);
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }
             catch (Exception exception)
             {
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Failed to analyze plugin."));
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Exception: " + exception.Message));
+                _backgroundWorker.ReportMessage("Failed to analyze plugin.", false);
+                _backgroundWorker.ReportMessage("Exception: " + exception.Message, false);
 
                 return null;
             }
@@ -56,7 +56,7 @@ namespace ModAnalyzer.Domain
             if (alreadyExtracted)
                 return;
 
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Extracting " + entry.Key));
+            _backgroundWorker.ReportMessage("Extracting " + entry.Key, true);
 
             _extractedPlugins.Add(pluginFilePath);
 
@@ -69,7 +69,7 @@ namespace ModAnalyzer.Domain
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry)
         {
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Analyzing " + entry.Key));
+            _backgroundWorker.ReportMessage("Analyzing " + entry.Key, true);
 
             // prepare mod dump and message buffer
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
@@ -78,7 +78,7 @@ namespace ModAnalyzer.Domain
             if (!ModDump.Prepare(Path.GetFileName(entry.Key)))
             {
                 ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(Environment.NewLine + message.ToString()));
+                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
                 return null;
             }
 
@@ -87,7 +87,7 @@ namespace ModAnalyzer.Domain
             if (!ModDump.Dump())
             {
                 ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(Environment.NewLine + message.ToString()));
+                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
                 return null;
             }
 
@@ -95,7 +95,7 @@ namespace ModAnalyzer.Domain
             while (!ModDump.GetDumpResult(json, json.Capacity)) {
                 ModDump.GetBuffer(message, message.Capacity);
                 if (message.Length > 1) {
-                    _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs(message.ToString()));
+                    _backgroundWorker.ReportMessage(message.ToString(), false);
                     ModDump.FlushBuffer();
                 }
                 // wait 100ms between each polling operation so we don't bring things to a standstill with this while loop
@@ -121,9 +121,9 @@ namespace ModAnalyzer.Domain
             }
             catch (Exception e)
             {
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Failed to revert plugin!"));
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!"));
-                _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateLogMessageEventArgs("Exception:" + e.Message));
+                _backgroundWorker.ReportMessage("Failed to revert plugin!", false);
+                _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!", false);
+                _backgroundWorker.ReportMessage("Exception:" + e.Message, false);
             }
         }
     }

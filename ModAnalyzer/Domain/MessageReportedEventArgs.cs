@@ -1,20 +1,11 @@
-﻿namespace ModAnalyzer.Domain
-{
-    public enum MessageType
-    {
-        ProgressMessage,
-        LogMessage
-    }
-
-    public class MessageReportedEventArgs
-    {
-        public MessageType MessageType { get; set; }
+﻿namespace ModAnalyzer.Domain {
+    public class MessageReportedEventArgs {
         public string Message { get; set; }
+        public bool IsStatusMessage { get; set; }
 
-        public MessageReportedEventArgs(MessageType messageType, string message)
-        {
-            MessageType = messageType;
+        public MessageReportedEventArgs(string message, bool isStatusMessage) {
             Message = message;
+            IsStatusMessage = isStatusMessage;
         }
     }
 }

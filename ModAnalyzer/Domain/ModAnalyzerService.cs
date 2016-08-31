@@ -39,7 +39,7 @@ namespace ModAnalyzer.Domain
 
             foreach(string modArchivePath in modArchivePaths)
             {
-                ReportProgress("Analyzing " + Path.GetFileName(modArchivePath) + "...");
+                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(modArchivePath) + "...", true);
 
                 using (IArchive archive = ArchiveFactory.Open(modArchivePath))
                 {
@@ -75,12 +75,6 @@ namespace ModAnalyzer.Domain
             MessageReported?.Invoke(this, eventArgs);
         }
 
-        private void ReportProgress(string msg) 
-        {
-            MessageReportedEventArgs args = MessageReportedEventArgsFactory.CreateLogMessageEventArgs(msg);
-            _backgroundWorker.ReportProgress(0, args);
-        }
-
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) 
         {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) 
@@ -110,7 +104,7 @@ namespace ModAnalyzer.Domain
                     string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
-                    ReportProgress("  " + option.Name + " -> " + mappedPath);
+                    _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
                     // TODO: Fix that.
@@ -121,7 +115,7 @@ namespace ModAnalyzer.Domain
 
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
         {
-            ReportProgress("Parsing FOMOD Options");
+            _backgroundWorker.ReportMessage("Parsing FOMOD Options", true);
             List<ModOption> fomodOptions = new List<ModOption>();
             List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
@@ -132,7 +126,7 @@ namespace ModAnalyzer.Domain
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
-            ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
+            _backgroundWorker.ReportMessage("FOMOD Config Extracted" + Environment.NewLine, true);
 
             // STEP 3: Parse info.xml and determine what the mod options are
             XmlDocument xmlDoc = new XmlDocument();
@@ -147,7 +141,7 @@ namespace ModAnalyzer.Domain
                 option.Size = 0;
                 option.IsFomodOption = true;
                 fomodOptions.Add(option);
-                ReportProgress("Found FOMOD Option: " + option.Name);
+                _backgroundWorker.ReportMessage("Found FOMOD Option: " + option.Name, true);
 
                 // loop through the file/folder nodes to create mapping
                 XmlNode files = node["files"];
@@ -155,23 +149,23 @@ namespace ModAnalyzer.Domain
                 {
                     FomodFileNode fileNode = new FomodFileNode(childNode);
                     fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
-                    ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
+                    _backgroundWorker.ReportMessage("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'", false);
                 }
             }
 
             // STEP 4: Loop through the archive's assets appending them to mod options per mapping
-            ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
             foreach (IArchiveEntry entry in archive.Entries) 
             {
                 MapEntryToOptionAssets(fomodFileMap, entry);
             }
 
             // STEP 5: Delete any options that have no assets or plugins in them
-            ReportProgress(Environment.NewLine + "Cleaning up...");
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Cleaning up...", true);
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
             // Return the mod options we built
-            ReportProgress("Done.  " + fomodOptions.Count + " FOMOD Options found.");
+            _backgroundWorker.ReportMessage("Done.  " + fomodOptions.Count + " FOMOD Options found.", true);
             return fomodOptions;
         }
 
@@ -185,7 +179,7 @@ namespace ModAnalyzer.Domain
                 // append entry path to option assets
                 string entryPath = modArchiveEntry.GetEntryPath();
                 option.Assets.Add(entryPath);
-                ReportProgress(entryPath);
+                _backgroundWorker.ReportMessage(entryPath, false);
 
                 // handle BSAs and plugins
                 AnalyzeModArchiveEntry(modArchiveEntry, option);
@@ -221,9 +215,9 @@ namespace ModAnalyzer.Domain
         {
             string filename = Path.Combine("output", Path.GetFileNameWithoutExtension(filePath));
 
-            ReportProgress("Saving JSON to " + filename + ".json...");
+            _backgroundWorker.ReportMessage("Saving JSON to " + filename + ".json...", true);
             File.WriteAllText(filename + ".json", JsonConvert.SerializeObject(_modAnalysis));
-            ReportProgress("All done.  JSON file saved to " + filename + ".json");
+            _backgroundWorker.ReportMessage("All done.  JSON file saved to " + filename + ".json", true);
         }
     }
 }
