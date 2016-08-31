@@ -166,7 +166,12 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
-    <Compile Include="Domain\FomodFileNode.cs" />
+    <Compile Include="Domain\FomodFlagDependency.cs" />
+    <Compile Include="Domain\FomodFlag.cs" />
+    <Compile Include="Domain\FomodPattern.cs" />
+    <Compile Include="Domain\FomodConfig.cs" />
+    <Compile Include="Domain\FomodPlugin.cs" />
+    <Compile Include="Domain\FomodFile.cs" />
     <Compile Include="Domain\GameService.cs" />
     <Compile Include="Domain\MasterPlugin.cs" />
     <Compile Include="Domain\Game.cs" />

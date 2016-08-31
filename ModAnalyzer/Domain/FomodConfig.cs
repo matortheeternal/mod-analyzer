@@ -33,9 +33,11 @@ namespace ModAnalyzer.Domain {
         private List<FomodPattern> GetMatchingPatterns(FomodFlag flag) {
             List<FomodPattern> results = new List<FomodPattern>();
             foreach (FomodPattern pattern in Patterns) {
-                foreach (FomodFlagDependency dependency in pattern.Dependencies) {
-                    if (flag.Matches(dependency)) {
-                        results.Add(pattern);
+                if (pattern.Dependencies != null) {
+                    foreach (FomodFlagDependency dependency in pattern.Dependencies) {
+                        if (flag.Matches(dependency)) {
+                            results.Add(pattern);
+                        }
                     }
                 }
             }
@@ -44,9 +46,11 @@ namespace ModAnalyzer.Domain {
 
         private void MapPluginPatterns() {
             foreach (FomodPlugin plugin in Plugins) {
-                foreach (FomodFlag flag in plugin.Flags) {
-                    foreach (FomodPattern pattern in GetMatchingPatterns(flag)) {
-                        plugin.Files.AddRange(pattern.Files);
+                if (plugin.Flags != null) {
+                    foreach (FomodFlag flag in plugin.Flags) {
+                        foreach (FomodPattern pattern in GetMatchingPatterns(flag)) {
+                            plugin.Files.AddRange(pattern.Files);
+                        }
                     }
                 }
             }
