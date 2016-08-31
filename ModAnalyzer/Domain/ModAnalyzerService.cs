@@ -98,12 +98,12 @@ namespace ModAnalyzer.Domain
             return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
         }
 
-        private void MapEntryToOptionAssets(List<Tuple<FomodFileNode, ModOption>> map, IArchiveEntry entry) 
+        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry) 
         {
             string entryPath = entry.GetEntryPath();
-            foreach (Tuple<FomodFileNode, ModOption> mapping in map) 
+            foreach (Tuple<FomodFile, ModOption> mapping in map) 
             {
-                FomodFileNode fileNode = mapping.Item1;
+                FomodFile fileNode = mapping.Item1;
                 ModOption option = mapping.Item2;
 
                 if (fileNode.MatchesPath(entryPath))
@@ -120,51 +120,9 @@ namespace ModAnalyzer.Domain
             }
         }
 
-        private bool HasDependencyNode(XmlNode patternNode, string flagName) 
-        {
-            XmlNode dependencies = patternNode["dependencies"];
-            foreach (XmlNode dependency in dependencies.ChildNodes) 
-            {
-                if (dependency.Attributes["flag"].Value.Equals(flagName)) 
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        private List<FomodFileNode> GetFomodFileNodes(XmlNode node) 
-        {
-            List<FomodFileNode> results = new List<FomodFileNode>();
-            foreach (XmlNode childNode in node.ChildNodes) 
-            {
-                FomodFileNode fileNode = new FomodFileNode(childNode);
-                results.Add(fileNode);
-                ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
-            }
-            return results;
-        }
-
-        private List<FomodFileNode> GetMatchingFileNodes(XmlDocument xmlDoc, XmlNode flagNode) 
-        {
-            List<FomodFileNode> results = new List<FomodFileNode>();
-            XmlNodeList patternElements = xmlDoc.GetElementsByTagName("pattern");
-            foreach (XmlNode pattern in patternElements) 
-            {
-                if (HasDependencyNode(pattern, flagNode.Attributes["name"].Value))
-                {
-                    results.AddRange(GetFomodFileNodes(pattern));
-                }
-            }
-
-            return results;
-        }
-
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
         {
             ReportProgress("Parsing FOMOD Options");
-            List<ModOption> fomodOptions = new List<ModOption>();
-            List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
@@ -172,70 +130,18 @@ namespace ModAnalyzer.Domain
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
             ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
 
-            // STEP 2: Parse info.xml and determine what the mod options are
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(@".\fomod\ModuleConfig.xml");
+            // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
+            FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
+            List<ModOption> fomodOptions = fomodConfig.BuildModOptions();
 
-            // STEP 3: Create base fomod option
-            XmlNodeList baseFiles = xmlDoc.GetElementsByTagName("requiredInstallFiles");
-            if (baseFiles.Count > 0) 
-            {
-                ModOption option = new ModOption();
-                option.Name = "FOMOD Base Files";
-                option.Size = 0;
-                option.IsFomodOption = true;
-                option.Default = true;
-                fomodOptions.Add(option);
-                ReportProgress("Found FOMOD Option: " + option.Name);
-
-                foreach (XmlNode childNode in baseFiles[0].ChildNodes) 
-                {
-                    FomodFileNode fileNode = new FomodFileNode(childNode);
-                    fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
-                    ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
-                }
-            }
-
-            // loop through the plugin elements
-            XmlNodeList pluginElements = xmlDoc.GetElementsByTagName("plugin");
-            foreach (XmlNode node in pluginElements) 
-            {
-                ModOption option = new ModOption();
-                option.Name = node.Attributes["name"].Value;
-                option.Size = 0;
-                option.IsFomodOption = true;
-                fomodOptions.Add(option);
-                ReportProgress("Found FOMOD Option: " + option.Name);
-
-                XmlNode files = node["files"];
-                XmlNode flags = node["conditionFlags"];
-                // loop through the file/folder nodes to create mapping
-                if (files != null) 
-                {
-                    fomodFileMap.AddRange(GetFomodFileNodes(files));
-                }
-                // else loop through and resolve flags in conditionFlags node to create mapping
-                else if (flags != null) 
-                {
-                    foreach (XmlNode childNode in flags.ChildNodes) {
-                        List<FomodFileNode> matchingFileNodes = GetMatchingFileNodes(xmlDoc, childNode);
-                        foreach (FomodFileNode fileNode in matchingFileNodes) 
-                        {
-                            fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
-                            ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
-                        }
-                    }
-                }
-            }
-
-            // STEP 4: Loop through the archive's assets appending them to mod options per mapping
+            // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
             foreach (IArchiveEntry entry in archive.Entries) 
             {
-                MapEntryToOptionAssets(fomodFileMap, entry);
+                MapEntryToOptionAssets(fomodConfig.FileMap, entry);
             }
 
-            // STEP 5: Delete any options that have no assets or plugins in them
+            // STEP 4: Delete any options that have no assets or plugins in them
             ReportProgress(Environment.NewLine + "Cleaning up...");
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
