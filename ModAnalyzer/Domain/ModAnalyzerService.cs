@@ -106,7 +106,8 @@ namespace ModAnalyzer.Domain
                 FomodFileNode fileNode = mapping.Item1;
                 ModOption option = mapping.Item2;
 
-                if (fileNode.MatchesPath(entryPath)) {
+                if (fileNode.MatchesPath(entryPath))
+                {
                     string mappedPath = fileNode.MappedPath(entryPath);
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
@@ -117,6 +118,46 @@ namespace ModAnalyzer.Domain
                     AnalyzeModArchiveEntry(entry, option);
                 }
             }
+        }
+
+        private bool HasDependencyNode(XmlNode patternNode, string flagName) 
+        {
+            XmlNode dependencies = patternNode["dependencies"];
+            foreach (XmlNode dependency in dependencies.ChildNodes) 
+            {
+                if (dependency.Attributes["flag"].Value.Equals(flagName)) 
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private List<FomodFileNode> GetFomodFileNodes(XmlNode node) 
+        {
+            List<FomodFileNode> results = new List<FomodFileNode>();
+            foreach (XmlNode childNode in node.ChildNodes) 
+            {
+                FomodFileNode fileNode = new FomodFileNode(childNode);
+                results.Add(fileNode);
+                ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
+            }
+            return results;
+        }
+
+        private List<FomodFileNode> GetMatchingFileNodes(XmlDocument xmlDoc, XmlNode flagNode) 
+        {
+            List<FomodFileNode> results = new List<FomodFileNode>();
+            XmlNodeList patternElements = xmlDoc.GetElementsByTagName("pattern");
+            foreach (XmlNode pattern in patternElements) 
+            {
+                if (HasDependencyNode(pattern, flagNode.Attributes["name"].Value))
+                {
+                    results.AddRange(GetFomodFileNodes(pattern));
+                }
+            }
+
+            return results;
         }
 
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) 
@@ -166,13 +207,24 @@ namespace ModAnalyzer.Domain
                 fomodOptions.Add(option);
                 ReportProgress("Found FOMOD Option: " + option.Name);
 
-                // loop through the file/folder nodes to create mapping
                 XmlNode files = node["files"];
-                foreach (XmlNode childNode in files.ChildNodes) 
+                XmlNode flags = node["conditionFlags"];
+                // loop through the file/folder nodes to create mapping
+                if (files != null) 
                 {
-                    FomodFileNode fileNode = new FomodFileNode(childNode);
-                    fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
-                    ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
+                    fomodFileMap.AddRange(GetFomodFileNodes(files));
+                }
+                // else loop through and resolve flags in conditionFlags node to create mapping
+                else if (flags != null) 
+                {
+                    foreach (XmlNode childNode in flags.ChildNodes) {
+                        List<FomodFileNode> matchingFileNodes = GetMatchingFileNodes(xmlDoc, childNode);
+                        foreach (FomodFileNode fileNode in matchingFileNodes) 
+                        {
+                            fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
+                            ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
+                        }
+                    }
                 }
             }
 
