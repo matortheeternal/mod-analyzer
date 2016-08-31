@@ -125,18 +125,35 @@ namespace ModAnalyzer.Domain
             List<ModOption> fomodOptions = new List<ModOption>();
             List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
-            // STEP 1: Create base fomod option
-            // TODO
-
-            // STEP 2: Find the fomod/ModuleConfig.xml file and extract it
+            // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
             ReportProgress("FOMOD Config Extracted" + Environment.NewLine);
 
-            // STEP 3: Parse info.xml and determine what the mod options are
+            // STEP 2: Parse info.xml and determine what the mod options are
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.Load(@".\fomod\ModuleConfig.xml");
+
+            // STEP 3: Create base fomod option
+            XmlNodeList baseFiles = xmlDoc.GetElementsByTagName("requiredInstallFiles");
+            if (baseFiles.Count > 0) 
+            {
+                ModOption option = new ModOption();
+                option.Name = "FOMOD Base Files";
+                option.Size = 0;
+                option.IsFomodOption = true;
+                option.Default = true;
+                fomodOptions.Add(option);
+                ReportProgress("Found FOMOD Option: " + option.Name);
+
+                foreach (XmlNode childNode in baseFiles[0].ChildNodes) 
+                {
+                    FomodFileNode fileNode = new FomodFileNode(childNode);
+                    fomodFileMap.Add(new Tuple<FomodFileNode, ModOption>(fileNode, option));
+                    ReportProgress("  + '" + fileNode.Source + "' -> '" + fileNode.Destination + "'");
+                }
+            }
 
             // loop through the plugin elements
             XmlNodeList pluginElements = xmlDoc.GetElementsByTagName("plugin");
