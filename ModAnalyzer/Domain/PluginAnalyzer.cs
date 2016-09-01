@@ -2,7 +2,6 @@
 using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;

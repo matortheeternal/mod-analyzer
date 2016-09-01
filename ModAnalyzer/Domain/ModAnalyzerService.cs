@@ -3,14 +3,12 @@ using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
-using System.Xml;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
 namespace ModAnalyzer.Domain {
-    // TODO: apply DRY to _backgroundWorker.ReportProgress
     public class ModAnalyzerService {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
