@@ -20,7 +20,8 @@ namespace ModAnalyzer.Domain {
             if (!ModDump.started) {
                 ModDump.started = true;
                 ModDump.StartModDump();
-                _game = GameService.GetGame("Skyrim"); // TODO: remove hardcoding
+                // TODO: remove hardcoding (requires making a gui component from which the user can choose the game mode)
+                _game = GameService.GetGame("Skyrim");
                 ModDump.SetGameMode(_game.gameMode);
             }
         }
@@ -45,7 +46,7 @@ namespace ModAnalyzer.Domain {
         public void ExtractPlugin(IArchiveEntry entry) {
             string gameDataPath = GameService.GetGamePath(_game);
             string pluginFileName = Path.GetFileName(entry.Key);
-            string pluginFilePath = gameDataPath + pluginFileName; // TODO: use Path.Combine
+            string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
             bool alreadyExtracted = _extractedPlugins.Contains(pluginFilePath);
 
             if (alreadyExtracted)
