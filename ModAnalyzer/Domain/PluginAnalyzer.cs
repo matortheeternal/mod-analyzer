@@ -26,7 +26,7 @@ namespace ModAnalyzer.Domain {
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
             try {
-                _backgroundWorker.ReportMessage("Getting plugin dump for " + entry.Key + "...", true);
+                _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entry.Key + "...", true);
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }
@@ -37,6 +37,7 @@ namespace ModAnalyzer.Domain {
                 return null;
             }
             finally {
+                _backgroundWorker.ReportMessage(" ", false);
                 RevertPlugin(entry);
             }
         }
@@ -56,15 +57,19 @@ namespace ModAnalyzer.Domain {
 
         private void GetModDumpMessages(StringBuilder message) {
             ModDump.GetBuffer(message, message.Capacity);
-            if (message.Length > 1) {
-                _backgroundWorker.ReportMessage(message.ToString(), false);
+            if (message.Length > 0) {
+                string messageString = message.ToString();
+                if (messageString.EndsWith("\n") && !messageString.EndsWith(" \n")) {
+                    messageString = messageString.TrimEnd();
+                }
+                _backgroundWorker.ReportMessage(messageString, false);
                 ModDump.FlushBuffer();
             }
         }
 
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...", true);
+            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
