@@ -17,9 +17,12 @@ namespace ModAnalyzer.Domain {
             _backgroundWorker = backgroundWorker;
             _extractedPlugins = new List<string>();
 
-            ModDump.StartModDump();
-            _game = GameService.GetGame("Skyrim"); // TODO: remove hardcoding
-            ModDump.SetGameMode(_game.gameMode);
+            if (!ModDump.started) {
+                ModDump.started = true;
+                ModDump.StartModDump();
+                _game = GameService.GetGame("Skyrim"); // TODO: remove hardcoding
+                ModDump.SetGameMode(_game.gameMode);
+            }
         }
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
