@@ -61,40 +61,44 @@ namespace ModAnalyzer.Domain {
             entry.WriteToDirectory(gameDataPath, ExtractOptions.Overwrite);
         }
 
+        private void GetModDumpMessages(StringBuilder message) {
+            ModDump.GetBuffer(message, message.Capacity);
+            if (message.Length > 1) {
+                _backgroundWorker.ReportMessage(message.ToString(), false);
+                ModDump.FlushBuffer();
+            }
+        }
+
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
             _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...", true);
-
-            // prepare mod dump and message buffer
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(Path.GetFileName(entry.Key))) {
-                ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
+                GetModDumpMessages(message);
                 return null;
             }
 
             // dump the plugin file
             StringBuilder json = new StringBuilder(4 * 1024 * 1024); // 4MB maximum dump size
             if (!ModDump.Dump()) {
-                ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
+                GetModDumpMessages(message);
                 return null;
             }
 
             // use a loop to poll for messages until the dump is ready
             while (!ModDump.GetDumpResult(json, json.Capacity)) {
-                ModDump.GetBuffer(message, message.Capacity);
-                if (message.Length > 1) {
-                    _backgroundWorker.ReportMessage(message.ToString(), false);
-                    ModDump.FlushBuffer();
-                }
+                GetModDumpMessages(message);
                 // wait 100ms between each polling operation so we don't bring things to a standstill with this while loop
                 // we can do this without locking up the UI because this is happening in a background worker
                 System.Threading.Thread.Sleep(100);
             }
+            
+            // get any remaining messages
+            GetModDumpMessages(message);
 
+            // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
         }
 
