@@ -68,7 +68,7 @@ namespace ModAnalyzer.Domain {
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
-                if (path.Equals(modArchiveEntry.Key)) {
+                if (path.Equals(modArchiveEntry.Key, StringComparison.CurrentCultureIgnoreCase)) {
                     return modArchiveEntry;
                 }
             }
