@@ -11,11 +11,9 @@ namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly Game _game;
-        private readonly List<string> _extractedPlugins;
 
         public PluginAnalyzer(BackgroundWorker backgroundWorker) {
             _backgroundWorker = backgroundWorker;
-            _extractedPlugins = new List<string>();
 
             if (!ModDump.started) {
                 ModDump.started = true;
@@ -47,14 +45,8 @@ namespace ModAnalyzer.Domain {
             string gameDataPath = GameService.GetGamePath(_game);
             string pluginFileName = Path.GetFileName(entry.Key);
             string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
-            bool alreadyExtracted = _extractedPlugins.Contains(pluginFilePath);
-
-            if (alreadyExtracted)
-                return;
 
             _backgroundWorker.ReportMessage("Extracting " + entry.Key + "...", true);
-
-            _extractedPlugins.Add(pluginFilePath);
 
             if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak"))
                 File.Move(pluginFilePath, pluginFilePath + ".bak");
