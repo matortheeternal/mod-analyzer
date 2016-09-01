@@ -29,7 +29,7 @@ namespace ModAnalyzer.Domain {
         public List<string> GetAssetPaths(IArchiveEntry assetArchive) {
             // extract BSA/BA2
             string extractedArchivePath = ExtractArchive(assetArchive);
-            _backgroundWorker.ReportMessage("Getting assets from " + extractedArchivePath + "...", true);
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Getting assets from " + extractedArchivePath + "...", true);
 
             // get the assets from the BSA/BA2
             List<string> assets;
@@ -47,7 +47,7 @@ namespace ModAnalyzer.Domain {
             // prepare helper variables
             string archivePath = assetArchive.GetEntryPath();
             string outputPath = Path.Combine("bsas", Path.GetFileName(archivePath));
-            string ext = assetArchive.GetEntryExtension().Remove(1);
+            string ext = assetArchive.GetEntryExtension().Remove(0, 1);
 
             // return if the archive has already been extracted
             if (File.Exists(outputPath)) {
