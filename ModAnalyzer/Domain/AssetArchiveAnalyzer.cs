@@ -19,6 +19,13 @@ namespace ModAnalyzer.Domain {
             Directory.CreateDirectory(@".\bsas");
         }
 
+        private string PrepareAssetPath(string archiveKey, string assetPath) {
+            if (assetPath.StartsWith(@".\")) {
+                assetPath = assetPath.Remove(0, 2);
+            }
+            return Path.Combine(archiveKey, assetPath);
+        }
+
         public List<string> GetAssets(IArchiveEntry assetArchive) {
             ExtractArchive(assetArchive);
 
@@ -29,9 +36,9 @@ namespace ModAnalyzer.Domain {
             List<string> assets;
 
             if (assetArchive.GetEntryExtension().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase))
-                assets = GetBSAAssets(extractedArchivePath).Select(asset => Path.Combine(assetArchive.Key, asset)).ToList();
+                assets = GetBSAAssets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchive.Key, asset)).ToList();
             else
-                assets = GetBA2Assets(extractedArchivePath).Select(asset => Path.Combine(assetArchive.Key, asset)).ToList();
+                assets = GetBA2Assets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchive.Key, asset)).ToList();
 
             assets.ForEach(asset => _backgroundWorker.ReportMessage(asset, false));
 
