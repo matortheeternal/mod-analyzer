@@ -1,14 +1,11 @@
 ﻿using System.Windows.Controls;
 
-namespace ModAnalyzer.Views
-{
+namespace ModAnalyzer.Views {
     /// <summary>
     /// Interaction logic for ResultsView.xaml
     /// </summary>
-    public partial class AnalysisView : UserControl
-    {
-        public AnalysisView()
-        {
+    public partial class AnalysisView : UserControl {
+        public AnalysisView() {
             InitializeComponent();
         }
     }

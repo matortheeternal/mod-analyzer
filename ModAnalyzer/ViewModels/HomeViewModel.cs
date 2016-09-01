@@ -5,21 +5,16 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-namespace ModAnalyzer.ViewModels
-{
-    public class HomeViewModel : ViewModelBase
-    {
+namespace ModAnalyzer.ViewModels {
+    public class HomeViewModel : ViewModelBase {
         public ICommand BrowseCommand { get; set; }
 
-        public HomeViewModel()
-        {
+        public HomeViewModel() {
             BrowseCommand = new RelayCommand(Browse);
         }
 
-        private void Browse()
-        {
-            OpenFileDialog openFileDialog = new OpenFileDialog
-            {
+        private void Browse() {
+            OpenFileDialog openFileDialog = new OpenFileDialog {
                 Title = "Select a mod archive",
                 Filter = "Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar",
                 Multiselect = true

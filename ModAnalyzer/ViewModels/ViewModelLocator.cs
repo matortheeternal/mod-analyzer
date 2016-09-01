@@ -1,11 +1,8 @@
 using GalaSoft.MvvmLight.Ioc;
 
-namespace ModAnalyzer.ViewModels
-{
-    public class ViewModelLocator
-    {
-        public ViewModelLocator()
-        {
+namespace ModAnalyzer.ViewModels {
+    public class ViewModelLocator {
+        public ViewModelLocator() {
             SimpleIoc.Default.Register<MainViewModel>();
             SimpleIoc.Default.Register<AnalysisViewModel>();
             SimpleIoc.Default.Register<HomeViewModel>();

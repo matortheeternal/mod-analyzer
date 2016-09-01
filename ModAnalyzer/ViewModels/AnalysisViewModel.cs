@@ -7,10 +7,8 @@ using System;
 using System.Diagnostics;
 using System.Windows.Input;
 
-namespace ModAnalyzer.ViewModels
-{
-    public class AnalysisViewModel : ViewModelBase
-    {        
+namespace ModAnalyzer.ViewModels {
+    public class AnalysisViewModel : ViewModelBase {
         private ModAnalyzerService _modAnalyzerService;
 
         public ICommand ResetCommand { get; set; }
@@ -18,22 +16,19 @@ namespace ModAnalyzer.ViewModels
 
         private string _log;
 
-        public string Log
-        {
+        public string Log {
             get { return _log; }
             set { Set(nameof(Log), ref _log, value); }
         }
 
         private string _progressMessage;
 
-        public string ProgressMessage
-        {
+        public string ProgressMessage {
             get { return _progressMessage; }
             set { Set(nameof(ProgressMessage), ref _progressMessage, value); }
         }
-        
-        public AnalysisViewModel()
-        {
+
+        public AnalysisViewModel() {
             _modAnalyzerService = new ModAnalyzerService();
             _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
 
@@ -43,19 +38,17 @@ namespace ModAnalyzer.ViewModels
             MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelectedMessage);
         }
 
-        private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e)
-        {
+        private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
             App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
-                
+
             if (e.IsStatusMessage)
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message));
         }
 
-        private void OnFilesSelectedMessage(FilesSelectedMessage message)
-        {
+        private void OnFilesSelectedMessage(FilesSelectedMessage message) {
             Log = string.Empty;
 
             _modAnalyzerService.AnalyzeMod(message.FilePaths);
-        }        
+        }
     }
 }
