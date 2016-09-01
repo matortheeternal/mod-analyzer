@@ -16,7 +16,7 @@
             <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
         </StatusBar>
 
-        <ScrollViewer DockPanel.Dock="Top">
+        <ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" ScrollChanged="ScrollViewer_ScrollChanged">
             <TextBox Text="{Binding Log, Mode=OneWay}" />
         </ScrollViewer>
     </DockPanel>
