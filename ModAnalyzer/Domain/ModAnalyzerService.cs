@@ -68,15 +68,16 @@ namespace ModAnalyzer.Domain {
         }
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
-            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
-                if (path.Equals(modArchiveEntry.Key, StringComparison.CurrentCultureIgnoreCase)) {
-                    return modArchiveEntry;
+            foreach (IArchiveEntry entry in archive.Entries) {
+                if (path.Equals(entry.Key, StringComparison.CurrentCultureIgnoreCase)) {
+                    return entry;
                 }
             }
             return null;
         }
 
         // performs the enqueued entry analysis jobs
+        // TODO: Raise exception if job fails
         private void AnalyzeEntries() {
             foreach (EntryAnalysisJob job in entryAnalysisJobs) {
                 string ext = job.Entry.GetEntryExtension();
@@ -84,12 +85,16 @@ namespace ModAnalyzer.Domain {
                     case ".BSA":
                     case ".BA2":
                         List<String> assets = _assetArchiveAnalyzer.GetAssetPaths(job.Entry);
-                        job.AddAssetPaths(assets);
+                        if (assets != null) {
+                            job.AddAssetPaths(assets);
+                        }
                         break;
                     case ".ESP":
                     case ".ESM":
                         PluginDump dump = _pluginAnalyzer.GetPluginDump(job.Entry);
-                        job.AddPluginDump(dump);
+                        if (dump != null) {
+                            job.AddPluginDump(dump);
+                        }
                         break;
                 }
             }
