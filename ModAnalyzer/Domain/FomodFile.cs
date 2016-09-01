@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 
 namespace ModAnalyzer.Domain {
@@ -30,7 +31,7 @@ namespace ModAnalyzer.Domain {
         }
 
         public bool MatchesPath(string path) {
-            return path.StartsWith(Source + (IsFolder ? "\\" : ""));
+            return path.StartsWith(IsFolder ? Path.Combine(Source, "") : Source);
         }
 
         public string MappedPath(string path) {
