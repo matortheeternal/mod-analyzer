@@ -166,6 +166,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\AnalysisJob.cs" />
     <Compile Include="Domain\FomodFlagDependency.cs" />
     <Compile Include="Domain\FomodFlag.cs" />
     <Compile Include="Domain\FomodPattern.cs" />
@@ -252,15 +253,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="lib\BA2Lib.dll">
+    <None Include="lib\BA2Lib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="lib\libbsa.dll">
+    </None>
+    <None Include="lib\libbsa.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="ModDumpLib.dll">
+    </None>
+    <None Include="ModDumpLib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    </None>
     <Resource Include="Views\mod-picker256.png" />
   </ItemGroup>
   <ItemGroup>
