@@ -42,7 +42,7 @@ namespace ModAnalyzer.ViewModels {
             App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
 
             if (e.IsStatusMessage)
-                App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message));
+                App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
         }
 
         private void OnFilesSelectedMessage(FilesSelectedMessage message) {
