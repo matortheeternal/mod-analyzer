@@ -48,7 +48,7 @@ namespace ModAnalyzer.Domain {
             if (alreadyExtracted)
                 return;
 
-            _backgroundWorker.ReportMessage("Extracting " + entry.Key, true);
+            _backgroundWorker.ReportMessage("Extracting " + entry.Key + "...", true);
 
             _extractedPlugins.Add(pluginFilePath);
 
@@ -60,7 +60,7 @@ namespace ModAnalyzer.Domain {
 
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            _backgroundWorker.ReportMessage("Analyzing " + entry.Key, true);
+            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...", true);
 
             // prepare mod dump and message buffer
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);

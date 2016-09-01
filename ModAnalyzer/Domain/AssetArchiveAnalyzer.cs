@@ -39,7 +39,7 @@ namespace ModAnalyzer.Domain {
         }
 
         private void ExtractArchive(IArchiveEntry assetArchive) {
-            _backgroundWorker.ReportProgress(0, MessageReportedEventArgsFactory.CreateProgressMessageEventArgs("Extracting " + assetArchive.GetEntryExtension() + " at " + assetArchive.GetEntryPath()));
+            _backgroundWorker.ReportMessage("Extracting " + assetArchive.GetEntryExtension() + " at " + assetArchive.GetEntryPath() + "...", true);
 
             assetArchive.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
 

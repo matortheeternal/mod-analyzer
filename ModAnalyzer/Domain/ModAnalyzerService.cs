@@ -101,7 +101,6 @@ namespace ModAnalyzer.Domain {
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) {
             _backgroundWorker.ReportMessage("Parsing FOMOD Options", true);
             List<ModOption> fomodOptions = new List<ModOption>();
-            List<Tuple<FomodFileNode, ModOption>> fomodFileMap = new List<Tuple<FomodFileNode, ModOption>>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
@@ -111,10 +110,10 @@ namespace ModAnalyzer.Domain {
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
-            List<ModOption> fomodOptions = fomodConfig.BuildModOptions();
+            fomodOptions = fomodConfig.BuildModOptions();
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
-            ReportProgress(Environment.NewLine + "Mapping assets to FOMOD Options");
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
             foreach (IArchiveEntry entry in archive.Entries) {
                 MapEntryToOptionAssets(fomodConfig.FileMap, entry);
             }
