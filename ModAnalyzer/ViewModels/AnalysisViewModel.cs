@@ -40,7 +40,7 @@ namespace ModAnalyzer.ViewModels
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
-            MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelectedMessage);
+            //MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelectedMessage);
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e)

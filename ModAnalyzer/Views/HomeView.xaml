@@ -4,14 +4,20 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ModAnalyzer.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}">
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
-        <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
+    <materialDesign:DialogHost Identifier="RootDialog" IsOpen="{Binding IsDialogOpen}">
+        <materialDesign:DialogHost.DialogContent>
+            <local:ClassifyArchivesView />
+        </materialDesign:DialogHost.DialogContent>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+            <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
 
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Label Content="Drag and drop a mod archive or" FontSize="16" />
-            <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label Content="Drag and drop a mod archive or" FontSize="16" />
+                <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
+            </StackPanel>
         </StackPanel>
-    </StackPanel>
+    </materialDesign:DialogHost>
 </UserControl>
