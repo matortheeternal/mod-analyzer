@@ -146,7 +146,7 @@ namespace ModAnalyzer.Domain {
             return option;
         }
 
-        public void AnalyzeMod(List<string> modArchivePaths) {
+        public void AnalyzeMod(List<ModOption> modArchivePaths) {
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 

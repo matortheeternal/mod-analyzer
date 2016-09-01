@@ -17,9 +17,10 @@
         <DataGrid ItemsSource="{Binding ModOptions, Mode=OneWay}" Margin="0 10 0 0" 
                   IsReadOnly="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Default" Binding="{Binding Default, Mode=TwoWay}" />
+                <DataGridCheckBoxColumn Header="Default" Binding="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                 <DataGridTextColumn Header="Filename" Binding="{Binding Name, Mode=OneWay}" />
             </DataGrid.Columns>
         </DataGrid>
+        <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="10" />
     </StackPanel>
 </UserControl>

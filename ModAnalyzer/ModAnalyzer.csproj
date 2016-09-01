@@ -187,6 +187,7 @@
     <Compile Include="Domain\PluginRecordGroup.cs" />
     <Compile Include="Domain\MessageReportedEventArgs.cs" />
     <Compile Include="Messages\FilesSelectedMessage.cs" />
+    <Compile Include="Messages\ModOptionsSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
     <Compile Include="Utils\IArchiveEntryExtensions.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
