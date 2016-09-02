@@ -28,8 +28,9 @@ namespace ModAnalyzer.Domain {
 
         public List<string> GetAssetPaths(IArchiveEntry assetArchive) {
             // extract BSA/BA2
+            _backgroundWorker.ReportMessage(" ", false);
             string extractedArchivePath = ExtractArchive(assetArchive);
-            _backgroundWorker.ReportMessage(Environment.NewLine + "Getting assets from " + extractedArchivePath + "...", true);
+            _backgroundWorker.ReportMessage("Getting assets from " + extractedArchivePath + "...", true);
 
             // get the assets from the BSA/BA2
             List<string> assets;
