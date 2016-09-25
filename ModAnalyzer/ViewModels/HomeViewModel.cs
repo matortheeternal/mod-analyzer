@@ -33,6 +33,7 @@ namespace ModAnalyzer.ViewModels {
                     else {
                         errorMessage = e.Message;
                     }
+                    MessageBox.Show("Error sending FilesSelectedMessage: " + errorMessage);
                 }
             }
         }

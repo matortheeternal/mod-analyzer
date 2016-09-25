@@ -58,7 +58,7 @@ namespace ModAnalyzer.ViewModels {
                 } else {
                     errorMessage = e.Message;
                 }
-                MessageBox.Show(errorMessage);
+                MessageBox.Show("Error handling FilesSelectedMessage: " + errorMessage);
             }
         }
     }
