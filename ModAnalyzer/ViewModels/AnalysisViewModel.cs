@@ -5,6 +5,7 @@ using ModAnalyzer.Messages;
 using ModAssetMapper;
 using System;
 using System.Diagnostics;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
@@ -46,9 +47,19 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void OnFilesSelectedMessage(FilesSelectedMessage message) {
-            Log = string.Empty;
-
-            _modAnalyzerService.AnalyzeMod(message.FilePaths);
+            try {
+                Log = string.Empty;
+                _modAnalyzerService.AnalyzeMod(message.FilePaths);
+            }
+            catch (Exception e) {
+                string errorMessage;
+                if (e.InnerException != null) {
+                    errorMessage = e.InnerException.Message;
+                } else {
+                    errorMessage = e.Message;
+                }
+                MessageBox.Show(errorMessage);
+            }
         }
     }
 }
