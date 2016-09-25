@@ -52,12 +52,7 @@ namespace ModAnalyzer.ViewModels {
                 _modAnalyzerService.AnalyzeMod(message.FilePaths);
             }
             catch (Exception e) {
-                string errorMessage;
-                if (e.InnerException != null) {
-                    errorMessage = e.InnerException.Message;
-                } else {
-                    errorMessage = e.Message;
-                }
+                string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
                 MessageBox.Show("Error handling FilesSelectedMessage: " + errorMessage);
             }
         }

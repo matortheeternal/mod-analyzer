@@ -23,16 +23,13 @@ namespace ModAnalyzer.ViewModels {
 
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 try {
-                    MessengerInstance.Send(new FilesSelectedMessage(openFileDialog.FileNames.ToList()));
+                    FilesSelectedMessage msg = new FilesSelectedMessage(openFileDialog.FileNames.ToList());
+                    if (MessengerInstance != null) {
+                        MessengerInstance.Send(msg);
+                    }
                 }
                 catch (Exception e) {
-                    string errorMessage;
-                    if (e.InnerException != null) {
-                        errorMessage = e.InnerException.Message;
-                    }
-                    else {
-                        errorMessage = e.Message;
-                    }
+                    string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
                     MessageBox.Show("Error sending FilesSelectedMessage: " + errorMessage);
                 }
             }
