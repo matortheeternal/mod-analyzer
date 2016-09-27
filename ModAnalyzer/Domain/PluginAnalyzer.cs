@@ -2,7 +2,6 @@
 using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
@@ -11,20 +10,22 @@ namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly Game _game;
-        private readonly List<string> _extractedPlugins;
 
         public PluginAnalyzer(BackgroundWorker backgroundWorker) {
             _backgroundWorker = backgroundWorker;
-            _extractedPlugins = new List<string>();
 
-            ModDump.StartModDump();
-            _game = GameService.GetGame("Skyrim"); // TODO: remove hardcoding
-            ModDump.SetGameMode(_game.gameMode);
+            if (!ModDump.started) {
+                ModDump.started = true;
+                ModDump.StartModDump();
+                // TODO: remove hardcoding (requires making a gui component from which the user can choose the game mode)
+                _game = GameService.GetGame("Skyrim");
+                ModDump.SetGameMode(_game.gameMode);
+            }
         }
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
             try {
-                _backgroundWorker.ReportMessage("Getting plugin dump for " + entry.Key + "...", true);
+                _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entry.Key + "...", true);
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }
@@ -35,6 +36,7 @@ namespace ModAnalyzer.Domain {
                 return null;
             }
             finally {
+                _backgroundWorker.ReportMessage(" ", false);
                 RevertPlugin(entry);
             }
         }
@@ -42,15 +44,9 @@ namespace ModAnalyzer.Domain {
         public void ExtractPlugin(IArchiveEntry entry) {
             string gameDataPath = GameService.GetGamePath(_game);
             string pluginFileName = Path.GetFileName(entry.Key);
-            string pluginFilePath = gameDataPath + pluginFileName; // TODO: use Path.Combine
-            bool alreadyExtracted = _extractedPlugins.Contains(pluginFilePath);
-
-            if (alreadyExtracted)
-                return;
+            string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
 
             _backgroundWorker.ReportMessage("Extracting " + entry.Key + "...", true);
-
-            _extractedPlugins.Add(pluginFilePath);
 
             if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak"))
                 File.Move(pluginFilePath, pluginFilePath + ".bak");
@@ -58,40 +54,48 @@ namespace ModAnalyzer.Domain {
             entry.WriteToDirectory(gameDataPath, ExtractOptions.Overwrite);
         }
 
+        private void GetModDumpMessages(StringBuilder message) {
+            ModDump.GetBuffer(message, message.Capacity);
+            if (message.Length > 0) {
+                string messageString = message.ToString();
+                if (messageString.EndsWith("\n") && !messageString.EndsWith(" \n")) {
+                    messageString = messageString.TrimEnd();
+                }
+                _backgroundWorker.ReportMessage(messageString, false);
+                ModDump.FlushBuffer();
+            }
+        }
+
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...", true);
-
-            // prepare mod dump and message buffer
+            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
             if (!ModDump.Prepare(Path.GetFileName(entry.Key))) {
-                ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
+                GetModDumpMessages(message);
                 return null;
             }
 
             // dump the plugin file
             StringBuilder json = new StringBuilder(4 * 1024 * 1024); // 4MB maximum dump size
             if (!ModDump.Dump()) {
-                ModDump.GetBuffer(message, message.Capacity);
-                _backgroundWorker.ReportMessage(Environment.NewLine + message.ToString(), false);
+                GetModDumpMessages(message);
                 return null;
             }
 
             // use a loop to poll for messages until the dump is ready
             while (!ModDump.GetDumpResult(json, json.Capacity)) {
-                ModDump.GetBuffer(message, message.Capacity);
-                if (message.Length > 1) {
-                    _backgroundWorker.ReportMessage(message.ToString(), false);
-                    ModDump.FlushBuffer();
-                }
+                GetModDumpMessages(message);
                 // wait 100ms between each polling operation so we don't bring things to a standstill with this while loop
                 // we can do this without locking up the UI because this is happening in a background worker
                 System.Threading.Thread.Sleep(100);
             }
+            
+            // get any remaining messages
+            GetModDumpMessages(message);
 
+            // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
         }
 

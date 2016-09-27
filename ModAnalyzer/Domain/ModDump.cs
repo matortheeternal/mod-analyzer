@@ -6,6 +6,8 @@ namespace ModAnalyzer.Domain {
         /// <summary>
         /// Linking Delphi DLL for dumping plugins
         /// </summary>
+        public static bool started;
+
         [DllImport(@"ModDumpLib.dll")]
         public static extern void StartModDump();
         [DllImport(@"ModDumpLib.dll")]

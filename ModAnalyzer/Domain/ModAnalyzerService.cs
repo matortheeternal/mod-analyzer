@@ -3,50 +3,55 @@ using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
 using System;
-using System.Xml;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 
 namespace ModAnalyzer.Domain {
-    // TODO: apply DRY to _backgroundWorker.ReportProgress
     public class ModAnalyzerService {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
         private readonly PluginAnalyzer _pluginAnalyzer;
         private ModAnalysis _modAnalysis;
+        private List<EntryAnalysisJob> entryAnalysisJobs;
+        private readonly string[] entryJobExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
 
         public ModAnalyzerService() {
+            // prepare background worker
             _backgroundWorker = new BackgroundWorker { WorkerReportsProgress = true };
-            _backgroundWorker.DoWork += _backgroundWorker_DoWork;
-            _backgroundWorker.ProgressChanged += _backgroundWorker_ProgressChanged;
+            _backgroundWorker.DoWork += BackgroundWork;
+            _backgroundWorker.ProgressChanged += BackgroundProgress;
 
+            // prepare analyzers and job queues
             _assetArchiveAnalyzer = new AssetArchiveAnalyzer(_backgroundWorker);
             _pluginAnalyzer = new PluginAnalyzer(_backgroundWorker);
+            entryAnalysisJobs = new List<EntryAnalysisJob>();
 
+            // prepare directories
             Directory.CreateDirectory("output");
         }
 
-        private void _backgroundWorker_DoWork(object sender, DoWorkEventArgs e) {
+        private void BackgroundProgress(object sender, ProgressChangedEventArgs e) {
+            MessageReportedEventArgs eventArgs = e.UserState as MessageReportedEventArgs;
+
+            MessageReported?.Invoke(this, eventArgs);
+        }
+
+        // Background job to analyze a mod
+        private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
-            List<string> modArchivePaths = e.Argument as List<string>;
+            List<string> archivePaths = e.Argument as List<string>;
 
-            foreach(string modArchivePath in modArchivePaths) {
-                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(modArchivePath) + "...", true);
+            // analyze each archive
+            foreach(string archivePath in archivePaths) {
+                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(archivePath) + "...", true);
 
-                using (IArchive archive = ArchiveFactory.Open(modArchivePath)) {
-                    if (IsFomodArchive(archive)) {
-                        List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
-                        _modAnalysis.ModOptions.AddRange(fomodOptions);
-                    }
-                    else {
-                        ModOption option = AnalyzeNormalArchive(archive);
-                        option.Name = Path.GetFileName(modArchivePath);
-                        option.Size = archive.TotalUncompressSize;
-                        _modAnalysis.ModOptions.Add(option);
-                    }
+                using (IArchive archive = ArchiveFactory.Open(archivePath)) {
+                    AnalyzeArchive(archive, archivePath);
+                    AnalyzeEntries();
                 }
             }
 
@@ -56,23 +61,57 @@ namespace ModAnalyzer.Domain {
             }
 
             // TODO: This should get the name of the base mod option or something
-            string filename = modArchivePaths[0];
+            string filename = archivePaths[0];
             SaveOutputFile(filename);
         }
 
-        private void _backgroundWorker_ProgressChanged(object sender, ProgressChangedEventArgs e) {
-            MessageReportedEventArgs eventArgs = e.UserState as MessageReportedEventArgs;
-
-            MessageReported?.Invoke(this, eventArgs);
-        }
-
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
-            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
-                if (path.Equals(modArchiveEntry.Key)) {
-                    return modArchiveEntry;
+            foreach (IArchiveEntry entry in archive.Entries) {
+                if (path.Equals(entry.Key, StringComparison.CurrentCultureIgnoreCase)) {
+                    return entry;
                 }
             }
             return null;
+        }
+
+        // performs the enqueued entry analysis jobs
+        // TODO: Raise exception if job fails
+        private void AnalyzeEntries() {
+            foreach (EntryAnalysisJob job in entryAnalysisJobs) {
+                string ext = job.Entry.GetEntryExtension();
+                switch (ext) {
+                    case ".BSA":
+                    case ".BA2":
+                        List<String> assets = _assetArchiveAnalyzer.GetAssetPaths(job.Entry);
+                        if (assets != null) {
+                            job.AddAssetPaths(assets);
+                        }
+                        break;
+                    case ".ESP":
+                    case ".ESM":
+                        PluginDump dump = _pluginAnalyzer.GetPluginDump(job.Entry);
+                        if (dump != null) {
+                            job.AddPluginDump(dump);
+                        }
+                        break;
+                }
+            }
+
+            // clear the entry analysis jobs - they've been performed
+            entryAnalysisJobs.Clear();
+        }
+
+        private void AnalyzeArchive(IArchive archive, string archivePath) {
+            if (IsFomodArchive(archive)) {
+                List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
+                _modAnalysis.ModOptions.AddRange(fomodOptions);
+            }
+            else {
+                ModOption option = AnalyzeNormalArchive(archive);
+                option.Name = Path.GetFileName(archivePath);
+                option.Size = archive.TotalUncompressSize;
+                _modAnalysis.ModOptions.Add(option);
+            }
         }
 
         private bool IsFomodArchive(IArchive archive) {
@@ -91,9 +130,8 @@ namespace ModAnalyzer.Domain {
                     option.Size += entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
-                    // NOTE: This will analyze the same BSA/plugin multiple times if it appears in multiple fomod options
-                    // TODO: Fix that.
-                    AnalyzeModArchiveEntry(entry, option);
+                    // enqueue jobs for analyzing archives and plugins
+                    EnqueueAnalysisJob(entry, option);
                 }
             }
         }
@@ -139,8 +177,8 @@ namespace ModAnalyzer.Domain {
                 option.Assets.Add(entryPath);
                 _backgroundWorker.ReportMessage(entryPath, false);
 
-                // handle BSAs and plugins
-                AnalyzeModArchiveEntry(modArchiveEntry, option);
+                // enqueue jobs for analyzing archives and plugins
+                EnqueueAnalysisJob(modArchiveEntry, option);
             }
 
             return option;
@@ -150,19 +188,15 @@ namespace ModAnalyzer.Domain {
             _backgroundWorker.RunWorkerAsync(modArchivePaths);
         }
 
-        private void AnalyzeModArchiveEntry(IArchiveEntry entry, ModOption option) {
-            switch (entry.GetEntryExtension()) {
-                case ".BA2":
-                case ".BSA":
-                    List<String> assets = _assetArchiveAnalyzer.GetAssets(entry);
-                    option.Assets.AddRange(assets);
-                    break;
-                case ".ESP":
-                case ".ESM":
-                    PluginDump pluginDump = _pluginAnalyzer.GetPluginDump(entry);
-                    if (pluginDump != null)
-                        option.Plugins.Add(pluginDump);
-                    break;
+        private void EnqueueAnalysisJob(IArchiveEntry entry, ModOption option) {
+            if (entryJobExtensions.Contains(entry.GetEntryExtension())) {
+                EntryAnalysisJob foundJob = entryAnalysisJobs.Find(job => job.Entry.Equals(entry));
+                if (foundJob != null) {
+                    foundJob.AddOption(option);
+                }
+                else {
+                    entryAnalysisJobs.Add(new EntryAnalysisJob(entry, option));
+                }
             }
         }
 
