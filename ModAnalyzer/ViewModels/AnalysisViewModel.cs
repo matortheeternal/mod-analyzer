@@ -5,7 +5,6 @@ using ModAnalyzer.Messages;
 using ModAssetMapper;
 using System;
 using System.Diagnostics;
-using System.Windows;
 using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
@@ -46,8 +45,7 @@ namespace ModAnalyzer.ViewModels {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
         }
 
-        private void OnModOptionsSelected(ModOptionsSelectedMessage message)
-        {
+        private void OnModOptionsSelected(ModOptionsSelectedMessage message) {
             Log = string.Empty;
 
             _modAnalyzerService.AnalyzeMod(message.ModOptions);

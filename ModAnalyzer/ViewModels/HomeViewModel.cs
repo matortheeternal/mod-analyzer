@@ -1,7 +1,6 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
 using ModAnalyzer.Messages;
-using System;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
