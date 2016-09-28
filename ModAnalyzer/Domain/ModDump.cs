@@ -10,8 +10,6 @@ namespace ModAnalyzer.Domain {
 
         [DllImport(@"ModDumpLib.dll")]
         public static extern void StartModDump();
-        [DllImport(@"ModDumpLib.dll")]
-        public static extern void EndModDump();
         [DllImport(@"ModDumpLib.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern void GetBuffer(StringBuilder str, int len);
         [DllImport(@"ModDumpLib.dll")]
