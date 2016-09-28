@@ -13,14 +13,8 @@ namespace ModAnalyzer.Domain {
 
         public PluginAnalyzer(BackgroundWorker backgroundWorker) {
             _backgroundWorker = backgroundWorker;
-
-            if (!ModDump.started) {
-                ModDump.started = true;
-                ModDump.StartModDump();
-                // TODO: remove hardcoding (requires making a gui component from which the user can choose the game mode)
-                _game = GameService.GetGame("Skyrim");
-                ModDump.SetGameMode(_game.gameMode);
-            }
+            // TODO: remove hardcoding (requires making a gui component from which the user can choose the game mode)
+            _game = GameService.GetGame("Skyrim");
         }
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
@@ -68,6 +62,12 @@ namespace ModAnalyzer.Domain {
 
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
+            // start mod dump
+            ModDump.LoadModDump();
+            ModDump.StartModDump();
+            ModDump.SetGameMode(_game.gameMode);
+
+            // prepare variables for analysis
             _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
@@ -94,6 +94,10 @@ namespace ModAnalyzer.Domain {
             
             // get any remaining messages
             GetModDumpMessages(message);
+
+            // stop mod dump
+            ModDump.FlushBuffer();
+            ModDump.UnloadModDump();
 
             // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
