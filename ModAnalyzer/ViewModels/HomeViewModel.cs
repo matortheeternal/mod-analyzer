@@ -3,6 +3,7 @@ using GalaSoft.MvvmLight.CommandWpf;
 using ModAnalyzer.Messages;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -14,6 +15,22 @@ namespace ModAnalyzer.ViewModels {
             BrowseCommand = new RelayCommand(Browse);
         }
 
+        private void SendFilesSelectedMessage(FilesSelectedMessage msg) {
+            try {
+                MessengerInstance.Send(msg);
+            }
+            catch {
+                try {
+                    Thread.Sleep(100);
+                    MessengerInstance.Send(msg);
+                }
+                catch (Exception e) {
+                    string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
+                    MessageBox.Show("Error sending FilesSelectedMessage: " + errorMessage);
+                }
+            }
+        }
+
         private void Browse() {
             OpenFileDialog openFileDialog = new OpenFileDialog {
                 Title = "Select a mod archive",
@@ -22,16 +39,8 @@ namespace ModAnalyzer.ViewModels {
             };
 
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
-                try {
-                    FilesSelectedMessage msg = new FilesSelectedMessage(openFileDialog.FileNames.ToList());
-                    if (MessengerInstance != null) {
-                        MessengerInstance.Send(msg);
-                    }
-                }
-                catch (Exception e) {
-                    string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
-                    MessageBox.Show("Error sending FilesSelectedMessage: " + errorMessage);
-                }
+                FilesSelectedMessage msg = new FilesSelectedMessage(openFileDialog.FileNames.ToList());
+                SendFilesSelectedMessage(msg);
             }
         }
     }
