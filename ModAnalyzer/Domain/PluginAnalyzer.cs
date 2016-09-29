@@ -63,7 +63,7 @@ namespace ModAnalyzer.Domain {
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
             // start mod dump
-            ModDump.LoadModDump();
+            if (!ModDump.loaded) ModDump.LoadModDump();
             ModDump.StartModDump();
             ModDump.SetGameMode(_game.gameMode);
 
@@ -97,7 +97,7 @@ namespace ModAnalyzer.Domain {
 
             // stop mod dump
             ModDump.FlushBuffer();
-            ModDump.UnloadModDump();
+            //ModDump.UnloadModDump();
 
             // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
