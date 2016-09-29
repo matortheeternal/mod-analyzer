@@ -14,23 +14,7 @@ namespace ModAnalyzer.ViewModels {
         public HomeViewModel() {
             BrowseCommand = new RelayCommand(Browse);
         }
-
-        private void SendFilesSelectedMessage(FilesSelectedMessage msg) {
-            try {
-                MessengerInstance.Send(msg);
-            }
-            catch {
-                try {
-                    Thread.Sleep(100);
-                    MessengerInstance.Send(msg);
-                }
-                catch (Exception e) {
-                    string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
-                    MessageBox.Show("Error sending FilesSelectedMessage: " + errorMessage);
-                }
-            }
-        }
-
+        
         private void Browse() {
             OpenFileDialog openFileDialog = new OpenFileDialog {
                 Title = "Select a mod archive",
@@ -40,7 +24,7 @@ namespace ModAnalyzer.ViewModels {
 
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 FilesSelectedMessage msg = new FilesSelectedMessage(openFileDialog.FileNames.ToList());
-                SendFilesSelectedMessage(msg);
+                MessengerInstance.Send(msg);
             }
         }
     }

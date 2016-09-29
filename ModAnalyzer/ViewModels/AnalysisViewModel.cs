@@ -47,14 +47,8 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void OnFilesSelectedMessage(FilesSelectedMessage message) {
-            try {
-                Log = string.Empty;
-                _modAnalyzerService.AnalyzeMod(message.FilePaths);
-            }
-            catch (Exception e) {
-                string errorMessage = (e.InnerException != null) ? e.InnerException.Message : e.Message;
-                MessageBox.Show("Error handling FilesSelectedMessage: " + errorMessage);
-            }
+            Log = string.Empty;
+            _modAnalyzerService.AnalyzeMod(message.FilePaths);
         }
     }
 }
