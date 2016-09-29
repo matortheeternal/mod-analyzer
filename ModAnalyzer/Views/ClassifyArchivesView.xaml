@@ -10,9 +10,9 @@
         <TextBlock>
             Please review the archives to be analyzed for this mod.
             <LineBreak /> <LineBreak />
-            Check Default if the archive is a core/base archive, i.e. required by the mod.
+            Check Default if the archive is a required base archive for the mod.
             <LineBreak />
-            Do not check Default for optional/misc/patch archives.
+            Do not check Default for optional/patch archives.
         </TextBlock>
         <DataGrid ItemsSource="{Binding ModOptions, Mode=OneWay}" Margin="0 10 0 0" 
                   IsReadOnly="True" AutoGenerateColumns="False">
