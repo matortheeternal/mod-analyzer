@@ -43,11 +43,11 @@ namespace ModAnalyzer.Domain {
         // Background job to analyze a mod
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
-            List<string> archivePaths = e.Argument as List<string>;
+            List<ModOption> archivePaths = e.Argument as List<ModOption>;
 
             // analyze each archive
             foreach(string archivePath in archivePaths) {
-                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(archivePath) + "...", true);
+                _backgroundWorker.ReportMessage("\nAnalyzing " + Path.GetFileName(archivePath) + "...", true);
 
                 using (IArchive archive = ArchiveFactory.Open(archivePath)) {
                     AnalyzeArchive(archive, archivePath);
