@@ -71,7 +71,9 @@ namespace ModAnalyzer.Domain {
             }
             foreach (FomodPlugin plugin in Plugins) {
                 ModOption option = new ModOption(plugin.Name, plugin.IsDefault(), true);
-                AddFileMappings(option, plugin.Files);
+                if (plugin.Files != null) {
+                    AddFileMappings(option, plugin.Files);
+                }
                 options.Add(option);
             }
             return options;
