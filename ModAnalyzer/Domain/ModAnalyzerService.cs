@@ -64,9 +64,9 @@ namespace ModAnalyzer.Domain {
                 // TODO: This should get the name of the base mod option or something
                 string filename = archivePaths[0];
                 SaveOutputFile(filename);
-            } catch {
+            } catch (Exception x) {
+                _backgroundWorker.ReportMessage(x.Message, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
-                // do nothing
             }
         }
 
