@@ -72,7 +72,8 @@ namespace ModAnalyzer.Domain {
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
-            if (!ModDump.Prepare(Path.GetFileName(entry.Key))) {
+            string filename = Path.GetFileName(entry.Key);
+            if (!ModDump.Prepare(filename)) {
                 GetModDumpMessages(message);
                 return null;
             }
@@ -94,6 +95,11 @@ namespace ModAnalyzer.Domain {
             
             // get any remaining messages
             GetModDumpMessages(message);
+
+            // throw exception if dump json is empty
+            if (json.Length < 3) {
+                throw new Exception("Failed to analyze plugin " + filename);
+            }
 
             // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());

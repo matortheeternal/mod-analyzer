@@ -46,23 +46,27 @@ namespace ModAnalyzer.Domain {
             List<string> archivePaths = e.Argument as List<string>;
 
             // analyze each archive
-            foreach(string archivePath in archivePaths) {
-                _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(archivePath) + "...", true);
+            try {
+                foreach (string archivePath in archivePaths) {
+                    _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(archivePath) + "...", true);
 
-                using (IArchive archive = ArchiveFactory.Open(archivePath)) {
-                    AnalyzeArchive(archive, archivePath);
-                    AnalyzeEntries();
+                    using (IArchive archive = ArchiveFactory.Open(archivePath)) {
+                        AnalyzeArchive(archive, archivePath);
+                        AnalyzeEntries();
+                    }
                 }
-            }
 
-            // if we have only one mod option, it must be default
-            if (_modAnalysis.ModOptions.Count == 1) {
-                _modAnalysis.ModOptions[0].Default = true;
-            }
+                // if we have only one mod option, it must be default
+                if (_modAnalysis.ModOptions.Count == 1) {
+                    _modAnalysis.ModOptions[0].Default = true;
+                }
 
-            // TODO: This should get the name of the base mod option or something
-            string filename = archivePaths[0];
-            SaveOutputFile(filename);
+                // TODO: This should get the name of the base mod option or something
+                string filename = archivePaths[0];
+                SaveOutputFile(filename);
+            } catch {
+                // do nothing
+            }
         }
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
