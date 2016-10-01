@@ -65,6 +65,7 @@ namespace ModAnalyzer.Domain {
                 string filename = archivePaths[0];
                 SaveOutputFile(filename);
             } catch {
+                _backgroundWorker.ReportMessage("Analysis failed.", true);
                 // do nothing
             }
         }
@@ -96,6 +97,8 @@ namespace ModAnalyzer.Domain {
                         PluginDump dump = _pluginAnalyzer.GetPluginDump(job.Entry);
                         if (dump != null) {
                             job.AddPluginDump(dump);
+                        } else {
+                            throw new Exception("Plugin dump failed.");
                         }
                         break;
                 }
