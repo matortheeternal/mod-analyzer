@@ -5,7 +5,6 @@ using ModAnalyzer.Messages;
 using ModAssetMapper;
 using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
@@ -36,7 +35,7 @@ namespace ModAnalyzer.ViewModels {
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
-            MessengerInstance.Register<ModOptionsSelectedMessage>(this, OnModOptionsSelected);
+            MessengerInstance.Register<ArchiveModOptionsSelectedMessage>(this, OnArchiveModOptionsSelected);
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
@@ -46,10 +45,10 @@ namespace ModAnalyzer.ViewModels {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
         }
 
-        private void OnModOptionsSelected(ModOptionsSelectedMessage message) {
+        private void OnArchiveModOptionsSelected(ArchiveModOptionsSelectedMessage message) {
             Log = string.Empty;
 
-            _modAnalyzerService.AnalyzeMod(message.ModOptions.Select(modOption => modOption.Name).ToList());
+            _modAnalyzerService.AnalyzeMod(message.ModOptions);
         }        
     }
 }

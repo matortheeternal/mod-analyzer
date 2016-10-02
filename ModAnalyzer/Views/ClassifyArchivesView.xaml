@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              mc:Ignorable="d"
+             MaxWidth="500"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}">
     <StackPanel Margin="10">
         <TextBlock>
@@ -14,7 +15,7 @@
             <LineBreak />
             Do not check Default for optional/patch archives.
         </TextBlock>
-        <DataGrid ItemsSource="{Binding ModOptions, Mode=OneWay}" Margin="0 10 0 0" 
+        <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
                   IsReadOnly="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
                 <DataGridCheckBoxColumn Header="Default" Binding="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />

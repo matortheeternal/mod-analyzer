@@ -4,25 +4,29 @@ using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
     public class ClassifyArchivesViewModel : ViewModelBase {
-        public ObservableCollection<ModOption> ModOptions { get; set; }
+        public ObservableCollection<ModOption> ArchiveModOptions { get; set; }
         public ICommand AnalyzeCommand { get; set; }
 
         public ClassifyArchivesViewModel() {
-            ModOptions = new ObservableCollection<ModOption>();
-            AnalyzeCommand = new RelayCommand(() => MessengerInstance.Send(new ModOptionsSelectedMessage(ModOptions)));
+            ArchiveModOptions = new ObservableCollection<ModOption>();
+            AnalyzeCommand = new RelayCommand(() => MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList())));
 
             MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelected);
         }
 
         private void OnFilesSelected(FilesSelectedMessage message) {
-            ModOptions.Clear();
+            ArchiveModOptions.Clear();
 
             foreach (string file in message.FilePaths)
-                ModOptions.Add(new ModOption(file, true, false));
+                ArchiveModOptions.Add(new ModOption(Path.GetFileName(file), true, false) { SourceFilePath = file });
+
+            if (message.FilePaths.Count == 1)
+                MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
         }
     }
 }

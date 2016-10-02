@@ -35,10 +35,11 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public void AnalyzeArchives(string[] fileNames) {
-            List<string> archiveFileNames = fileNames.ToList().FindAll(fileName => archiveExts.Contains(Path.GetExtension(fileName)));
-            if (archiveFileNames.Count > 0) {
-                MessengerInstance.Send(new FilesSelectedMessage(archiveFileNames));
-            }
+            List<string> validArchives = fileNames.Where(fileName => archiveExts.Contains(Path.GetExtension(fileName))).ToList();
+            if (validArchives.Count > 0) {
+                MessengerInstance.Send(new FilesSelectedMessage(validArchives));
+                IsDialogOpen = true;
+            } 
         }
     }
 }

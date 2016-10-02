@@ -43,15 +43,15 @@ namespace ModAnalyzer.Domain {
         // Background job to analyze a mod
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
-            List<string> archivePaths = e.Argument as List<string>;
+            List<ModOption> archiveModeOptions = e.Argument as List<ModOption>;
 
             // analyze each archive
             try {
-                foreach (string archivePath in archivePaths) {
-                    _backgroundWorker.ReportMessage("Analyzing " + Path.GetFileName(archivePath) + "...", true);
+                foreach (ModOption archiveModOption in archiveModeOptions) {
+                    _backgroundWorker.ReportMessage("Analyzing " + archiveModOption.Name + "...", true);
 
-                    using (IArchive archive = ArchiveFactory.Open(archivePath)) {
-                        AnalyzeArchive(archive, archivePath);
+                    using (IArchive archive = ArchiveFactory.Open(archiveModOption.SourceFilePath)) {
+                        AnalyzeArchive(archive, archiveModOption);
                         AnalyzeEntries();
                     }
                 }
@@ -62,7 +62,7 @@ namespace ModAnalyzer.Domain {
                 }
 
                 // TODO: This should get the name of the base mod option or something
-                string filename = archivePaths[0];
+                string filename = archiveModeOptions.First(modOption => modOption.Default).Name;
                 SaveOutputFile(filename);
             } catch (Exception x) {
                 _backgroundWorker.ReportMessage(x.Message, false);
@@ -108,16 +108,14 @@ namespace ModAnalyzer.Domain {
             entryAnalysisJobs.Clear();
         }
 
-        private void AnalyzeArchive(IArchive archive, string archivePath) {
+        private void AnalyzeArchive(IArchive archive, ModOption modOption) {
             if (IsFomodArchive(archive)) {
                 List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
                 _modAnalysis.ModOptions.AddRange(fomodOptions);
             }
             else {
-                ModOption option = AnalyzeNormalArchive(archive);
-                option.Name = Path.GetFileName(archivePath);
-                option.Size = archive.TotalUncompressSize;
-                _modAnalysis.ModOptions.Add(option);
+                modOption.Size = archive.TotalUncompressSize;
+                AnalyzeNormalArchive(archive, modOption);
             }
         }
 
@@ -172,9 +170,7 @@ namespace ModAnalyzer.Domain {
             return fomodOptions;
         }
 
-        private ModOption AnalyzeNormalArchive(IArchive archive) {
-            ModOption option = new ModOption();
-
+        private void AnalyzeNormalArchive(IArchive archive, ModOption option) {
             foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
                 if (modArchiveEntry.IsDirectory)
                     continue;
@@ -188,11 +184,11 @@ namespace ModAnalyzer.Domain {
                 EnqueueAnalysisJob(modArchiveEntry, option);
             }
 
-            return option;
+            _modAnalysis.ModOptions.Add(option);
         }
 
-        public void AnalyzeMod(List<string> modArchivePaths) {
-            _backgroundWorker.RunWorkerAsync(modArchivePaths);
+        public void AnalyzeMod(List<ModOption> archiveModOptions) {
+            _backgroundWorker.RunWorkerAsync(archiveModOptions);
         }
 
         private void EnqueueAnalysisJob(IArchiveEntry entry, ModOption option) {
