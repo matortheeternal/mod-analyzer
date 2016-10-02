@@ -43,11 +43,11 @@ namespace ModAnalyzer.Domain {
         // Background job to analyze a mod
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
-            List<ModOption> archiveModeOptions = e.Argument as List<ModOption>;
+            List<ModOption> archiveModOptions = e.Argument as List<ModOption>;
 
             // analyze each archive
             try {
-                foreach (ModOption archiveModOption in archiveModeOptions) {
+                foreach (ModOption archiveModOption in archiveModOptions) {
                     _backgroundWorker.ReportMessage("Analyzing " + archiveModOption.Name + "...", true);
 
                     using (IArchive archive = ArchiveFactory.Open(archiveModOption.SourceFilePath)) {
@@ -62,7 +62,7 @@ namespace ModAnalyzer.Domain {
                 }
 
                 // TODO: This should get the name of the base mod option or something
-                string filename = archiveModeOptions.First(modOption => modOption.Default).Name;
+                string filename = archiveModOptions.First(modOption => modOption.Default).Name;
                 SaveOutputFile(filename);
             } catch (Exception x) {
                 _backgroundWorker.ReportMessage(x.Message, false);
