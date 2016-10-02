@@ -18,8 +18,6 @@ namespace ModAnalyzer.Domain {
         public List<string> Assets { get; set; }
         [JsonProperty(PropertyName = "plugins")]
         public List<PluginDump> Plugins { get; set; }
-        [JsonIgnore]
-        public string SourceFilePath { get; set; }
 
         public ModOption() {
             Assets = new List<string>();

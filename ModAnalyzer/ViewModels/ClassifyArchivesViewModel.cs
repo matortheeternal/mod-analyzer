@@ -22,7 +22,7 @@ namespace ModAnalyzer.ViewModels {
             ModOptions.Clear();
 
             foreach (string file in message.FilePaths)
-                ModOptions.Add(new ModOption(Path.GetFileName(file), true, false) { SourceFilePath = file });
+                ModOptions.Add(new ModOption(Path.GetFileName(file), true, false));
         }
     }
 }
