@@ -3,6 +3,8 @@ using GalaSoft.MvvmLight.CommandWpf;
 using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
 using System.Collections.Generic;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -10,6 +12,7 @@ using System.Windows.Input;
 namespace ModAnalyzer.ViewModels {
     public class HomeViewModel : ViewModelBase {
         public ICommand BrowseCommand { get; set; }
+        private readonly string[] archiveExts = { ".zip", ".7z", ".rar" };
 
         private bool _isDialogOpen;
 
@@ -29,14 +32,14 @@ namespace ModAnalyzer.ViewModels {
                 Multiselect = true
             };
 
-            if (openFileDialog.ShowDialog() != DialogResult.OK)
-                return;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                AnalyzeArchives(openFileDialog.FileNames);
+        }
 
-            if (openFileDialog.FileNames.Count() > 1) {
-                MessengerInstance.Send(new FilesSelectedMessage(openFileDialog.FileNames.ToList()));
-                IsDialogOpen = true;
-            } else {
-                MessengerInstance.Send(new ModOptionsSelectedMessage(new List<ModOption> { new ModOption(openFileDialog.FileName, true, false) }));
+        public void AnalyzeArchives(string[] fileNames) {
+            List<string> archiveFileNames = fileNames.ToList().FindAll(fileName => archiveExts.Contains(Path.GetExtension(fileName)));
+            if (archiveFileNames.Count > 0) {
+                MessengerInstance.Send(new FilesSelectedMessage(archiveFileNames));
             }
         }
     }

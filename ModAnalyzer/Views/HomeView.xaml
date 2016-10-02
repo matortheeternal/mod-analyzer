@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}">
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
     <materialDesign:DialogHost Identifier="RootDialog" IsOpen="{Binding IsDialogOpen}">
         <materialDesign:DialogHost.DialogContent>
             <local:ClassifyArchivesView />
