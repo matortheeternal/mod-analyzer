@@ -56,11 +56,6 @@ namespace ModAnalyzer.Domain {
                     }
                 }
 
-                // if we have only one mod option, it must be default
-                if (_modAnalysis.ModOptions.Count == 1) {
-                    _modAnalysis.ModOptions[0].Default = true;
-                }
-
                 // TODO: This should get the name of the base mod option or something
                 string filename = archiveModOptions.First(modOption => modOption.Default).Name;
                 SaveOutputFile(filename);
