@@ -1,6 +1,8 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -34,7 +36,7 @@ namespace ModAnalyzer.ViewModels {
                 MessengerInstance.Send(new FilesSelectedMessage(openFileDialog.FileNames.ToList()));
                 IsDialogOpen = true;
             } else {
-
+                MessengerInstance.Send(new ModOptionsSelectedMessage(new List<ModOption> { new ModOption(openFileDialog.FileName, true, false) }));
             }
         }
     }
