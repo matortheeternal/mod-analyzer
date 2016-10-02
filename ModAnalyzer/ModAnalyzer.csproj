@@ -169,7 +169,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
-    <Compile Include="Domain\AnalysisJob.cs" />
+    <Compile Include="Domain\EntryAnalysisJob.cs" />
     <Compile Include="Domain\FomodFlagDependency.cs" />
     <Compile Include="Domain\FomodFlag.cs" />
     <Compile Include="Domain\FomodPattern.cs" />
@@ -296,7 +296,6 @@
   <ItemGroup>
     <Resource Include="favicon.ico" />
   </ItemGroup>
-
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
