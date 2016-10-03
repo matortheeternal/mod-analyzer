@@ -18,6 +18,16 @@
                 <Label Content="Drag and drop a mod archive or" FontSize="16" />
                 <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
             </StackPanel>
+
+            <Button HorizontalAlignment="Center" Margin="40" 
+                Style="{StaticResource MaterialDesignRaisedAccentButton}"
+                Command="{Binding UpdateCommand, Mode=OneTime}"
+                Visibility="{Binding IsUpdateAvailable , Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Sync" VerticalAlignment="Center"  />
+                    <TextBlock Margin="2 0 3 0" VerticalAlignment="Center">UPDATE</TextBlock>
+                </StackPanel>
+            </Button>
         </StackPanel>
     </materialDesign:DialogHost>
 </UserControl>
