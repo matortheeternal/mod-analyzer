@@ -25,7 +25,9 @@ namespace ModAnalyzer.Domain {
         public static List<FomodPattern> FromDocument(XmlDocument doc) {
             List<FomodPattern> patterns = new List<FomodPattern>();
             foreach (XmlNode node in doc.GetElementsByTagName("pattern")) {
-                patterns.Add(new FomodPattern(node));
+                if (node.ParentNode.ParentNode.Name != "dependencyType") {
+                    patterns.Add(new FomodPattern(node));
+                }
             }
             return patterns;
         }
