@@ -33,11 +33,7 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void AnalyzeMod() {
-            if (ArchiveModOptions.Any(modOption => modOption.Default)) {
-                MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
-            } else {
-                MessageBox.Show("Please specify at least 1 default archive.", "Error", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
         }
     }
 }
