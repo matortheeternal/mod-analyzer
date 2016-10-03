@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("Mod Analyzer")]
 [assembly: AssemblyDescription("Analyzes Bethesda Game mod archive files.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Mod Picker")]
+[assembly: AssemblyCompany("Mod Picker, LLC")]
 [assembly: AssemblyProduct("Mod Analyzer")]
-[assembly: AssemblyCopyright("Copyright ©  2016")]
+[assembly: AssemblyCopyright("Copyright © 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
