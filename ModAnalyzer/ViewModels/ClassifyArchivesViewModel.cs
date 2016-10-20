@@ -25,11 +25,6 @@ namespace ModAnalyzer.ViewModels {
             
             foreach (string file in message.FilePaths)
                 ArchiveModOptions.Add(new ModOption(Path.GetFileName(file), false, false) { SourceFilePath = file });
-
-            if (message.FilePaths.Count == 1) {
-                ArchiveModOptions.First().Default = true;
-                MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
-            }
         }
 
         private void AnalyzeMod() {

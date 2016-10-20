@@ -1,9 +1,11 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
+using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
 using ModAnalyzer.Utils;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -60,10 +62,17 @@ namespace ModAnalyzer.ViewModels {
 
         public void AnalyzeArchives(string[] fileNames) {
             List<string> validArchives = fileNames.Where(fileName => archiveExts.Contains(Path.GetExtension(fileName))).ToList();
-            if (validArchives.Count > 0) {
+            if (validArchives.Count == 0) return;
+
+            if (validArchives.Count == 1) {
+                string file = validArchives[0];
+                ModOption defaultOption = new ModOption(Path.GetFileName(file), true, false) { SourceFilePath = file };
+                List<ModOption> ArchiveModOptions = new List<ModOption>() { defaultOption };
+                MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions));
+            } else {
                 MessengerInstance.Send(new FilesSelectedMessage(validArchives));
                 IsDialogOpen = true;
-            } 
+            }
         }
 
         private async void CheckForUpdate() {
