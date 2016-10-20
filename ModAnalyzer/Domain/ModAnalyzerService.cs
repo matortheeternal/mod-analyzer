@@ -57,7 +57,11 @@ namespace ModAnalyzer.Domain {
                 }
 
                 // TODO: This should get the name of the base mod option or something
-                string filename = archiveModOptions.First(modOption => modOption.Default).Name;
+                ModOption defaultOption = archiveModOptions.Find(modOption => modOption.Default);
+                if (defaultOption == null) {
+                    defaultOption = archiveModOptions.First();
+                }
+                string filename = defaultOption.Name;
                 SaveOutputFile(filename);
             } catch (Exception x) {
                 _backgroundWorker.ReportMessage(x.Message, false);
