@@ -67,7 +67,7 @@ namespace ModAnalyzer.Domain {
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
             foreach (IArchiveEntry entry in archive.Entries) {
-                if (path.Equals(entry.Key, StringComparison.CurrentCultureIgnoreCase)) {
+                if (entry.Key.EndsWith(path, StringComparison.CurrentCultureIgnoreCase)) {
                     return entry;
                 }
             }
@@ -118,8 +118,11 @@ namespace ModAnalyzer.Domain {
             return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
         }
 
-        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry) {
+        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry, string fomodBasePath) {
             string entryPath = entry.GetEntryPath();
+            if (fomodBasePath.Length > 0) {
+                entryPath = entryPath.Replace(fomodBasePath, "");
+            }
             foreach (Tuple<FomodFile, ModOption> mapping in map) {
                 FomodFile fileNode = mapping.Item1;
                 ModOption option = mapping.Item2;
@@ -136,12 +139,25 @@ namespace ModAnalyzer.Domain {
             }
         }
 
+        private string GetFomodBasePath(string configEntryPath) {
+            string configFomodPath = "fomod/ModuleConfig.xml";
+            int index = configEntryPath.IndexOf(configFomodPath, StringComparison.OrdinalIgnoreCase);
+            if (index >= 0) {
+                return configEntryPath.Remove(index, configFomodPath.Length).Replace("/", "\\");
+            } else {
+                return "";
+            }
+        }
+
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) {
             _backgroundWorker.ReportMessage("Parsing FOMOD Options", true);
             List<ModOption> fomodOptions = new List<ModOption>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
             IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
+            _backgroundWorker.ReportMessage("Found FOMOD Config at " + configEntry.Key, false);
+            string fomodBasePath = GetFomodBasePath(configEntry.Key);
+
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
             _backgroundWorker.ReportMessage("FOMOD Config Extracted" + Environment.NewLine, true);
@@ -153,7 +169,7 @@ namespace ModAnalyzer.Domain {
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
             foreach (IArchiveEntry entry in archive.Entries) {
-                MapEntryToOptionAssets(fomodConfig.FileMap, entry);
+                MapEntryToOptionAssets(fomodConfig.FileMap, entry, fomodBasePath);
             }
 
             // STEP 4: Delete any options that have no assets or plugins in them
