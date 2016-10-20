@@ -29,14 +29,10 @@ namespace ModAnalyzer.Domain {
             }
 
             XmlNode filesNode = node["files"];
-            if (filesNode != null) {
-                Files = FomodFile.FromNodes(filesNode.ChildNodes);
-            }
+            Files = (filesNode == null) ? new List<FomodFile>() : FomodFile.FromNodes(filesNode.ChildNodes);
 
             XmlNode flagsNode = node["conditionFlags"];
-            if (flagsNode != null) {
-                Flags = FomodFlag.FromNodes(flagsNode.ChildNodes);
-            }
+            Flags = (flagsNode == null) ? new List<FomodFlag>() : FomodFlag.FromNodes(flagsNode.ChildNodes);
         }
 
         public static List<FomodPlugin> FromDocument(XmlDocument doc) {
