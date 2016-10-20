@@ -40,6 +40,14 @@ namespace ModAnalyzer.Domain {
             MessageReported?.Invoke(this, eventArgs);
         }
 
+        private string GetOutputFilename(List<ModOption> archiveModOptions) {
+            ModOption baseOption = archiveModOptions.Find(modOption => modOption.Default);
+            if (baseOption == null) {
+                baseOption = archiveModOptions.First();
+            }
+            return baseOption.Name;
+        }
+         
         // Background job to analyze a mod
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
@@ -56,13 +64,8 @@ namespace ModAnalyzer.Domain {
                     }
                 }
 
-                // TODO: This should get the name of the base mod option or something
-                ModOption defaultOption = archiveModOptions.Find(modOption => modOption.Default);
-                if (defaultOption == null) {
-                    defaultOption = archiveModOptions.First();
-                }
-                string filename = defaultOption.Name;
-                SaveOutputFile(filename);
+                // save output
+                SaveOutputFile(GetOutputFilename(archiveModOptions));
             } catch (Exception x) {
                 _backgroundWorker.ReportMessage(x.Message, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
