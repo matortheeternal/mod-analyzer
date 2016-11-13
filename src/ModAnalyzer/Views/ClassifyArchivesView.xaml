@@ -1,0 +1,27 @@
+﻿<UserControl x:Class="ModAnalyzer.Views.ClassifyArchivesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             MaxWidth="500"
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}">
+    <StackPanel Margin="10">
+        <TextBlock>
+            Please review the archives to be analyzed for this mod.
+            <LineBreak /> <LineBreak />
+            Check Default if the archive is a required base archive for the mod.
+            <LineBreak />
+            Do not check Default for optional/patch archives.
+        </TextBlock>
+        <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0"
+                  IsReadOnly="True" AutoGenerateColumns="False">
+            <DataGrid.Columns>
+                <DataGridCheckBoxColumn Header="Default"
+                                        Binding="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                <DataGridTextColumn Header="Filename" Binding="{Binding Name, Mode=OneWay}" />
+            </DataGrid.Columns>
+        </DataGrid>
+        <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="10" />
+    </StackPanel>
+</UserControl>
