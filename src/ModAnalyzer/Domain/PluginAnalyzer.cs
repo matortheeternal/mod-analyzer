@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.IO;
 using System.Text;
-using System.Threading;
 using ModAnalyzer.Utils;
 using ModAnalyzer.Wrappers;
 using Newtonsoft.Json;
@@ -104,7 +103,7 @@ namespace ModAnalyzer.Domain
                 GetModDumpMessages(message);
                 // wait 100ms between each polling operation so we don't bring things to a standstill with this while loop
                 // we can do this without locking up the UI because this is happening in a background worker
-                Thread.Sleep(100);
+                //Thread.Sleep(100);
             }
             GetModDumpMessages(message); // get any remaining messages
 
