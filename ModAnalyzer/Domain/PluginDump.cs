@@ -1,27 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace ModAnalyzer.Domain {
-    public class PluginDump {
-        public string filename { get; set; }
-        public bool is_esm { get; set; }
-        public string description { get; set; }
-        public string author { get; set; }
-        public string crc_hash { get; set; }
-        public string file_size { get; set; }
-        public string record_count { get; set; }
-        public string override_count { get; set; }
-        public List<String> dummy_masters { get; set; }
-        public List<MasterPlugin> master_plugins { get; set; }
-        public List<PluginRecordGroup> plugin_record_groups { get; set; }
-        public List<OverrideRecord> overrides { get; set; }
-        public List<PluginError> plugin_errors { get; set; }
-        public PluginDump() {
-            dummy_masters = new List<string>();
-            master_plugins = new List<MasterPlugin>();
-            plugin_record_groups = new List<PluginRecordGroup>();
-            overrides = new List<OverrideRecord>();
-            plugin_errors = new List<PluginError>();
+namespace ModAnalyzer.Domain
+{
+    public class PluginDump
+    {
+        public PluginDump()
+        {
+            DummyMasters = new List<string>();
+            MasterPlugins = new List<MasterPlugin>();
+            PluginRecordGroups = new List<PluginRecordGroup>();
+            Overrides = new List<OverrideRecord>();
+            PluginErrors = new List<PluginError>();
         }
+
+        public string Filename { get; set; }
+        public bool IsEsm { get; set; }
+        public string Description { get; set; }
+        public string Author { get; set; }
+        public string CrcHash { get; set; }
+        public string FileSize { get; set; }
+        public string RecordCount { get; set; }
+        public string OverrideCount { get; set; }
+        public List<string> DummyMasters { get; set; }
+        public List<MasterPlugin> MasterPlugins { get; set; }
+        public List<PluginRecordGroup> PluginRecordGroups { get; set; }
+        public List<OverrideRecord> Overrides { get; set; }
+        public List<PluginError> PluginErrors { get; set; }
     }
 }

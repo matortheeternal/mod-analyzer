@@ -1,7 +1,9 @@
-﻿namespace ModAnalyzer.Domain {
-    public class PluginRecordGroup {
-        public string sig { get; set; }
-        public int record_count { get; set; }
-        public int override_count { get; set; }
+﻿namespace ModAnalyzer.Domain
+{
+    public class PluginRecordGroup
+    {
+        public string Sig { get; set; }
+        public int RecordCount { get; set; }
+        public int OverrideCount { get; set; }
     }
 }

@@ -1,25 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Domain
+{
     /// <summary>
-    /// TODO
+    ///     TODO
     /// </summary>
-    public class FomodFlagDependency {
+    public class FomodFlagDependency
+    {
+        public FomodFlagDependency(XmlNode node)
+        {
+            if (node.Attributes != null)
+            {
+                Flag = node.Attributes["flag"].Value;
+                Value = node.Attributes["value"].Value;
+            }
+        }
+
         public string Flag { get; set; }
         public string Value { get; set; }
 
-        public FomodFlagDependency(XmlNode node) {
-            Flag = node.Attributes["flag"].Value;
-            Value = node.Attributes["value"].Value;
-        }
-
-        public static List<FomodFlagDependency> FromNodes(XmlNodeList nodes) {
-            List<FomodFlagDependency> dependencies = new List<FomodFlagDependency>();
-            foreach (XmlNode node in nodes) {
+        public static List<FomodFlagDependency> FromNodes(XmlNodeList nodes)
+        {
+            var dependencies = new List<FomodFlagDependency>();
+            foreach (XmlNode node in nodes)
                 dependencies.Add(new FomodFlagDependency(node));
-            }
             return dependencies;
         }
     }

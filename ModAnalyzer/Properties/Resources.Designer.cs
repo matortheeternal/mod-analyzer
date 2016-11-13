@@ -59,5 +59,50 @@ namespace ModAnalyzer.Properties {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to check for updates. If this error persists, please check https://github.com/matortheeternal/mod-analyzer/releases for updates..
+        /// </summary>
+        internal static string Error_Failed_to_check_for_updates {
+            get {
+                return ResourceManager.GetString("Error_Failed_to_check_for_updates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Failed to open download page. Please check https://github.com/matortheeternal/mod-analyzer/releases for updates..
+        /// </summary>
+        internal static string Error_Failed_to_open_download_page {
+            get {
+                return ResourceManager.GetString("Error_Failed_to_open_download_page", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar.
+        /// </summary>
+        internal static string Filter_Archives {
+            get {
+                return ResourceManager.GetString("Filter_Archives", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Select a mod archive.
+        /// </summary>
+        internal static string Title_Browse {
+            get {
+                return ResourceManager.GetString("Title_Browse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error.
+        /// </summary>
+        internal static string Title_Error {
+            get {
+                return ResourceManager.GetString("Title_Error", resourceCulture);
+            }
+        }
     }
 }

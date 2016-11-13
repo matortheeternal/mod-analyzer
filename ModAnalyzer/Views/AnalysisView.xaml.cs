@@ -1,35 +1,32 @@
-﻿using System.Windows.Controls;
+﻿using System;
+using System.Windows.Controls;
 
-namespace ModAnalyzer.Views {
+namespace ModAnalyzer.Views
+{
     /// <summary>
-    /// Interaction logic for ResultsView.xaml
+    ///     Interaction logic for ResultsView.xaml
     /// </summary>
-    public partial class AnalysisView : UserControl {
-        private bool AutoScroll = true;
+    public partial class AnalysisView
+    {
+        private bool _autoScroll = true;
 
-        public AnalysisView() {
+        public AnalysisView()
+        {
             InitializeComponent();
         }
 
-        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e) {
+        private void ScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
+        {
             // User scroll event : set or unset autoscroll mode
-            if (e.ExtentHeightChange == 0) {   
-                // Content unchanged : user scroll event
-                if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight) {   
-                    // Scroll bar is in bottom -> Set autoscroll mode
-                    AutoScroll = true;
-                }
-                else {   
-                    // Scroll bar isn't in bottom -> Unset autoscroll mode
-                    AutoScroll = false;
-                }
-            }
+            if (Math.Abs(e.ExtentHeightChange) < 1E-5)
+                if (Math.Abs(ScrollViewer.VerticalOffset - ScrollViewer.ScrollableHeight) < 1E-5)
+                    _autoScroll = true;
+                else
+                    _autoScroll = false;
 
             // Content scroll event : autoscroll eventually
-            if (AutoScroll && e.ExtentHeightChange != 0) {
-                // Content changed and autoscroll mode set -> autoscroll
-                scrollViewer.ScrollToVerticalOffset(scrollViewer.ExtentHeight);
-            }
+            if (_autoScroll && (Math.Abs(e.ExtentHeightChange) > 0))
+                ScrollViewer.ScrollToVerticalOffset(ScrollViewer.ExtentHeight);
         }
     }
 }

@@ -1,12 +1,10 @@
-﻿using System.Windows;
-
-namespace ModAnalyzer
+﻿namespace ModAnalyzer.Views
 {
-    public partial class MainWindow : Window
+    public partial class MainWindow
     {
         public MainWindow()
         {
             InitializeComponent();
-        } 
+        }
     }
 }

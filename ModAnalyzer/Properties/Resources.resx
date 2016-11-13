@@ -114,4 +114,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Title_Error" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="Error_Failed_to_open_download_page" xml:space="preserve">
+    <value>Failed to open download page. Please check https://github.com/matortheeternal/mod-analyzer/releases for updates.</value>
+  </data>
+  <data name="Title_Browse" xml:space="preserve">
+    <value>Select a mod archive</value>
+  </data>
+  <data name="Filter_Archives" xml:space="preserve">
+    <value>Archive Files (*.zip, *.7z, *.rar)|*.zip;*.7z;*.rar</value>
+  </data>
+  <data name="Error_Failed_to_check_for_updates" xml:space="preserve">
+    <value>Failed to check for updates. If this error persists, please check https://github.com/matortheeternal/mod-analyzer/releases for updates.</value>
+  </data>
 </root>

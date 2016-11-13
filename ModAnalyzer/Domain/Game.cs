@@ -1,12 +1,12 @@
-﻿using System;
-
-namespace ModAnalyzer {
-    public class Game {
-        public string longName { get; set; }
-        public string gameName { get; set; }
-        public int gameMode { get; set; }
-        public string appName { get; set; }
-        public string exeName { get; set; }
-        public string appIDs { get; set; }
+﻿namespace ModAnalyzer.Domain
+{
+    public class Game
+    {
+        public string LongName { get; set; }
+        public string GameName { get; set; }
+        public int GameMode { get; set; }
+        public string AppName { get; set; }
+        public string ExeName { get; set; }
+        public string AppIDs { get; set; }
     }
 }

@@ -1,6 +1,8 @@
-﻿namespace ModAnalyzer.Domain {
-    public class OverrideRecord {
-        public int fid { get; set; }
-        public string sig { get; set; }
+﻿namespace ModAnalyzer.Domain
+{
+    public class OverrideRecord
+    {
+        public int Fid { get; set; }
+        public string Sig { get; set; }
     }
 }

@@ -1,9 +1,8 @@
 ﻿<UserControl x:Class="ModAnalyzer.Views.AnalysisView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:ModAnalyzer.Views"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AnalysisViewModel}">
     <DockPanel>
@@ -12,11 +11,12 @@
             <Button Content="VIEW OUTPUT" Command="{Binding ViewOutputCommand, Mode=OneTime}" Margin="5 0 0 0" />
         </StackPanel>
 
-        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}" DockPanel.Dock="Bottom">
+        <StatusBar VerticalAlignment="Bottom" Background="{DynamicResource PrimaryHueDarkBrush}"
+                   DockPanel.Dock="Bottom">
             <Label Content="{Binding ProgressMessage, Mode=OneWay}" />
         </StatusBar>
 
-        <ScrollViewer x:Name="scrollViewer" DockPanel.Dock="Top" ScrollChanged="ScrollViewer_ScrollChanged">
+        <ScrollViewer x:Name="ScrollViewer" DockPanel.Dock="Top" ScrollChanged="ScrollViewer_ScrollChanged">
             <TextBox Text="{Binding Log, Mode=OneWay}" />
         </ScrollViewer>
     </DockPanel>
