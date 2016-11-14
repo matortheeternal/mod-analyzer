@@ -57,8 +57,11 @@ namespace ModAnalyzer.Domain {
             try {
                 foreach (ModOption archiveModOption in archiveModOptions) {
                     _backgroundWorker.ReportMessage("Analyzing " + archiveModOption.Name + "...", true);
+                    _backgroundWorker.ReportMessage("Calculating MD5 Hash.", true);
+                    archiveModOption.GetMD5Hash();
 
                     using (IArchive archive = ArchiveFactory.Open(archiveModOption.SourceFilePath)) {
+                        archiveModOption.Size = archive.TotalUncompressSize;
                         AnalyzeArchive(archive, archiveModOption);
                         AnalyzeEntries();
                     }
@@ -113,10 +116,10 @@ namespace ModAnalyzer.Domain {
         private void AnalyzeArchive(IArchive archive, ModOption modOption) {
             if (IsFomodArchive(archive)) {
                 List<ModOption> fomodOptions = AnalyzeFomodArchive(archive);
+                fomodOptions.ForEach(mo => { mo.MD5Hash = modOption.MD5Hash; });
+                _modAnalysis.ModOptions.Add(modOption);
                 _modAnalysis.ModOptions.AddRange(fomodOptions);
-            }
-            else {
-                modOption.Size = archive.TotalUncompressSize;
+            } else {
                 AnalyzeNormalArchive(archive, modOption);
             }
         }
