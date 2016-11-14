@@ -1,15 +1,21 @@
 ﻿using Newtonsoft.Json;
+using System;
+using System.IO;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 
 namespace ModAnalyzer.Domain {
     /// <summary>
     /// Represents a logical component of a mod, e.g. the base mod, a patch, or a fomod option.
     /// </summary>
     public class ModOption {
+
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
         [JsonProperty(PropertyName = "size")]
         public long Size { get; set; }
+        [JsonProperty(PropertyName = "md5_hash")]
+        public string MD5Hash { get; set; }
         [JsonProperty(PropertyName = "default")]
         public bool Default { get; set; }
         [JsonProperty(PropertyName = "is_fomod_option")]
@@ -34,6 +40,14 @@ namespace ModAnalyzer.Domain {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
             Size = 0;
+        }
+
+        public void GetMD5Hash() {
+            using (var md5 = MD5.Create()) {
+                using (var stream = File.OpenRead(SourceFilePath)) {
+                    MD5Hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
+                }
+            }
         }
 
         public static bool IsEmpty(ModOption option) {
