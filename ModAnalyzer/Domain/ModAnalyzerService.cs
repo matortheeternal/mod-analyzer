@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace ModAnalyzer.Domain {
     public class ModAnalyzerService {
@@ -16,6 +17,11 @@ namespace ModAnalyzer.Domain {
         private ModAnalysis _modAnalysis;
         private List<EntryAnalysisJob> entryAnalysisJobs;
         private readonly string[] entryJobExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
+        private readonly string[] dataDirectories = {
+            "distantlod", "facegen", "fonts", "interface", "menus", "meshes", "music", "scripts", "shaders", "sound", "strings",
+            "textures", "trees", "video", "skse", "obse", "nvse", "fose", "asi", "SkyProc Patchers", "Docs", "INI Tweaks"
+        };
+        private readonly string[] dataExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
 
@@ -119,16 +125,119 @@ namespace ModAnalyzer.Domain {
                 fomodOptions.ForEach(mo => { mo.MD5Hash = modOption.MD5Hash; });
                 _modAnalysis.ModOptions.Add(modOption);
                 _modAnalysis.ModOptions.AddRange(fomodOptions);
+            } else if (IsBainArchive(archive)) {
+                List<ModOption> bainOptions = AnalyzeBainArchive(archive);
+                bainOptions.ForEach(mo => { mo.MD5Hash = modOption.MD5Hash; });
+                _modAnalysis.ModOptions.Add(modOption);
+                _modAnalysis.ModOptions.AddRange(bainOptions);
             } else {
                 AnalyzeNormalArchive(archive, modOption);
             }
+        }
+
+        private int GetLevel(string path) {
+            return path.Split('\\').Length;
+        }
+
+        private List<string> GetArchiveEntryPaths(IArchive archive) {
+            return archive.Entries.Select(x => x.GetEntryPath()).ToList();
+        }
+
+        private List<string> GetArchiveDirectories(IArchive archive) {
+            HashSet<string> directories = new HashSet<string>();
+            List<string> entryPaths = GetArchiveEntryPaths(archive);
+            entryPaths.ForEach(x => {
+                string path = Path.GetDirectoryName(x);
+                while (path != "") {
+                    directories.Add(path);
+                    path = Path.GetDirectoryName(path);
+                }
+            });
+            return directories.ToList();
+        }
+
+        private List<string> GetTopLevelDirectories(IArchive archive) {
+            List<string> topLevelDirectories = new List<string>();
+            foreach (string dirPath in GetArchiveDirectories(archive)) {
+                if (GetLevel(dirPath) == 1) {
+                    topLevelDirectories.Add(dirPath);
+                }
+            }
+            return topLevelDirectories;
+        }
+
+        private List<string> GetImmediateChildren(IArchive archive, string path, bool targetDirectories) {
+            List<string> children = new List<string>();
+            int targetLevel = GetLevel(path) + 1;
+            List<string> searchPaths = targetDirectories ? GetArchiveDirectories(archive) : GetArchiveEntryPaths(archive);
+            foreach (string searchPath in searchPaths) {
+                if (searchPath.StartsWith(path) && GetLevel(searchPath) == targetLevel) {
+                    children.Add(searchPath);
+                }
+            }
+            return children;
+        }
+
+        private bool IsValidDataDirectory(IArchive archive, string directory) {
+            List<string> childrenDirectories = GetImmediateChildren(archive, directory, true);
+            foreach (string childDirectory in childrenDirectories) {
+                if (dataDirectories.Contains(Path.GetFileName(childDirectory))) {
+                    return true;
+                }
+            }
+
+            List<string> childrenFiles = GetImmediateChildren(archive, directory, false);
+            foreach (string childFile in childrenFiles) {
+                if (dataExtensions.Contains(Path.GetExtension(childFile), StringComparer.OrdinalIgnoreCase)) {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private bool ResolveBain(IArchive archive, int validDirectories, int invalidDirectories) {
+            if (validDirectories < 2) {
+                return false;
+            } else if (invalidDirectories == 0) {
+                return true;
+            } else {
+                string message = "This archive looks like it may be a BAIN installer.  Analyze as a BAIN installer?";
+                return MessageBox.Show(message, "Is this a BAIN installer?", MessageBoxButtons.YesNo) == DialogResult.Yes;
+            }
+        }
+
+        private bool SkipBainDirectory(string dirName) {
+            return dirName == "fomod" || dirName == "omod conversion data" || dirName.StartsWith("--");
+        }
+
+        private bool IsBainArchive(IArchive archive) {
+            int validDirectories = 0;
+            int invalidDirectories = 0;
+            foreach (string topLevelDirectory in GetTopLevelDirectories(archive)) {
+                if (SkipBainDirectory(topLevelDirectory)) continue;
+                if (IsValidDataDirectory(archive, topLevelDirectory)) {
+                    validDirectories++;
+                } else {
+                    invalidDirectories++;
+                }
+            }
+
+            return ResolveBain(archive, validDirectories, invalidDirectories);
+        }
+
+        private List<string> GetValidBainDirectories(IArchive archive) {
+            List<string> topLevelDirectories = GetTopLevelDirectories(archive);
+            return topLevelDirectories.FindAll(d => {
+                return !SkipBainDirectory(Path.GetFileName(d)) && IsValidDataDirectory(archive, d);
+            });
         }
 
         private bool IsFomodArchive(IArchive archive) {
             return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
         }
 
-        private void MapEntryToOptionAssets(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry, string fomodBasePath) {
+        private void MapEntryToFomodOption(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry, string fomodBasePath) {
             string entryPath = entry.GetEntryPath();
             if (fomodBasePath.Length > 0) {
                 entryPath = entryPath.Replace(fomodBasePath, "");
@@ -149,6 +258,24 @@ namespace ModAnalyzer.Domain {
             }
         }
 
+        private void MapEntryToBainOption(List<Tuple<string, ModOption>> map, IArchiveEntry entry) {
+            string entryPath = entry.GetEntryPath();
+            foreach (Tuple<string, ModOption> mapping in map) {
+                string bainPath = mapping.Item1;
+                ModOption option = mapping.Item2;
+
+                if (entryPath.StartsWith(bainPath)) {
+                    string mappedPath = entryPath.Replace(bainPath + "\\", "");
+                    option.Assets.Add(mappedPath);
+                    option.Size += entry.Size;
+                    _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
+
+                    // enqueue jobs for analyzing archives and plugins
+                    EnqueueAnalysisJob(entry, option);
+                }
+            }
+        }
+
         private string GetFomodBasePath(string configEntryPath) {
             string configFomodPath = "fomod/ModuleConfig.xml";
             int index = configEntryPath.IndexOf(configFomodPath, StringComparison.OrdinalIgnoreCase);
@@ -157,6 +284,30 @@ namespace ModAnalyzer.Domain {
             } else {
                 return "";
             }
+        }
+
+        private List<ModOption> AnalyzeBainArchive(IArchive archive) {
+            _backgroundWorker.ReportMessage("Parsing BAIN Options", true);
+            List<ModOption> bainOptions = new List<ModOption>();
+            List<Tuple<string, ModOption>> bainMap = new List<Tuple<string, ModOption>>();
+
+            // STEP 1. Find BAIN directories and build mod options for them
+            foreach (string bainDirectory in GetValidBainDirectories(archive)) {
+                _backgroundWorker.ReportMessage("Found BAIN Option " + bainDirectory, false);
+                ModOption bainOption = new ModOption(bainDirectory, false, true);
+                bainMap.Add(new Tuple<string, ModOption>(bainDirectory, bainOption));
+                bainOptions.Add(bainOption);
+            }
+
+            // STEP 2: Map entries to bain options
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to BAIN Options", true);
+            foreach (IArchiveEntry entry in archive.Entries) {
+                MapEntryToBainOption(bainMap, entry);
+            }
+
+            // Return the mod options we built
+            _backgroundWorker.ReportMessage("Done.  " + bainOptions.Count + " BAIN Options found.", true);
+            return bainOptions.OrderBy(x => x.Name).ToList();
         }
 
         private List<ModOption> AnalyzeFomodArchive(IArchive archive) {
@@ -179,7 +330,7 @@ namespace ModAnalyzer.Domain {
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
             foreach (IArchiveEntry entry in archive.Entries) {
-                MapEntryToOptionAssets(fomodConfig.FileMap, entry, fomodBasePath);
+                MapEntryToFomodOption(fomodConfig.FileMap, entry, fomodBasePath);
             }
 
             // STEP 4: Delete any options that have no assets or plugins in them
