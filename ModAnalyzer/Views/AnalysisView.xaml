@@ -8,7 +8,7 @@
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=AnalysisViewModel}">
     <DockPanel>
         <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Margin="10">
-            <Button Content="RESET" Command="{Binding ResetCommand, Mode=OneTime}" />
+            <Button Content="RESET" Command="{Binding ResetCommand, Mode=OneTime}" IsEnabled="{Binding CanReset}" />
             <Button Content="VIEW OUTPUT" Command="{Binding ViewOutputCommand, Mode=OneTime}" Margin="5 0 0 0" />
         </StackPanel>
 

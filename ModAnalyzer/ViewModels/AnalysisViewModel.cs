@@ -4,6 +4,7 @@ using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
 using ModAssetMapper;
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
 
@@ -13,7 +14,7 @@ namespace ModAnalyzer.ViewModels {
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
-        public bool _canReset { get; set; }
+        public bool CanReset { get; set; }
 
         private string _log;
 
@@ -29,18 +30,14 @@ namespace ModAnalyzer.ViewModels {
             set { Set(nameof(ProgressMessage), ref _progressMessage, value); }
         }
 
-        public bool CanReset() {
-            return _canReset;
-        }
-
         public AnalysisViewModel() {
-            _canReset = false;
+            CanReset = false;
 
             _modAnalyzerService = new ModAnalyzerService();
             _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
             _modAnalyzerService.AnalysisCompleted += _modAnalyzerService_AnalysisComplete;
 
-            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)), CanReset);
+            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
             MessengerInstance.Register<ArchiveModOptionsSelectedMessage>(this, OnArchiveModOptionsSelected);
@@ -54,7 +51,8 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void _modAnalyzerService_AnalysisComplete(object sender, EventArgs e) {
-            _canReset = true;
+            CanReset = true;
+            RaisePropertyChanged("CanReset");
         }
 
         private void OnArchiveModOptionsSelected(ArchiveModOptionsSelectedMessage message) {
