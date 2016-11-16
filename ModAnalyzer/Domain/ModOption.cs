@@ -18,8 +18,8 @@ namespace ModAnalyzer.Domain {
         public string MD5Hash { get; set; }
         [JsonProperty(PropertyName = "default")]
         public bool Default { get; set; }
-        [JsonProperty(PropertyName = "is_fomod_option")]
-        public bool IsFomodOption { get; set; }
+        [JsonProperty(PropertyName = "is_installer_option")]
+        public bool IsInstallerOption { get; set; }
         [JsonProperty(PropertyName = "assets")]
         public List<string> Assets { get; set; }
         [JsonProperty(PropertyName = "plugins")]
@@ -33,10 +33,10 @@ namespace ModAnalyzer.Domain {
             Size = 0;
         }
 
-        public ModOption(string Name, bool Default, bool IsFomodOption) {
+        public ModOption(string Name, bool Default, bool IsInstallerOption) {
             this.Name = Name;
             this.Default = Default;
-            this.IsFomodOption = IsFomodOption;
+            this.IsInstallerOption = IsInstallerOption;
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
             Size = 0;
