@@ -24,6 +24,7 @@ namespace ModAnalyzer.Domain {
         private readonly string[] dataExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
+        public event EventHandler<EventArgs> AnalysisCompleted;
 
         public ModAnalyzerService() {
             // prepare background worker
@@ -79,6 +80,9 @@ namespace ModAnalyzer.Domain {
                 _backgroundWorker.ReportMessage(x.Message, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
             }
+
+            // tell the view model we're done analyzing things
+            AnalysisCompleted?.Invoke(this, EventArgs.Empty);
         }
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {

@@ -13,6 +13,7 @@ namespace ModAnalyzer.ViewModels {
 
         public ICommand ResetCommand { get; set; }
         public ICommand ViewOutputCommand { get; set; }
+        public bool _canReset { get; set; }
 
         private string _log;
 
@@ -28,11 +29,18 @@ namespace ModAnalyzer.ViewModels {
             set { Set(nameof(ProgressMessage), ref _progressMessage, value); }
         }
 
+        public bool CanReset() {
+            return _canReset;
+        }
+
         public AnalysisViewModel() {
+            _canReset = false;
+
             _modAnalyzerService = new ModAnalyzerService();
             _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
+            _modAnalyzerService.AnalysisCompleted += _modAnalyzerService_AnalysisComplete;
 
-            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
+            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)), CanReset);
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
             MessengerInstance.Register<ArchiveModOptionsSelectedMessage>(this, OnArchiveModOptionsSelected);
@@ -45,10 +53,14 @@ namespace ModAnalyzer.ViewModels {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
         }
 
+        private void _modAnalyzerService_AnalysisComplete(object sender, EventArgs e) {
+            _canReset = true;
+        }
+
         private void OnArchiveModOptionsSelected(ArchiveModOptionsSelectedMessage message) {
             Log = string.Empty;
 
             _modAnalyzerService.AnalyzeMod(message.ModOptions);
-        }        
+        }
     }
 }
