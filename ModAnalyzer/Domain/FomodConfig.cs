@@ -58,7 +58,10 @@ namespace ModAnalyzer.Domain {
 
         private void AddFileMappings(ModOption option, List<FomodFile> files) {
             foreach (FomodFile file in files) {
-                FileMap.Add(new Tuple<FomodFile, ModOption>(file, option));
+                Tuple<FomodFile, ModOption> mapping = new Tuple<FomodFile, ModOption>(file, option);
+                if (FileMap.IndexOf(mapping) == -1) {
+                    FileMap.Add(mapping);
+                }
             }
         }
 
