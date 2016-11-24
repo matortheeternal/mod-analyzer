@@ -18,7 +18,9 @@ namespace ModAnalyzer.Domain {
         public static List<FomodFlagDependency> FromNodes(XmlNodeList nodes) {
             List<FomodFlagDependency> dependencies = new List<FomodFlagDependency>();
             foreach (XmlNode node in nodes) {
-                dependencies.Add(new FomodFlagDependency(node));
+                if (node.Name == "flagDependency") {
+                    dependencies.Add(new FomodFlagDependency(node));
+                }
             }
             return dependencies;
         }
