@@ -78,6 +78,7 @@ namespace ModAnalyzer.Domain {
                 SaveOutputFile(GetOutputFilename(archiveModOptions));
             } catch (Exception x) {
                 _backgroundWorker.ReportMessage(x.Message, false);
+                _backgroundWorker.ReportMessage(x.StackTrace, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
             }
 
