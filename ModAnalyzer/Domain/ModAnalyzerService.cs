@@ -64,7 +64,7 @@ namespace ModAnalyzer.Domain {
             try {
                 foreach (ModOption archiveModOption in archiveModOptions) {
                     _backgroundWorker.ReportMessage("Analyzing " + archiveModOption.Name + "...", true);
-                    _backgroundWorker.ReportMessage("Calculating MD5 Hash.", true);
+                    _backgroundWorker.ReportMessage("Calculating MD5 Hash.", false);
                     archiveModOption.GetMD5Hash();
 
                     using (IArchive archive = ArchiveFactory.Open(archiveModOption.SourceFilePath)) {
@@ -72,11 +72,13 @@ namespace ModAnalyzer.Domain {
                         AnalyzeArchive(archive, archiveModOption);
                         AnalyzeEntries();
                     }
+                    _backgroundWorker.ReportMessage(" ", false);
                 }
 
                 // save output
                 SaveOutputFile(GetOutputFilename(archiveModOptions));
             } catch (Exception x) {
+                _backgroundWorker.ReportMessage(" ", false);
                 _backgroundWorker.ReportMessage(x.Message, false);
                 _backgroundWorker.ReportMessage(x.StackTrace, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
