@@ -266,11 +266,11 @@ namespace ModAnalyzer.Domain {
         private void MapEntryToBainOption(List<Tuple<string, ModOption>> map, IArchiveEntry entry) {
             string entryPath = entry.GetEntryPath();
             foreach (Tuple<string, ModOption> mapping in map) {
-                string bainPath = mapping.Item1;
+                string bainPath = mapping.Item1 + "\\";
                 ModOption option = mapping.Item2;
 
                 if (entryPath.StartsWith(bainPath)) {
-                    string mappedPath = entryPath.Replace(bainPath + "\\", "");
+                    string mappedPath = entryPath.Replace(bainPath, "");
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
