@@ -14,18 +14,25 @@ namespace ModAnalyzer.Domain {
         public List<FomodFlag> Flags { get; }
 
         public FomodPlugin(XmlNode node) {
+            XmlAttribute nameAttribute = node.Attributes["name"];
+            if (nameAttribute != null) {
+                Name = nameAttribute.Value;
+            }
+
             XmlNode groupNode = node.ParentNode.ParentNode;
             if (groupNode != null) {
+                // parse group information for determining whether or not the mod option is default
                 XmlAttribute typeAttribute = groupNode.Attributes["type"];
                 if (typeAttribute != null) {
                     GroupType = typeAttribute.Value;
                 }
-                SiblingCount = groupNode.ChildNodes.Count - 1;
-            }
+                SiblingCount = node.ParentNode.ChildNodes.Count - 1;
 
-            XmlAttribute nameAttribute = node.Attributes["name"];
-            if (nameAttribute != null) {
-                Name = nameAttribute.Value;
+                // append group name to plugin name
+                nameAttribute = groupNode.Attributes["name"];
+                if (nameAttribute != null) {
+                    Name = nameAttribute.Value + " - " + Name;
+                }
             }
 
             XmlNode filesNode = node["files"];
