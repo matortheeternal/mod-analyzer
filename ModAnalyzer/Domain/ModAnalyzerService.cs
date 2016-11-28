@@ -72,14 +72,13 @@ namespace ModAnalyzer.Domain {
                         AnalyzeArchive(archive, archiveModOption);
                         AnalyzeEntries();
                     }
-                    _backgroundWorker.ReportMessage(" ", false);
+                    _backgroundWorker.ReportMessage(Environment.NewLine, false);
                 }
 
                 // save output
                 SaveOutputFile(GetOutputFilename(archiveModOptions));
             } catch (Exception x) {
-                _backgroundWorker.ReportMessage(" ", false);
-                _backgroundWorker.ReportMessage(x.Message, false);
+                _backgroundWorker.ReportMessage(Environment.NewLine + x.Message, false);
                 _backgroundWorker.ReportMessage(x.StackTrace, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
             }
@@ -328,7 +327,7 @@ namespace ModAnalyzer.Domain {
 
             Directory.CreateDirectory(@".\fomod");
             configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
-            _backgroundWorker.ReportMessage("FOMOD Config Extracted" + Environment.NewLine, true);
+            _backgroundWorker.ReportMessage("FOMOD Config Extracted", true);
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
