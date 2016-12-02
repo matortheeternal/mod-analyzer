@@ -34,9 +34,25 @@ namespace ModAnalyzer.Domain {
             return path.StartsWith(IsFolder ? Path.Combine(Source, "") : Source);
         }
 
+        public string AppendPathDelimiter(string path) {
+            if (path.EndsWith(@"\")) {
+                return path;
+            } else {
+                return path + @"\";
+            }
+        }
+
+        public string ReplaceFolderPath(string path) {
+            if (Destination != "") {
+                return path.Replace(AppendPathDelimiter(Source), AppendPathDelimiter(Destination));
+            } else {
+                return path.Replace(AppendPathDelimiter(Source), Destination);
+            }
+        }
+
         public string MappedPath(string path) {
             if (IsFolder) {
-                return path.Replace(Path.Combine(Source, ""), Path.Combine(Destination, ""));
+                return ReplaceFolderPath(path);
             } else {
                 return path.Replace(Source, Destination);
             }
