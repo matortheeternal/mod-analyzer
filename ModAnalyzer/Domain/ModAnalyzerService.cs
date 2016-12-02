@@ -89,7 +89,7 @@ namespace ModAnalyzer.Domain {
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
             foreach (IArchiveEntry entry in archive.Entries) {
-                string fixedKey = entry.Key.Replace('/', '\\');
+                string fixedKey = entry.Key.Replace("/", @"\");
                 if (fixedKey.EndsWith(path, StringComparison.CurrentCultureIgnoreCase)) {
                     return entry;
                 }
@@ -268,7 +268,7 @@ namespace ModAnalyzer.Domain {
         private void MapEntryToBainOption(List<Tuple<string, ModOption>> map, IArchiveEntry entry) {
             string entryPath = entry.GetEntryPath();
             foreach (Tuple<string, ModOption> mapping in map) {
-                string bainPath = mapping.Item1 + "\\";
+                string bainPath = mapping.Item1 + @"\";
                 ModOption option = mapping.Item2;
 
                 if (entryPath.StartsWith(bainPath)) {
@@ -285,9 +285,10 @@ namespace ModAnalyzer.Domain {
 
         private string GetFomodBasePath(string configEntryPath) {
             string configFomodPath = @"fomod\ModuleConfig.xml";
+            configEntryPath = configEntryPath.Replace("/", @"\");
             int index = configEntryPath.IndexOf(configFomodPath, StringComparison.OrdinalIgnoreCase);
             if (index >= 0) {
-                return configEntryPath.Remove(index, configFomodPath.Length).Replace("/", "\\");
+                return configEntryPath.Remove(index, configFomodPath.Length).Replace("/", @"\");
             } else {
                 return "";
             }
