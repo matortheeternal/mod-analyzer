@@ -52,9 +52,9 @@ namespace ModAnalyzer.Domain {
 
         public string MappedPath(string path) {
             if (IsFolder) {
-                return ReplaceFolderPath(path);
+                return ReplaceFolderPath(path).Replace("/", @"\");
             } else {
-                return path.Replace(Source, Destination);
+                return path.Replace(Source, Destination).Replace("/", @"\");
             }
         }
     }

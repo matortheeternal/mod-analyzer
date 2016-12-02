@@ -25,7 +25,8 @@ namespace ModAnalyzer.Domain {
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
             try {
-                _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entry.Key + "...", true);
+                string entryPath = entry.Key.Replace("/", @"\");
+                _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entryPath + "...", true);
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
             }
@@ -45,8 +46,9 @@ namespace ModAnalyzer.Domain {
             string gameDataPath = GameService.GetGamePath(_game);
             string pluginFileName = Path.GetFileName(entry.Key);
             string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
+            string entryPath = entry.Key.Replace("/", @"\");
 
-            _backgroundWorker.ReportMessage("Extracting " + entry.Key + "...", true);
+            _backgroundWorker.ReportMessage("Extracting " + entryPath + "...", true);
 
             if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak"))
                 File.Move(pluginFilePath, pluginFilePath + ".bak");
@@ -68,7 +70,8 @@ namespace ModAnalyzer.Domain {
 
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            _backgroundWorker.ReportMessage("Analyzing " + entry.Key + "...\n", true);
+            string entryPath = entry.Key.Replace("/", @"\");
+            _backgroundWorker.ReportMessage("Analyzing " + entryPath + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
