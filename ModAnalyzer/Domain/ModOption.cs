@@ -53,5 +53,23 @@ namespace ModAnalyzer.Domain {
         public static bool IsEmpty(ModOption option) {
             return (option.Assets.Count == 0) && (option.Plugins.Count == 0);
         }
+
+        public string MapArchiveAssetPath(string archiveAssetPath, string archiveFileName, string archivePath) {
+            int index = archiveAssetPath.IndexOf(archiveFileName);
+            if (index > -1) {
+                return archivePath + archiveAssetPath.Substring(index + archiveFileName.Length);
+            } else {
+                return archiveAssetPath;
+            }
+        }
+
+        public void AddArchiveAssetPaths(string archiveFileName, List<string> archiveAssetPaths) {
+            string archivePath = Assets.Find(asset => Path.GetFileName(asset) == archiveFileName);
+            if (archivePath == null) return;
+            foreach (string archiveAssetPath in archiveAssetPaths) {
+                string mappedPath = MapArchiveAssetPath(archiveAssetPath, archiveFileName, archivePath);
+                Assets.Add(mappedPath);
+            }
+        }
     }
 }

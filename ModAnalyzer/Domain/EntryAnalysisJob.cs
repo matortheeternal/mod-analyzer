@@ -20,9 +20,9 @@ namespace ModAnalyzer.Domain {
             Options.Add(Option);
         }
 
-        public void AddAssetPaths(List<String> assetPaths) {
+        public void AddArchiveAssetPaths(string archiveFileName, List<String> assetPaths) {
             foreach (ModOption option in Options) {
-                option.Assets.AddRange(assetPaths);
+                option.AddArchiveAssetPaths(archiveFileName, assetPaths);
             }
         }
 

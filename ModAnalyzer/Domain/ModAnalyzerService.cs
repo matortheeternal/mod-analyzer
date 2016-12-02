@@ -107,7 +107,7 @@ namespace ModAnalyzer.Domain {
                     case ".BA2":
                         List<String> assets = _assetArchiveAnalyzer.GetAssetPaths(job.Entry);
                         if (assets != null) {
-                            job.AddAssetPaths(assets);
+                            job.AddArchiveAssetPaths(Path.GetFileName(job.Entry.Key), assets);
                         }
                         break;
                     case ".ESP":
@@ -255,6 +255,7 @@ namespace ModAnalyzer.Domain {
 
                 if (fileNode.MatchesPath(entryPath)) {
                     string mappedPath = fileNode.MappedPath(entryPath);
+                    if (mappedPath == "") continue;
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
@@ -273,6 +274,7 @@ namespace ModAnalyzer.Domain {
 
                 if (entryPath.StartsWith(bainPath)) {
                     string mappedPath = entryPath.Replace(bainPath, "");
+                    if (mappedPath == "") continue;
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
@@ -333,7 +335,7 @@ namespace ModAnalyzer.Domain {
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
-            fomodOptions = fomodConfig.BuildModOptions();
+            fomodOptions = fomodConfig.BuildModOptions(fomodBasePath);
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);

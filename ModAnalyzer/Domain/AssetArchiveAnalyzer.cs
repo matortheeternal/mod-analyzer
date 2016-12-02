@@ -30,14 +30,16 @@ namespace ModAnalyzer.Domain {
             // extract BSA/BA2
             _backgroundWorker.ReportMessage(" ", false);
             string extractedArchivePath = ExtractArchive(assetArchive);
+            string assetArchiveKey = assetArchive.Key.Replace("/", @"\");
             _backgroundWorker.ReportMessage("Getting assets from " + extractedArchivePath + "...", true);
 
             // get the assets from the BSA/BA2
             List<string> assets;
-            if (assetArchive.GetEntryExtension().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase))
-                assets = GetBSAAssets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchive.Key, asset)).ToList();
-            else
-                assets = GetBA2Assets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchive.Key, asset)).ToList();
+            if (assetArchive.GetEntryExtension().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase)) {
+                assets = GetBSAAssets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
+            } else {
+                assets = GetBA2Assets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
+            }
 
             // report assets to the user
             assets.ForEach(asset => _backgroundWorker.ReportMessage(asset, false));
@@ -69,8 +71,9 @@ namespace ModAnalyzer.Domain {
 
             // create BSAManager and use it to get the assets from the BSA
             BSANET bsaManager = new BSANET();
-            if (bsaManager.bsa_open(bsaPath) == 0)
+            if (bsaManager.bsa_open(bsaPath) == 0) {
                 entries = bsaManager.bsa_get_assets(".*");
+            }
             bsaManager.bsa_close();
 
             // return the entries we found
