@@ -89,7 +89,8 @@ namespace ModAnalyzer.Domain {
 
         private IArchiveEntry FindArchiveEntry(IArchive archive, string path) {
             foreach (IArchiveEntry entry in archive.Entries) {
-                if (entry.Key.EndsWith(path, StringComparison.CurrentCultureIgnoreCase)) {
+                string fixedKey = entry.Key.Replace('/', '\\');
+                if (fixedKey.EndsWith(path, StringComparison.CurrentCultureIgnoreCase)) {
                     return entry;
                 }
             }
@@ -240,7 +241,7 @@ namespace ModAnalyzer.Domain {
         }
 
         private bool IsFomodArchive(IArchive archive) {
-            return FindArchiveEntry(archive, "fomod/ModuleConfig.xml") != null;
+            return FindArchiveEntry(archive, @"fomod\ModuleConfig.xml") != null;
         }
 
         private void MapEntryToFomodOption(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry, string fomodBasePath) {
@@ -283,7 +284,7 @@ namespace ModAnalyzer.Domain {
         }
 
         private string GetFomodBasePath(string configEntryPath) {
-            string configFomodPath = "fomod/ModuleConfig.xml";
+            string configFomodPath = @"fomod\ModuleConfig.xml";
             int index = configEntryPath.IndexOf(configFomodPath, StringComparison.OrdinalIgnoreCase);
             if (index >= 0) {
                 return configEntryPath.Remove(index, configFomodPath.Length).Replace("/", "\\");
@@ -321,7 +322,7 @@ namespace ModAnalyzer.Domain {
             List<ModOption> fomodOptions = new List<ModOption>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
-            IArchiveEntry configEntry = FindArchiveEntry(archive, "fomod/ModuleConfig.xml");
+            IArchiveEntry configEntry = FindArchiveEntry(archive, @"fomod\ModuleConfig.xml");
             _backgroundWorker.ReportMessage("Found FOMOD Config at " + configEntry.Key, false);
             string fomodBasePath = GetFomodBasePath(configEntry.Key);
 
