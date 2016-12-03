@@ -19,7 +19,7 @@ namespace ModAnalyzer.Domain {
         private static bool IsValidDataDirectory(IArchive archive, string directory) {
             List<string> childrenDirectories = archive.GetImmediateChildren(directory, true);
             foreach (string childDirectory in childrenDirectories) {
-                if (dataDirectories.Contains(Path.GetFileName(childDirectory))) {
+                if (dataDirectories.Contains(Path.GetFileName(childDirectory), StringComparer.OrdinalIgnoreCase)) {
                     return true;
                 }
             }
