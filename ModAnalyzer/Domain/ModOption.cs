@@ -3,6 +3,9 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
+using SharpCompress.Archive;
+using System.Linq;
+using ModAnalyzer.Utils;
 
 namespace ModAnalyzer.Domain {
     /// <summary>
@@ -10,6 +13,7 @@ namespace ModAnalyzer.Domain {
     /// </summary>
     public class ModOption {
 
+        // PROPERTIES
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
         [JsonProperty(PropertyName = "size")]
@@ -26,11 +30,34 @@ namespace ModAnalyzer.Domain {
         public List<PluginDump> Plugins { get; set; }
         [JsonIgnore]
         public string SourceFilePath { get; set; }
+        [JsonIgnore]
+        public IArchive Archive { get; set; }
+        [JsonIgnore]
+        public bool IsBainArchive { get; set; }
+        [JsonIgnore]
+        public bool IsFomodArchive { get; set; }
+        [JsonIgnore]
+        public string FomodConfigPath { get; set; }
+        [JsonIgnore]
+        public string BaseInstallerPath { get; set; }
 
+
+        // CONSTRUCTORS
         public ModOption() {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
             Size = 0;
+        }
+
+        public ModOption(string Name, string SourceFilePath, bool Default) {
+            this.Name = Name;
+            this.Default = Default;
+            this.SourceFilePath = SourceFilePath;
+            Assets = new List<string>();
+            Plugins = new List<PluginDump>();
+            Archive = ArchiveFactory.Open(SourceFilePath);
+            Size = Archive.TotalUncompressSize;
+            GetInstallerType();
         }
 
         public ModOption(string Name, bool Default, bool IsInstallerOption) {
@@ -42,12 +69,17 @@ namespace ModAnalyzer.Domain {
             Size = 0;
         }
 
+        // HELPER METHODS
         public void GetMD5Hash() {
             using (var md5 = MD5.Create()) {
                 using (var stream = File.OpenRead(SourceFilePath)) {
                     MD5Hash = BitConverter.ToString(md5.ComputeHash(stream)).Replace("-", string.Empty);
                 }
             }
+        }
+
+        public void GetInstallerType() {
+            IsInstallerOption = GetIsFomodArchive() || GetIsBainArchive();
         }
 
         public static bool IsEmpty(ModOption option) {
@@ -70,6 +102,33 @@ namespace ModAnalyzer.Domain {
                 string mappedPath = MapArchiveAssetPath(archiveAssetPath, archiveFileName, archivePath);
                 Assets.Add(mappedPath);
             }
+        }
+        
+        // BAIN ARCHIVE HANDLING
+        public bool GetIsBainArchive() {
+            string BaseBainPath = BainArchiveService.GetBasePath(Archive);
+            if (BaseBainPath != null) {
+                IsBainArchive = true;
+                BaseInstallerPath = BaseBainPath;
+            }
+
+            return IsBainArchive;
+        }
+
+        public List<string> GetValidBainDirectories() {
+            return BainArchiveService.GetValidDirectories(Archive, BaseInstallerPath);
+        }
+
+        // FOMOD ARCHIVE HANDLING
+        private bool GetIsFomodArchive() {
+            IArchiveEntry FomodConfigEntry = FomodArchiveService.GetFomodConfig(Archive);
+            if (FomodConfigEntry != null) {
+                IsFomodArchive = true;
+                FomodConfigPath = FomodConfigEntry.GetPath();
+                BaseInstallerPath = FomodArchiveService.GetBasePath(FomodConfigPath);
+            }
+
+            return IsFomodArchive;
         }
     }
 }
