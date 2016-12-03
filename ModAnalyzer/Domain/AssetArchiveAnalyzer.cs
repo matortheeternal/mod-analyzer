@@ -48,7 +48,7 @@ namespace ModAnalyzer.Domain {
 
         private string ExtractArchive(IArchiveEntry assetArchive) {
             // prepare helper variables
-            string archivePath = assetArchive.GetEntryPath();
+            string archivePath = assetArchive.GetPath();
             string outputPath = Path.Combine("bsas", Path.GetFileName(archivePath));
             string ext = assetArchive.GetEntryExtension().Remove(0, 1);
 

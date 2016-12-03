@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ModAnalyzer.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
@@ -34,19 +35,11 @@ namespace ModAnalyzer.Domain {
             return path.StartsWith(IsFolder ? Path.Combine(Source, "") : Source);
         }
 
-        public string AppendPathDelimiter(string path) {
-            if (path.EndsWith(@"\")) {
-                return path;
-            } else {
-                return path + @"\";
-            }
-        }
-
         public string ReplaceFolderPath(string path) {
             if (Destination != "") {
-                return path.Replace(AppendPathDelimiter(Source), AppendPathDelimiter(Destination));
+                return path.Replace(PathExtensions.AppendDelimiter(Source), PathExtensions.AppendDelimiter(Destination));
             } else {
-                return path.Replace(AppendPathDelimiter(Source), Destination);
+                return path.Replace(PathExtensions.AppendDelimiter(Source), Destination);
             }
         }
 
