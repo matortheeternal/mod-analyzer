@@ -5,9 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              mc:Ignorable="d"
-             MaxWidth="500"
+             MaxWidth="600"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}">
-    <StackPanel Margin="10">
+    <StackPanel Margin="10" Width="600">
         <TextBlock>
             Please review the archives to be analyzed for this mod.
             <LineBreak /> <LineBreak />
@@ -18,8 +18,36 @@
         <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
                   IsReadOnly="True" AutoGenerateColumns="False">
             <DataGrid.Columns>
-                <DataGridCheckBoxColumn Header="Default" Binding="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                <DataGridTextColumn Header="Filename" Binding="{Binding Name, Mode=OneWay}" />
+                <DataGridTemplateColumn Header="Default">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox x:Name="Default" IsChecked="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="FOMOD">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                      IsEnabled="{Binding IsInstallerArchive}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="BAIN">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                      IsEnabled="{Binding IsInstallerArchive}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="Filename">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Label Content="{Binding Name, Mode=OneWay}"></Label>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
         <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="10" />

@@ -17,6 +17,7 @@
         Height="410" Width="800" MinWidth="410" MinHeight="410"
         DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}">
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <DataTemplate DataType="{x:Type viewModels:AnalysisViewModel}">
             <views:AnalysisView />
         </DataTemplate>
