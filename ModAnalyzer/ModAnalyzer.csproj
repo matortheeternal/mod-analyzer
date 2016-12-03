@@ -175,7 +175,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\BainArchiveService.cs" />
     <Compile Include="Domain\EntryAnalysisJob.cs" />
+    <Compile Include="Domain\FomodArchiveService.cs" />
     <Compile Include="Domain\FomodFlagDependency.cs" />
     <Compile Include="Domain\FomodFlag.cs" />
     <Compile Include="Domain\FomodPattern.cs" />
@@ -200,6 +202,8 @@
     <Compile Include="Messages\ArchiveModOptionsSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
     <Compile Include="Utils\IArchiveEntryExtensions.cs" />
+    <Compile Include="Utils\IArchiveExtensions.cs" />
+    <Compile Include="Utils\PathExtensions.cs" />
     <Compile Include="Utils\UpdateUtil.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
     <Compile Include="ViewModels\ClassifyArchivesViewModel.cs" />
