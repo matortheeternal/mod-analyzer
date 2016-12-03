@@ -39,8 +39,14 @@ namespace ModAnalyzer.Domain {
         }
 
         public static List<string> GetValidDirectories(IArchive archive, string directoryPath) {
-            string directoryName = Path.GetDirectoryName(directoryPath);
-            List<string> bainDirectories = archive.GetImmediateChildren(directoryName, true);
+            List<string> bainDirectories;
+            if (directoryPath == "") {
+                bainDirectories = archive.GetLevelDirectories(1);
+            } else {
+                string directoryName = Path.GetDirectoryName(directoryPath);
+                bainDirectories = archive.GetImmediateChildren(directoryName, true);
+            }
+
             return bainDirectories.FindAll(d => {
                 return !SkipBainDirectory(Path.GetFileName(d)) && IsValidDataDirectory(archive, d);
             });
