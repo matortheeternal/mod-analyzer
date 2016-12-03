@@ -33,6 +33,8 @@ namespace ModAnalyzer.Domain {
         [JsonIgnore]
         public IArchive Archive { get; set; }
         [JsonIgnore]
+        public bool IsArchiveInstaller { get; set; }
+        [JsonIgnore]
         public bool IsBainArchive { get; set; }
         [JsonIgnore]
         public bool IsFomodArchive { get; set; }
@@ -79,7 +81,7 @@ namespace ModAnalyzer.Domain {
         }
 
         public void GetInstallerType() {
-            IsInstallerOption = GetIsFomodArchive() || GetIsBainArchive();
+            IsArchiveInstaller = GetIsFomodArchive() || GetIsBainArchive();
         }
 
         public static bool IsEmpty(ModOption option) {

@@ -29,7 +29,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                      IsEnabled="{Binding IsInstallerArchive}" />
+                                      IsEnabled="{Binding IsArchiveInstaller}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -37,7 +37,7 @@
                     <DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>
                             <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                      IsEnabled="{Binding IsInstallerArchive}" />
+                                      IsEnabled="{Binding IsArchiveInstaller}" />
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
