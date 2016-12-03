@@ -50,8 +50,9 @@ namespace ModAnalyzer.Domain {
 
             _backgroundWorker.ReportMessage("Extracting " + entryPath + "...", true);
 
-            if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak"))
+            if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak")) {
                 File.Move(pluginFilePath, pluginFilePath + ".bak");
+            }
 
             entry.WriteToDirectory(gameDataPath, ExtractOptions.Overwrite);
         }
@@ -113,11 +114,15 @@ namespace ModAnalyzer.Domain {
                 string dataPath = GameService.GetGamePath(_game);
                 string fileName = Path.GetFileName(entry.Key);
                 string filePath = dataPath + fileName;
+                string oldFildPath = filePath + ".bak";
 
-                File.Delete(filePath);
+                if (File.Exists(filePath)) {
+                    File.Delete(filePath);
+                }
 
-                if (File.Exists(filePath + ".bak"))
-                    File.Move(filePath + ".bak", filePath);
+                if (File.Exists(oldFildPath)) {
+                    File.Move(oldFildPath, filePath);
+                }
             } catch (Exception e) {
                 _backgroundWorker.ReportMessage("Failed to revert plugin!", false);
                 _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!", false);
