@@ -14,7 +14,8 @@ namespace ModAnalyzer {
                 new Game { longName = "Fallout 3", gameName = "Fallout3", gameMode = 1, exeName = "Fallout3.exe", appIDs = "22300,22370" },
                 new Game { longName = "Oblivion", gameName = "Oblivion", gameMode = 2, exeName = "Oblivion.exe", appIDs = "22330,900883" },
                 new Game { longName = "Skyrim", gameName = "Skyrim", gameMode = 3, exeName = "TESV.exe", appIDs = "72850" },
-                new Game { longName = "Fallout 4", gameName = "Fallout4", gameMode = 4, exeName = "Fallout4.exe", appIDs = "377160" }
+                new Game { longName = "Fallout 4", gameName = "Fallout4", gameMode = 4, exeName = "Fallout4.exe", appIDs = "377160" },
+                new Game { longName = "Skyrim Special Edition", gameName = "SkyrimSE", gameMode = 5, exeName = "SkyrimSE.exe", appIDs = "489830" }
             };
 
         public static Game GetGame(string gameName) {
