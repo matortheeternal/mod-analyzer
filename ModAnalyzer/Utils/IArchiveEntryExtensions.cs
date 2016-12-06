@@ -2,7 +2,6 @@
 using System.IO;
 
 namespace ModAnalyzer.Utils {
-
     public static class IArchiveEntryExtensions {
         public static string GetPath(this IArchiveEntry archiveEntry) {
             return archiveEntry.Key.Replace("/", @"\");

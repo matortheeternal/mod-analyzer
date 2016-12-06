@@ -37,7 +37,7 @@ namespace ModAnalyzer.ViewModels {
             _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
             _modAnalyzerService.AnalysisCompleted += _modAnalyzerService_AnalysisComplete;
 
-            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new NavigationMessage(Page.Home)));
+            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new AnalysisCompleteMessage()));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
             MessengerInstance.Register<ArchiveModOptionsSelectedMessage>(this, OnArchiveModOptionsSelected);
@@ -46,8 +46,9 @@ namespace ModAnalyzer.ViewModels {
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
             App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
 
-            if (e.IsStatusMessage)
+            if (e.IsStatusMessage) {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
+            }
         }
 
         private void _modAnalyzerService_AnalysisComplete(object sender, EventArgs e) {

@@ -14,8 +14,8 @@
         TextElement.FontSize="14"
         FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
         Title="Mod Analyzer" 
-        Height="410" Width="800" MinWidth="410" MinHeight="410"
-        DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}">
+        Height="410" Width="800" MinWidth="700" MinHeight="410"
+        DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}" HorizontalAlignment="Center" VerticalAlignment="Center">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <DataTemplate DataType="{x:Type viewModels:AnalysisViewModel}">

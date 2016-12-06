@@ -198,6 +198,7 @@
     <Compile Include="Domain\PluginError.cs" />
     <Compile Include="Domain\PluginRecordGroup.cs" />
     <Compile Include="Domain\MessageReportedEventArgs.cs" />
+    <Compile Include="Messages\AnalysisCompleteMessage.cs" />
     <Compile Include="Messages\FilesSelectedMessage.cs" />
     <Compile Include="Messages\ArchiveModOptionsSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
