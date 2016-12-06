@@ -6,6 +6,7 @@ using System.Linq;
 namespace ModAnalyzer {
     public static class GameService {
         public static string dataPath { get; set; }
+        public static Game currentGame { get; set; }
         private static IniData settings;
 
         private static Game[] _games =
@@ -22,18 +23,24 @@ namespace ModAnalyzer {
             return _games.FirstOrDefault(game => game.gameName.Equals(gameName, StringComparison.InvariantCultureIgnoreCase));
         }
 
-        public static void loadIni() {
-            var parser = new FileIniDataParser();
+        public static void SetGame(string gameName) {
+            currentGame = GetGame(gameName);
+        }
+
+        public static void LoadIni() {
+            FileIniDataParser parser = new FileIniDataParser();
             settings = parser.ReadFile("settings.ini");
         }
 
         public static string GetGamePath(Game game) {
-            FileIniDataParser fileIniDataParser = new FileIniDataParser();
-            IniData settings = fileIniDataParser.ReadFile("settings.ini");
-
+            LoadIni();
             string key = game.gameName + "Path";
             key = Char.ToLowerInvariant(key[0]) + key.Substring(1);
             return settings["Games"][key];
+        }
+
+        public static string GetCurrentGamePath() {
+            return GetGamePath(currentGame);
         }
     }
 }
