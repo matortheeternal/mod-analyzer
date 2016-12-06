@@ -5,11 +5,11 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using ModAnalyzer.Utils;
 
 namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
         private readonly BackgroundWorker _backgroundWorker;
-        private readonly Game _game;
 
         public PluginAnalyzer(BackgroundWorker backgroundWorker) {
             _backgroundWorker = backgroundWorker;
@@ -17,15 +17,13 @@ namespace ModAnalyzer.Domain {
             if (!ModDump.started) {
                 ModDump.started = true;
                 ModDump.StartModDump();
-                // TODO: remove hardcoding (requires making a gui component from which the user can choose the game mode)
-                _game = GameService.GetGame("Skyrim");
-                ModDump.SetGameMode(_game.gameMode);
+                ModDump.SetGameMode(GameService.currentGame.gameMode);
             }
         }
 
         public PluginDump GetPluginDump(IArchiveEntry entry) {
             try {
-                string entryPath = entry.Key.Replace("/", @"\");
+                string entryPath = entry.GetPath();
                 _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entryPath + "...", true);
                 ExtractPlugin(entry);
                 return AnalyzePlugin(entry);
@@ -43,10 +41,10 @@ namespace ModAnalyzer.Domain {
         }
 
         public void ExtractPlugin(IArchiveEntry entry) {
-            string gameDataPath = GameService.GetGamePath(_game);
-            string pluginFileName = Path.GetFileName(entry.Key);
+            string gameDataPath = GameService.GetCurrentGamePath();
+            string pluginFileName = Path.GetFileName(entry.GetPath());
             string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
-            string entryPath = entry.Key.Replace("/", @"\");
+            string entryPath = entry.GetPath();
 
             _backgroundWorker.ReportMessage("Extracting " + entryPath + "...", true);
 
@@ -71,12 +69,12 @@ namespace ModAnalyzer.Domain {
 
         // TODO: refactor
         public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            string entryPath = entry.Key.Replace("/", @"\");
+            string entryPath = entry.GetPath();
             _backgroundWorker.ReportMessage("Analyzing " + entryPath + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
-            string filename = Path.GetFileName(entry.Key);
+            string filename = Path.GetFileName(entryPath);
             if (!ModDump.Prepare(filename)) {
                 GetModDumpMessages(message);
                 return null;
@@ -111,8 +109,8 @@ namespace ModAnalyzer.Domain {
 
         public void RevertPlugin(IArchiveEntry entry) {
             try {
-                string dataPath = GameService.GetGamePath(_game);
-                string fileName = Path.GetFileName(entry.Key);
+                string dataPath = GameService.GetCurrentGamePath();
+                string fileName = Path.GetFileName(entry.GetPath());
                 string filePath = dataPath + fileName;
                 string oldFildPath = filePath + ".bak";
 
@@ -125,7 +123,7 @@ namespace ModAnalyzer.Domain {
                 }
             } catch (Exception e) {
                 _backgroundWorker.ReportMessage("Failed to revert plugin!", false);
-                _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(entry.Key) + "!!!", false);
+                _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(entry.GetPath()) + "!!!", false);
                 _backgroundWorker.ReportMessage("Exception:" + e.Message, false);
             }
         }
