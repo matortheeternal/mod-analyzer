@@ -22,5 +22,10 @@ namespace ModAnalyzer.Views
             string[] fileNames = (string[]) e.Data.GetData(DataFormats.FileDrop);
             ((HomeViewModel) DataContext).AnalyzeArchives(fileNames);
         }
+
+        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) {
+            string selectedGameName = (e.AddedItems[0] as ComboBoxItem).Content as string;
+            GameService.SetGame(selectedGameName);
+        }
     }
 }

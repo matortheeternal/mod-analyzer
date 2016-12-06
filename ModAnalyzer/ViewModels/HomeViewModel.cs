@@ -5,10 +5,10 @@ using ModAnalyzer.Messages;
 using ModAnalyzer.Utils;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Windows;
 using System.Windows.Forms;
 using System.Windows.Input;
 
@@ -18,6 +18,12 @@ namespace ModAnalyzer.ViewModels {
 
         public ICommand BrowseCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
+        public Visibility LockVisibility { get; set; } = Visibility.Collapsed;
+        public int SelectedGameIndex { get; set; } = 3; // default to Skyrim game mode
+        public bool CanChangeGameMode { get; set; } = true;
+        public string GameToolTip { get; set; } = 
+            "You must restart the program to change the" + Environment.NewLine + 
+            "game mode after analyzing a plugin file.";
 
         private bool _isUpdateAvailable;
 
@@ -34,18 +40,36 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public HomeViewModel() {
+            // set up command relays
             BrowseCommand = new RelayCommand(Browse);
             UpdateCommand = new RelayCommand(OpenDownloadPage);
 
+            // initialize game combobox and check for program updates
             CheckForUpdate();
+
+            // set up message listeners
+            MessengerInstance.Register<AnalysisCompleteMessage>(this, OnAnalysisComplete);
+        }
+
+        private void OnAnalysisComplete(AnalysisCompleteMessage message) {
+            UpdateGameComboBox();
+        }
+
+        public void UpdateGameComboBox() {
+            if (GameService.currentGame != null) {
+                SelectedGameIndex = GameService.currentGame.gameMode;
+            }
+            CanChangeGameMode = !ModDump.started;
+            LockVisibility = CanChangeGameMode ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void OpenDownloadPage() {
+            string url = "https://github.com/matortheeternal/mod-analyzer/releases";
             try {
-                Process.Start("https://github.com/matortheeternal/mod-analyzer/releases");
+                Process.Start("url");
             } catch (Exception exception) {
-                MessageBox.Show("Failed to open download page. Please check https://github.com/matortheeternal/mod-analyzer/releases for updates.\n\n" 
-                    + exception.ToString(), "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string errorMessage = "Failed to open download page. Please check " + url + "for updates.\n\n" + exception.ToString();
+                System.Windows.Forms.MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -56,8 +80,9 @@ namespace ModAnalyzer.ViewModels {
                 Multiselect = true
             };
 
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            if (openFileDialog.ShowDialog() == DialogResult.OK) {
                 AnalyzeArchives(openFileDialog.FileNames);
+            }
         }
 
         public void AnalyzeArchives(string[] fileNames) {
@@ -73,9 +98,9 @@ namespace ModAnalyzer.ViewModels {
                 IsUpdateAvailable = await UpdateUtil.IsUpdateAvailable();
             } catch (Exception exception) {
                 IsUpdateAvailable = false;
-                
-                MessageBox.Show("Failed to check for updates. If this error persists, please check " +
-                    "https://github.com/matortheeternal/mod-analyzer/releases for updates.\n\n" + exception.ToString());
+                string errorMessage = "Failed to check for updates. If this error persists, please check " +
+                    "https://github.com/matortheeternal/mod-analyzer/releases for updates.\n\n" + exception.ToString();
+                System.Windows.Forms.MessageBox.Show(errorMessage);
             }
         }
     }

@@ -6,12 +6,24 @@
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
-    <materialDesign:DialogHost Identifier="RootDialog" IsOpen="{Binding IsDialogOpen}">
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop" Width="700">
+    <materialDesign:DialogHost Identifier="RootDialog" IsOpen="{Binding IsDialogOpen}" Margin="0,0,0,0">
         <materialDesign:DialogHost.DialogContent>
             <local:ClassifyArchivesView />
         </materialDesign:DialogHost.DialogContent>
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Center">
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="700">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,20,-20">
+                <materialDesign:PackIcon Kind="Lock" Margin="0,5,10,0" Visibility="{Binding LockVisibility}" ToolTip="{Binding GameToolTip}" Foreground="White"></materialDesign:PackIcon>
+                <ComboBox x:Name="GameComboBox" VerticalAlignment="Stretch" Width="100" SelectedIndex="{Binding SelectedGameIndex, Mode=TwoWay}" IsEnabled="{Binding CanChangeGameMode}" Foreground="White" IsReadOnly="True" Padding="0,4,0,5" Background="#00000000" SelectionChanged="comboBox_SelectionChanged">
+                    <!-- Untested game modes are hidden -->
+                    <ComboBoxItem Content="FalloutNV" Visibility="Collapsed"/>
+                    <ComboBoxItem Content="Fallout3" Visibility="Collapsed"/>
+                    <ComboBoxItem Content="Oblivion" Visibility="Collapsed"/>
+                    <ComboBoxItem Content="Skyrim"/>
+                    <ComboBoxItem Content="Fallout4" Visibility="Collapsed"/>
+                    <ComboBoxItem Content="SkyrimSE"/>
+                </ComboBox>
+            </StackPanel>
             <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -20,9 +32,9 @@
             </StackPanel>
 
             <Button HorizontalAlignment="Center" Margin="40" 
-                Style="{StaticResource MaterialDesignRaisedAccentButton}"
-                Command="{Binding UpdateCommand, Mode=OneTime}"
-                Visibility="{Binding IsUpdateAvailable , Converter={StaticResource BooleanToVisibilityConverter}}">
+        		Style="{StaticResource MaterialDesignRaisedAccentButton}"
+        		Command="{Binding UpdateCommand, Mode=OneTime}"
+        		Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
                 <StackPanel Orientation="Horizontal">
                     <materialDesign:PackIcon Kind="Sync" VerticalAlignment="Center"  />
                     <TextBlock Margin="2 0 3 0" VerticalAlignment="Center">UPDATE</TextBlock>
