@@ -109,7 +109,10 @@ namespace ModAnalyzer.Domain {
         private void AnalyzeArchive(ModOption modOption) {
             if (modOption.IsFomodArchive) {
                 List<ModOption> fomodOptions = AnalyzeFomodArchive(modOption);
-                fomodOptions.ForEach(mo => { mo.MD5Hash = modOption.MD5Hash; });
+                fomodOptions.ForEach(mo => {
+                    mo.MD5Hash = modOption.MD5Hash;
+                    mo.Default = mo.Default && modOption.Default;
+                });
                 _modAnalysis.ModOptions.Add(modOption);
                 _modAnalysis.ModOptions.AddRange(fomodOptions);
             } else if (modOption.IsBainArchive) {
