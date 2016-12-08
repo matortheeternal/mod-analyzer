@@ -137,6 +137,7 @@ namespace ModAnalyzer.Domain {
                 if (fileNode.MatchesPath(entryPath)) {
                     string mappedPath = fileNode.MappedPath(entryPath);
                     if (mappedPath == "") continue;
+                    if (option.Assets.IndexOf(mappedPath) > -1) continue;
                     option.Assets.Add(mappedPath);
                     option.Size += entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
