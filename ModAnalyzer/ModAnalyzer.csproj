@@ -304,6 +304,9 @@
     <Content Include="borlndmm.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="lib\zlib.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <!--<Resource Include="FodyWeavers.xml" />-->
   </ItemGroup>
   <ItemGroup>
