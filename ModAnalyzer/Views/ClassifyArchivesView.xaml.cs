@@ -19,5 +19,9 @@ namespace ModAnalyzer.Views {
             string[] fileNames = (string[]) e.Data.GetData(DataFormats.FileDrop);
             ((ClassifyArchivesViewModel) DataContext).AnalyzeArchives(fileNames);
         }
+
+        private void PackIcon_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e) {
+            ((ClassifyArchivesViewModel)DataContext).Back();
+        }
     }
 }

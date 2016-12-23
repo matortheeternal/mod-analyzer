@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ModAnalyzer.Views"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}" 
               AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
@@ -58,10 +59,15 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <StackPanel Orientation="Horizontal" Margin="0 10">
-                <Button Command="{Binding AddArchiveCommand}" Content="ADD ARCHIVES" HorizontalAlignment="Left" />
-                <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="5 0 0 0" />
-            </StackPanel>
+            <DockPanel>
+                <StackPanel Orientation="Horizontal" Margin="0 10">
+                    <Button Command="{Binding AddArchiveCommand}" Content="ADD ARCHIVES" HorizontalAlignment="Left" />
+                    <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="5 0 0 0" />
+                </StackPanel>
+                <StackPanel Margin="0 10" HorizontalAlignment="Right">
+                    <materialDesign:PackIcon Kind="ArrowLeftBoldCircleOutline" Foreground="LightGray" Background="Transparent" Cursor="Hand" Width="32" Height="32" VerticalAlignment="Top" MouseDown="PackIcon_MouseDown" />
+                </StackPanel>
+            </DockPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

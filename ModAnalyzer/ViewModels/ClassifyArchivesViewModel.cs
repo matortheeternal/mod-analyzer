@@ -47,6 +47,10 @@ namespace ModAnalyzer.ViewModels {
             }
         }
 
+        public void Back() {
+            MessengerInstance.Send(new NavigationMessage(Page.Home));
+        }
+
         private void AnalyzeMod() {
             MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
         }
