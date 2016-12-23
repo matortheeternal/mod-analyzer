@@ -14,7 +14,6 @@ using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
     public class HomeViewModel : ViewModelBase {
-        private readonly string[] archiveExts = { ".zip", ".7z", ".rar" };
 
         public ICommand BrowseCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
@@ -79,11 +78,7 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public void AnalyzeArchives(string[] fileNames) {
-            List<string> validArchives = fileNames.Where(fileName => archiveExts.Contains(Path.GetExtension(fileName))).ToList();
-            if (validArchives.Count == 0) return;
-
-            MessengerInstance.Send(new FilesSelectedMessage(validArchives));
-            IsDialogOpen = true;
+            FilesSelectedMessage.SelectArchives(fileNames, MessengerInstance, true);
         }
 
         private async void CheckForUpdate() {
