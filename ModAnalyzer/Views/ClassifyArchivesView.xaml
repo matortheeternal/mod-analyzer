@@ -16,35 +16,46 @@
                 Do not check Default for optional/patch archives.
             </TextBlock>
             <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
-                      IsReadOnly="True" AutoGenerateColumns="False">
+                    IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="FullRow">
+                <DataGrid.RowStyle>
+                    <Style TargetType="DataGridRow">
+                        <Setter Property="Background" Value="#FF444444"/>
+                    </Style>
+                </DataGrid.RowStyle>
+                <DataGrid.CellStyle>
+                    <Style TargetType="DataGridCell">
+                        <Setter Property="Focusable" Value="False" />
+                        <Setter Property="BorderBrush" Value="Transparent"/>
+                        <Setter Property="Background" Value="#FF444444"/>
+                        <Setter Property="MinHeight" Value="40"/>
+                    </Style>
+                </DataGrid.CellStyle>
                 <DataGrid.Columns>
                     <DataGridTemplateColumn Header="Default">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="Default" IsChecked="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <CheckBox x:Name="Default" IsChecked="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="FOMOD">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                          IsEnabled="{Binding IsArchiveInstaller}" />
+                                <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"                                      IsEnabled="{Binding IsArchiveInstaller}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="BAIN">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                          IsEnabled="{Binding IsArchiveInstaller}" />
+                                <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsArchiveInstaller}"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn Header="Filename">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Label Content="{Binding Name, Mode=OneWay}"></Label>
+                                <Label Content="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0"></Label>
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
