@@ -29,6 +29,9 @@ namespace ModAnalyzer.ViewModels {
                 case Page.Home:
                     CurrentViewModel = _viewModelLocator.HomeViewModel;
                     break;
+                case Page.ClassifyArchives:
+                    CurrentViewModel = _viewModelLocator.ClassifyArchivesViewModel;
+                    break;
             }
         }
     }

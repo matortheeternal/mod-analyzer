@@ -3,7 +3,8 @@
 namespace ModAnalyzer.Messages {
     public enum Page {
         Analysis,
-        Home
+        Home,
+        ClassifyArchives
     }
 
     public class NavigationMessage : MessageBase {

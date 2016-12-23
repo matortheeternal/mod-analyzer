@@ -32,13 +32,6 @@ namespace ModAnalyzer.ViewModels {
             set { Set(nameof(IsUpdateAvailable), ref _isUpdateAvailable, value); }
         }
 
-        private bool _isDialogOpen;
-
-        public bool IsDialogOpen {
-            get { return _isDialogOpen; }
-            set { Set(nameof(IsDialogOpen), ref _isDialogOpen, value); }
-        }
-
         public HomeViewModel() {
             // set up command relays
             BrowseCommand = new RelayCommand(Browse);
