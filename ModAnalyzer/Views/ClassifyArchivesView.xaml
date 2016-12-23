@@ -5,15 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              mc:Ignorable="d"
-             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}">
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}" 
+              AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="10" Width="600">
-            <TextBlock>
-                Please review the archives to be analyzed for this mod.
-                <LineBreak /> <LineBreak />
-                Check Default if the archive is a required base archive for the mod.
-                <LineBreak />
-                Do not check Default for optional/patch archives.
+        <StackPanel Margin="10">
+            <TextBlock TextWrapping="Wrap">
+            Please review the archives to be analyzed and make certain that all archives excluding old versions are listed below.  You can drag and drop or click the "Add Archives" button to add additional archives.  Check "Default" for required base archives.
             </TextBlock>
             <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
                     IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="FullRow">
@@ -61,7 +58,10 @@
                     </DataGridTemplateColumn>
                 </DataGrid.Columns>
             </DataGrid>
-            <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="10" />
+            <StackPanel Orientation="Horizontal" Margin="0 10">
+                <Button Command="{Binding AddArchiveCommand}" Content="ADD ARCHIVES" HorizontalAlignment="Left" />
+                <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="5 0 0 0" />
+            </StackPanel>
         </StackPanel>
     </ScrollViewer>
 </UserControl>

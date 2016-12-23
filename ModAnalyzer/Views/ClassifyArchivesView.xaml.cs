@@ -1,17 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using ModAnalyzer.ViewModels;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.Windows;
 
 namespace ModAnalyzer.Views {
     /// <summary>
@@ -20,6 +9,15 @@ namespace ModAnalyzer.Views {
     public partial class ClassifyArchivesView : UserControl {
         public ClassifyArchivesView() {
             InitializeComponent();
+        }
+
+        private void UserControl_DragEnter(object sender, DragEventArgs e) {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effects = DragDropEffects.Copy;
+        }
+
+        private void UserControl_Drop(object sender, DragEventArgs e) {
+            string[] fileNames = (string[]) e.Data.GetData(DataFormats.FileDrop);
+            ((ClassifyArchivesViewModel) DataContext).AnalyzeArchives(fileNames);
         }
     }
 }
