@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 
 namespace ModAnalyzer.Domain {
@@ -15,7 +16,8 @@ namespace ModAnalyzer.Domain {
 
         public FomodConfig(string xmlPath) {
             XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.Load(@".\fomod\ModuleConfig.xml");
+            string xmlText = File.ReadAllText(@".\fomod\ModuleConfig.xml");
+            xmlDoc.LoadXml(xmlText);
             Plugins = FomodPlugin.FromDocument(xmlDoc);
             Patterns = FomodPattern.FromDocument(xmlDoc);
             FileMap = new List<Tuple<FomodFile, ModOption>>();

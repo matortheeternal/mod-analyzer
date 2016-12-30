@@ -1,6 +1,8 @@
 # Mod Analyzer
 Project to produce a mod analysis from an input zip, rar, or 7z archive.
 
+- [Nexus Mods Page](http://www.nexusmods.com/skyrim/mods/80258)
+
 ## Plugin Dumps
 Plugin dumps are produced by [ModDump](https://github.com/matortheeternal/mod-dump).
 

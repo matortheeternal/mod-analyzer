@@ -17,7 +17,11 @@ namespace ModAnalyzer.Domain {
         public FomodFile(XmlNode node) {
             IsFolder = node.Name.Equals("folder");
             Source = node.Attributes["source"].Value.Replace('\t', ' ');
-            Destination = node.Attributes["destination"].Value.Replace('\t', ' ');
+            if (node.Attributes["destination"] != null) {
+                Destination = node.Attributes["destination"].Value.Replace('\t', ' ');
+            } else {
+                Destination = "";
+            }
             if (node.Attributes["priority"] != null) {
                 Priority = Int32.Parse(node.Attributes["priority"].Value);
             }
