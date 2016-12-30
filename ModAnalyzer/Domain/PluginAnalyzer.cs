@@ -1,11 +1,14 @@
 ﻿using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
+using ModAnalyzer.Utils;
 using System;
-using System.ComponentModel;
 using System.IO;
 using System.Text;
-using ModAnalyzer.Utils;
+using System.ComponentModel;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 
 namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
@@ -38,6 +41,15 @@ namespace ModAnalyzer.Domain {
                 _backgroundWorker.ReportMessage(" ", false);
                 RevertPlugin(entry);
             }
+        }
+
+        public List<string> GetMissingMasterFiles(string pluginPath) {
+            string gameDataPath = GameService.GetCurrentGamePath();
+            string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            StringBuilder str = new StringBuilder(16384);
+            ModDump.DumpMasters(Path.Combine(exePath, pluginPath), str, 16384);
+            List<string> masterFileNames = str.ToString().Split(';').ToList();
+            return masterFileNames.FindAll(fileName => !File.Exists(Path.Combine(gameDataPath, fileName)));
         }
 
         public void ExtractPlugin(IArchiveEntry entry) {
