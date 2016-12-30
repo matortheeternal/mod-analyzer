@@ -1,0 +1,17 @@
+﻿<UserControl x:Class="ModAnalyzer.Views.ExtractArchivesView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ModAnalyzer.Views"
+             xmlns:threadingComponent="clr-namespace:ThreadingComponent"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             mc:Ignorable="d"
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ExtractArchivesViewModel}">
+    <StackPanel Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+        <Viewbox Width="200" Height="200" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <threadingComponent:Spinner NumNodes="17" Delay="65" NodeWidth="10" NodeHeight="10" NodeColor="White" UseRectangles="True" />
+        </Viewbox>
+        <Label HorizontalAlignment="Center" Content="{Binding ProgressMessage, Mode=OneWay}" Margin="0 10" />
+    </StackPanel>
+</UserControl>
