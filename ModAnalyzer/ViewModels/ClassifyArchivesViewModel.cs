@@ -51,7 +51,7 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void AnalyzeMod() {
-            MessengerInstance.Send(new ArchiveModOptionsSelectedMessage(ArchiveModOptions.ToList()));
+            MessengerInstance.Send(new ArchivesClassifiedMessage(ArchiveModOptions.ToList()));
         }
 
         private void AddArchive() {

@@ -18,6 +18,12 @@
         DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=MainViewModel}" HorizontalAlignment="Center" VerticalAlignment="Center">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <DataTemplate DataType="{x:Type viewModels:PluginMastersViewModel}">
+            <views:PluginMastersView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type viewModels:ExtractArchivesViewModel}">
+            <views:ExtractArchivesView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type viewModels:ClassifyArchivesViewModel}">
             <views:ClassifyArchivesView />
         </DataTemplate>

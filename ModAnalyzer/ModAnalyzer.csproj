@@ -174,6 +174,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Domain\ArchiveService.cs" />
     <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
     <Compile Include="Domain\BainArchiveService.cs" />
     <Compile Include="Domain\EntryAnalysisJob.cs" />
@@ -188,6 +189,7 @@
     <Compile Include="Domain\GameService.cs" />
     <Compile Include="Domain\MasterPlugin.cs" />
     <Compile Include="Domain\Game.cs" />
+    <Compile Include="Domain\ArchivesExtractedEventArgs.cs" />
     <Compile Include="Domain\ModAnalysis.cs" />
     <Compile Include="Domain\ModAnalyzerService.cs" />
     <Compile Include="Domain\ModDump.cs" />
@@ -199,8 +201,10 @@
     <Compile Include="Domain\PluginRecordGroup.cs" />
     <Compile Include="Domain\MessageReportedEventArgs.cs" />
     <Compile Include="Messages\AnalysisCompleteMessage.cs" />
+    <Compile Include="Messages\AnalyzeArchivesMessage.cs" />
+    <Compile Include="Messages\MissingMastersMessage.cs" />
     <Compile Include="Messages\FilesSelectedMessage.cs" />
-    <Compile Include="Messages\ArchiveModOptionsSelectedMessage.cs" />
+    <Compile Include="Messages\ArchivesClassifiedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
     <Compile Include="Utils\IArchiveEntryExtensions.cs" />
     <Compile Include="Utils\IArchiveExtensions.cs" />
@@ -208,14 +212,30 @@
     <Compile Include="Utils\UpdateUtil.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
     <Compile Include="ViewModels\ClassifyArchivesViewModel.cs" />
+    <Compile Include="ViewModels\ExtractArchivesViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
+    <Compile Include="Domain\MissingMaster.cs" />
+    <Compile Include="ViewModels\PluginMastersViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\AnalysisView.xaml.cs">
       <DependentUpon>AnalysisView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ExtractArchivesView.xaml.cs">
+      <DependentUpon>ExtractArchivesView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PluginMastersView.xaml.cs">
+      <DependentUpon>PluginMastersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Spinner.xaml.cs">
+      <DependentUpon>Spinner.xaml</DependentUpon>
+    </Compile>
     <Page Include="Views\ClassifyArchivesView.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ExtractArchivesView.xaml">
+      <SubType>Form</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HomeView.xaml">
@@ -242,6 +262,14 @@
     </Compile>
     <Page Include="Views\AnalysisView.xaml">
       <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\PluginMastersView.xaml">
+      <SubType>Form</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Spinner.xaml">
+      <SubType>Form</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

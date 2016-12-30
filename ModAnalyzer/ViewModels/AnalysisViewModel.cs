@@ -40,7 +40,7 @@ namespace ModAnalyzer.ViewModels {
             ResetCommand = new RelayCommand(() => MessengerInstance.Send(new AnalysisCompleteMessage()));
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
 
-            MessengerInstance.Register<ArchiveModOptionsSelectedMessage>(this, OnArchiveModOptionsSelected);
+            MessengerInstance.Register<AnalyzeArchivesMessage>(this, OnAnalyzeArchives);
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
@@ -56,9 +56,8 @@ namespace ModAnalyzer.ViewModels {
             RaisePropertyChanged("CanReset");
         }
 
-        private void OnArchiveModOptionsSelected(ArchiveModOptionsSelectedMessage message) {
+        private void OnAnalyzeArchives(AnalyzeArchivesMessage message) {
             Log = string.Empty;
-
             _modAnalyzerService.AnalyzeMod(message.ModOptions);
         }
     }

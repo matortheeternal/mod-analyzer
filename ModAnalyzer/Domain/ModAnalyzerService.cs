@@ -244,8 +244,7 @@ namespace ModAnalyzer.Domain {
                 EntryAnalysisJob foundJob = entryAnalysisJobs.Find(job => job.Entry.Equals(entry));
                 if (foundJob != null) {
                     foundJob.AddOption(option);
-                }
-                else {
+                } else {
                     entryAnalysisJobs.Add(new EntryAnalysisJob(entry, option));
                 }
             }

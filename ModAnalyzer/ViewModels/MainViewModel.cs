@@ -32,6 +32,12 @@ namespace ModAnalyzer.ViewModels {
                 case Page.ClassifyArchives:
                     CurrentViewModel = _viewModelLocator.ClassifyArchivesViewModel;
                     break;
+                case Page.ExtractArchives:
+                    CurrentViewModel = _viewModelLocator.ExtractArchivesViewModel;
+                    break;
+                case Page.PluginMasters:
+                    CurrentViewModel = _viewModelLocator.PluginMastersViewModel;
+                    break;
             }
         }
     }
