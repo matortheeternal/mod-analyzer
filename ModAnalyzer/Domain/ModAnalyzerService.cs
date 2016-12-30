@@ -16,6 +16,8 @@ namespace ModAnalyzer.Domain {
         private ModAnalysis _modAnalysis;
         private List<EntryAnalysisJob> entryAnalysisJobs;
         private readonly string[] entryJobExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
+        private readonly string[] archiveExtensions = { ".BA2", ".BSA" };
+        private readonly string[] pluginExtensions = { ".ESP", ".ESM" };
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         public event EventHandler<EventArgs> AnalysisCompleted;
@@ -37,7 +39,6 @@ namespace ModAnalyzer.Domain {
 
         private void BackgroundProgress(object sender, ProgressChangedEventArgs e) {
             MessageReportedEventArgs eventArgs = e.UserState as MessageReportedEventArgs;
-
             MessageReported?.Invoke(this, eventArgs);
         }
 
@@ -81,24 +82,15 @@ namespace ModAnalyzer.Domain {
         // TODO: Raise exception if job fails
         private void AnalyzeEntries() {
             foreach (EntryAnalysisJob job in entryAnalysisJobs) {
-                string ext = job.Entry.GetEntryExtension();
-                switch (ext) {
-                    case ".BSA":
-                    case ".BA2":
-                        List<String> assets = _assetArchiveAnalyzer.GetAssetPaths(job.Entry);
-                        if (assets != null) {
-                            job.AddArchiveAssetPaths(Path.GetFileName(job.Entry.Key), assets);
-                        }
-                        break;
-                    case ".ESP":
-                    case ".ESM":
-                        PluginDump dump = _pluginAnalyzer.GetPluginDump(job.Entry);
-                        if (dump != null) {
-                            job.AddPluginDump(dump);
-                        } else {
-                            throw new Exception("Plugin dump failed.");
-                        }
-                        break;
+                string entryExt = job.Entry.GetEntryExtension();
+                if (archiveExtensions.Contains(entryExt)) {
+                    List<String> assets = _assetArchiveAnalyzer.GetAssetPaths(job.Entry);
+                    if (assets != null) job.AddArchiveAssetPaths(Path.GetFileName(job.Entry.Key), assets);
+                }
+                if (pluginExtensions.Contains(entryExt)) {
+                    PluginDump dump = _pluginAnalyzer.GetPluginDump(job.Entry);
+                    if (dump == null) throw new Exception("Plugin dump failed.");
+                    job.AddPluginDump(dump);
                 }
             }
 
