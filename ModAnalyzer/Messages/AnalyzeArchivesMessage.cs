@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 
 namespace ModAnalyzer.Messages {
-    public class ArchiveModOptionsSelectedMessage : NavigationMessage {
+    public class AnalyzeArchivesMessage : NavigationMessage {
         public List<ModOption> ModOptions { get; set; }
 
-        public ArchiveModOptionsSelectedMessage(List<ModOption> archiveModOptions) : base(Page.Analysis) {
+        public AnalyzeArchivesMessage(List<ModOption> archiveModOptions) : base(Page.Analysis) {
             ModOptions = archiveModOptions;
         }
     }

@@ -4,7 +4,9 @@ namespace ModAnalyzer.Messages {
     public enum Page {
         Analysis,
         Home,
-        ClassifyArchives
+        ClassifyArchives,
+        ExtractArchives,
+        PluginMasters
     }
 
     public class NavigationMessage : MessageBase {
