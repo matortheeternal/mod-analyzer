@@ -26,44 +26,24 @@ namespace ModAnalyzer.Domain {
             return Path.Combine(archiveKey, assetPath);
         }
 
-        public List<string> GetAssetPaths(IArchiveEntry assetArchive) {
+        public List<string> GetAssetPaths(string archivePath) {
             // extract BSA/BA2
             _backgroundWorker.ReportMessage(" ", false);
-            string extractedArchivePath = ExtractArchive(assetArchive);
-            string assetArchiveKey = assetArchive.Key.Replace("/", @"\");
-            _backgroundWorker.ReportMessage("Getting assets from " + extractedArchivePath + "...", true);
+            string assetArchiveKey = string.Join(@"\", archivePath.Split('\\').Skip(2));
+            _backgroundWorker.ReportMessage("Getting assets from " + archivePath + "...", true);
 
             // get the assets from the BSA/BA2
             List<string> assets;
-            if (assetArchive.GetEntryExtension().Equals(".bsa", StringComparison.InvariantCultureIgnoreCase)) {
-                assets = GetBSAAssets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
+            string archiveExt = Path.GetExtension(archivePath);
+            if (archiveExt.Equals(".bsa", StringComparison.InvariantCultureIgnoreCase)) {
+                assets = GetBSAAssets(archivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
             } else {
-                assets = GetBA2Assets(extractedArchivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
+                assets = GetBA2Assets(archivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
             }
 
             // report assets to the user
             assets.ForEach(asset => _backgroundWorker.ReportMessage(asset, false));
             return assets;
-        }
-
-        private string ExtractArchive(IArchiveEntry assetArchive) {
-            // prepare helper variables
-            string archivePath = assetArchive.GetPath();
-            string outputPath = Path.Combine("bsas", Path.GetFileName(archivePath));
-            string ext = assetArchive.GetEntryExtension().Remove(0, 1);
-
-            // return if the archive has already been extracted
-            if (File.Exists(outputPath)) {
-                return outputPath;
-            }
-
-            // extract archive and report to the user
-            _backgroundWorker.ReportMessage("Extracting " + ext + " at " + archivePath + "...", true);
-            assetArchive.WriteToDirectory(@".\bsas", ExtractOptions.Overwrite);
-            _backgroundWorker.ReportMessage(archivePath + " extracted, analyzing entries...", true);
-
-            // return the path of the extracted archive file
-            return outputPath;
         }
 
         private string[] GetBSAAssets(string bsaPath) {
