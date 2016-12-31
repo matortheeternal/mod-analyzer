@@ -1,4 +1,7 @@
-﻿namespace ModAnalyzer.Utils {
+﻿using System.IO;
+using System.Reflection;
+
+namespace ModAnalyzer.Utils {
     
     public static class PathExtensions {
         public static int GetLevel(string path) {
@@ -16,6 +19,10 @@
 
         public static string FixDelimiters(string path) {
             return path.Replace("/", @"\");
+        }
+
+        public static string GetProgramPath() {
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
     }
 }
