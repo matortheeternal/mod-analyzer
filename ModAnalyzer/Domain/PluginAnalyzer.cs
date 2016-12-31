@@ -1,7 +1,4 @@
 ﻿using Newtonsoft.Json;
-using SharpCompress.Archive;
-using SharpCompress.Common;
-using ModAnalyzer.Utils;
 using System;
 using System.IO;
 using System.Text;
@@ -9,6 +6,7 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using ModAnalyzer.Utils;
 
 namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
@@ -24,47 +22,32 @@ namespace ModAnalyzer.Domain {
             }
         }
 
-        public PluginDump GetPluginDump(IArchiveEntry entry) {
+        public PluginDump GetPluginDump(string pluginPath) {
             try {
-                string entryPath = entry.GetPath();
-                _backgroundWorker.ReportMessage(Environment.NewLine + "Getting plugin dump for " + entryPath + "...", true);
-                ExtractPlugin(entry);
-                return AnalyzePlugin(entry);
+                _backgroundWorker.ReportMessage(" ", false);
+                _backgroundWorker.ReportMessage("Getting plugin dump for " + pluginPath + "...", true);
+                MovePluginToData(pluginPath);
+                return AnalyzePlugin(Path.GetFileName(pluginPath));
             }
             catch (Exception exception) {
                 _backgroundWorker.ReportMessage("Failed to analyze plugin.", false);
                 _backgroundWorker.ReportMessage("Exception: " + exception.Message, false);
-
                 return null;
             }
             finally {
+                RevertPlugin(pluginPath);
                 _backgroundWorker.ReportMessage(" ", false);
-                RevertPlugin(entry);
             }
         }
 
         public List<string> GetMissingMasterFiles(string pluginPath) {
             string gameDataPath = GameService.GetCurrentGamePath();
             string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            string fullPluginPath = Path.Combine(exePath, pluginPath);
             StringBuilder str = new StringBuilder(16384);
-            ModDump.DumpMasters(Path.Combine(exePath, pluginPath), str, 16384);
+            ModDump.DumpMasters(fullPluginPath, str, 16384);
             List<string> masterFileNames = str.ToString().Split(';').ToList();
             return masterFileNames.FindAll(fileName => !File.Exists(Path.Combine(gameDataPath, fileName)));
-        }
-
-        public void ExtractPlugin(IArchiveEntry entry) {
-            string gameDataPath = GameService.GetCurrentGamePath();
-            string pluginFileName = Path.GetFileName(entry.GetPath());
-            string pluginFilePath = Path.Combine(gameDataPath, pluginFileName);
-            string entryPath = entry.GetPath();
-
-            _backgroundWorker.ReportMessage("Extracting " + entryPath + "...", true);
-
-            if (File.Exists(pluginFilePath) && !File.Exists(pluginFilePath + ".bak")) {
-                File.Move(pluginFilePath, pluginFilePath + ".bak");
-            }
-
-            entry.WriteToDirectory(gameDataPath, ExtractOptions.Overwrite);
         }
 
         private void GetModDumpMessages(StringBuilder message) {
@@ -79,15 +62,25 @@ namespace ModAnalyzer.Domain {
             }
         }
 
+        private void MovePluginToData(string pluginPath) {
+            string dataPath = GameService.GetCurrentGamePath();
+            string pluginFileName = Path.GetFileName(pluginPath);
+            string dataPluginPath = Path.Combine(dataPath, pluginFileName);
+            if (File.Exists(dataPluginPath) && !File.Exists(dataPluginPath + ".bak")) {
+                File.Move(dataPluginPath, dataPluginPath + ".bak");
+            }
+            
+            string fullPluginPath = Path.Combine(PathExtensions.GetProgramPath(), pluginPath);
+            File.Move(fullPluginPath, dataPluginPath);
+        }
+
         // TODO: refactor
-        public PluginDump AnalyzePlugin(IArchiveEntry entry) {
-            string entryPath = entry.GetPath();
-            _backgroundWorker.ReportMessage("Analyzing " + entryPath + "...\n", true);
+        public PluginDump AnalyzePlugin(string pluginFileName) {
+            _backgroundWorker.ReportMessage("Analyzing " + pluginFileName + "...\n", true);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
-            string filename = Path.GetFileName(entryPath);
-            if (!ModDump.Prepare(filename)) {
+            if (!ModDump.Prepare(pluginFileName)) {
                 GetModDumpMessages(message);
                 return null;
             }
@@ -112,32 +105,34 @@ namespace ModAnalyzer.Domain {
 
             // throw exception if dump json is empty
             if (json.Length < 3) {
-                throw new Exception("Failed to analyze plugin " + filename);
+                throw new Exception("Failed to analyze plugin " + pluginFileName);
             }
 
             // deserialize and return plugin dump
             return JsonConvert.DeserializeObject<PluginDump>(json.ToString());
         }
 
-        public void RevertPlugin(IArchiveEntry entry) {
+        public void RevertPlugin(string pluginPath) {
             try {
                 string dataPath = GameService.GetCurrentGamePath();
-                string fileName = Path.GetFileName(entry.GetPath());
-                string filePath = dataPath + fileName;
-                string oldFildPath = filePath + ".bak";
+                string pluginFileName = Path.GetFileName(pluginPath);
+                string pluginDataPath = Path.Combine(dataPath, pluginFileName);
+                string oldPluginDataPath = pluginPath + ".bak";
 
-                if (File.Exists(filePath)) {
-                    File.Delete(filePath);
+                if (File.Exists(pluginDataPath)) {
+                    File.Delete(pluginDataPath);
                 }
 
-                if (File.Exists(oldFildPath)) {
-                    File.Move(oldFildPath, filePath);
+                if (File.Exists(oldPluginDataPath)) {
+                    File.Move(oldPluginDataPath, pluginDataPath);
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 _backgroundWorker.ReportMessage("Failed to revert plugin!", false);
-                _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(entry.GetPath()) + "!!!", false);
+                _backgroundWorker.ReportMessage("!!! Please manually revert " + Path.GetFileName(pluginPath), false);
                 _backgroundWorker.ReportMessage("Exception:" + e.Message, false);
             }
         }
+
     }
 }
