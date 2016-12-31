@@ -42,23 +42,27 @@ namespace ModAnalyzer.Domain {
         public string FomodConfigPath { get; set; }
         [JsonIgnore]
         public string BaseInstallerPath { get; set; }
+        [JsonIgnore]
+        public List<IArchiveEntry> EntriesToExtract { get; set; }
+        [JsonIgnore]
+        public List<string> PluginPaths { get; set; }
+        [JsonIgnore]
+        public List<string> ArchivePaths { get; set; }
 
 
         // CONSTRUCTORS
         public ModOption() {
-            Assets = new List<string>();
-            Plugins = new List<PluginDump>();
             Size = 0;
+            CreateLists();
         }
 
         public ModOption(string Name, string SourceFilePath, bool Default) {
             this.Name = Name;
             this.Default = Default;
             this.SourceFilePath = SourceFilePath;
-            Assets = new List<string>();
-            Plugins = new List<PluginDump>();
             Archive = ArchiveFactory.Open(SourceFilePath);
             Size = Archive.TotalUncompressSize;
+            CreateLists();
             GetInstallerType();
         }
 
@@ -66,12 +70,19 @@ namespace ModAnalyzer.Domain {
             this.Name = Name;
             this.Default = Default;
             this.IsInstallerOption = IsInstallerOption;
-            Assets = new List<string>();
-            Plugins = new List<PluginDump>();
             Size = 0;
+            CreateLists();
         }
 
         // HELPER METHODS
+        public void CreateLists() {
+            Assets = new List<string>();
+            Plugins = new List<PluginDump>();
+            EntriesToExtract = new List<IArchiveEntry>();
+            PluginPaths = new List<string>();
+            ArchivePaths = new List<string>();
+        }
+
         public void GetMD5Hash() {
             using (var md5 = MD5.Create()) {
                 using (var stream = File.OpenRead(SourceFilePath)) {
@@ -105,6 +116,10 @@ namespace ModAnalyzer.Domain {
                 Assets.Add(mappedPath);
             }
         }
+
+        public void AddPluginDump(PluginDump dump) {
+            Plugins.Add(dump);
+        }
         
         // BAIN ARCHIVE HANDLING
         public bool GetIsBainArchive() {
@@ -131,6 +146,10 @@ namespace ModAnalyzer.Domain {
             }
 
             return IsFomodArchive;
+        }
+
+        public string GetExtractedEntryPath(IArchiveEntry entry) {
+            return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.GetPath());
         }
     }
 }

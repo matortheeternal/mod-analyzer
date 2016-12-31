@@ -13,9 +13,10 @@ namespace ModAnalyzer.Domain {
         private PluginAnalyzer _pluginAnalyzer;
         private readonly string[] jobFileExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
         private readonly string[] pluginExtensions = { ".ESP", ".ESM" };
+        private readonly string[] archiveExtensions = { ".BA2", ".BSA" };
         public List<MissingMaster> MissingMasters;
         private List<string> PluginPaths;
-        private List<Tuple<ModOption, IArchiveEntry>> EntriesToExtract;
+        private List<ModOption> ArchiveModOptions;
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         public event EventHandler<ArchivesExtractedEventArgs> ArchivesExtracted;
 
@@ -28,7 +29,6 @@ namespace ModAnalyzer.Domain {
             // prepare lists
             MissingMasters = new List<MissingMaster>();
             PluginPaths = new List<string>();
-            EntriesToExtract = new List<Tuple<ModOption,IArchiveEntry>>();
 
             // prepare directories
             Directory.CreateDirectory("extracted");
@@ -45,23 +45,15 @@ namespace ModAnalyzer.Domain {
             MessageReported?.Invoke(this, eventArgs);
         }
 
-        // Background job to analyze a mod
+        // Background job to extract an archive
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
-            List<ModOption> archiveModOptions = e.Argument as List<ModOption>;
+            ArchiveModOptions = e.Argument as List<ModOption>;
 
             try {
-                // find plugins and BSAs from each archive
-                foreach (ModOption archiveModOption in archiveModOptions) {
-                    _backgroundWorker.ReportMessage("Extracting " + archiveModOption.Name + "...", true);
-                    FindEntriesToExtract(archiveModOption);
-                }
-                // extract entries
+                // find plugins and BSAs from each archive, extract them, and check for missing masters
+                FindEntriesToExtract();
                 ExtractEntries();
-                // check for missing plugin masters
-                if (PluginPaths.Count > 0) {
-                    CreatePluginAnalyzer();
-                    GetMissingMasters();
-                }
+                GetMissingMasters();
             }
             catch (Exception x) {
                 _backgroundWorker.ReportMessage(Environment.NewLine + x.Message, false);
@@ -69,53 +61,77 @@ namespace ModAnalyzer.Domain {
                 _backgroundWorker.ReportMessage("Extraction failed.", true);
             }
 
-            // tell the view model we're done analyzing things
+            // tell the view model we're done extracting things
             ArchivesExtracted?.Invoke(this, new ArchivesExtractedEventArgs(MissingMasters));
         }
 
+        private void AddMissingMasterEntry(string missingMasterFile, string pluginFileName) {
+            MissingMaster existingEntry = MissingMasters.Find(x => x.FileName == missingMasterFile);
+            if (existingEntry != null) {
+                existingEntry.AddRequiredBy(pluginFileName);
+            } else {
+                MissingMasters.Add(new MissingMaster(missingMasterFile, pluginFileName));
+            }
+        }
+
+        private void GetPluginMissingMasters(string pluginPath) {
+            List<string> missingMasterFiles = _pluginAnalyzer.GetMissingMasterFiles(pluginPath);
+            string pluginFileName = Path.GetFileName(pluginPath);
+            foreach (string missingMasterFile in missingMasterFiles) {
+                AddMissingMasterEntry(missingMasterFile, pluginFileName);
+            }
+        }
+
         private void GetMissingMasters() {
-            foreach (string pluginPath in PluginPaths) {
-                string pluginFileName = Path.GetFileName(pluginPath);
-                List<string> missingMasterFiles = _pluginAnalyzer.GetMissingMasterFiles(pluginPath);
-                foreach (string missingMasterFile in missingMasterFiles) {
-                    MissingMaster existingEntry = MissingMasters.Find(x => x.FileName == missingMasterFile);
-                    if (existingEntry != null) {
-                        existingEntry.AddRequiredBy(pluginFileName);
-                    } else {
-                        MissingMasters.Add(new MissingMaster(missingMasterFile, pluginFileName));
-                    }
+            foreach (ModOption archiveModOption in ArchiveModOptions) {
+                if (archiveModOption.PluginPaths.Count > 0) CreatePluginAnalyzer();
+                foreach (string pluginPath in archiveModOption.PluginPaths) {
+                    GetPluginMissingMasters(pluginPath);
                 }
             }
         }
 
         private void ExtractEntry(ModOption archiveModOption, IArchiveEntry entry) {
-            string destinationPath = Path.Combine("extracted", archiveModOption.Name, entry.GetPath());
+            string destinationPath = archiveModOption.GetExtractedEntryPath(entry);
             Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
             entry.WriteToFile(destinationPath);
             string entryExt = Path.GetExtension(destinationPath);
             if (pluginExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
-                PluginPaths.Add(destinationPath);
+                archiveModOption.PluginPaths.Add(destinationPath);
+            } else if (archiveExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
+                archiveModOption.ArchivePaths.Add(destinationPath);
             }
         }
 
-        private void FindEntriesToExtract(ModOption archiveModOption) {
-            IArchive archive = archiveModOption.Archive;
-            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
-                string entryExt = modArchiveEntry.GetEntryExtension();
-                if (jobFileExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
-                    EntriesToExtract.Add(new Tuple<ModOption,IArchiveEntry>(archiveModOption, modArchiveEntry));
+        private void FindEntriesToExtract() {
+            foreach (ModOption archiveModOption in ArchiveModOptions) {
+                IArchive archive = archiveModOption.Archive;
+                foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
+                    string entryExt = modArchiveEntry.GetEntryExtension();
+                    if (jobFileExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
+                        archiveModOption.EntriesToExtract.Add(modArchiveEntry);
+                    }
                 }
             }
         }
 
         private void ExtractEntries() {
-            for (var i = 0; i < EntriesToExtract.Count; i++) {
-                ModOption option = EntriesToExtract[i].Item1;
-                IArchiveEntry entry = EntriesToExtract[i].Item2;
-                string fileName = Path.GetFileName(entry.GetPath());
-                string countString = " (" + (i + 1) + "/" + EntriesToExtract.Count + ")";
-                _backgroundWorker.ReportMessage("Extracting " + fileName + countString, true);
-                ExtractEntry(option, entry);
+            int total = 0, tracker = 0;
+            foreach (ModOption archiveModOption in ArchiveModOptions)
+                total += archiveModOption.EntriesToExtract.Count;
+            foreach (ModOption archiveModOption in ArchiveModOptions) {
+                for (int i = 0; i < archiveModOption.EntriesToExtract.Count; i++) {
+                    try {
+                        tracker += 1;
+                        IArchiveEntry entryToExtract = archiveModOption.EntriesToExtract[i];
+                        string fileName = Path.GetFileName(entryToExtract.GetPath());
+                        string countString = " (" + tracker + "/" + total + ")";
+                        _backgroundWorker.ReportMessage("Extracting " + fileName + countString, true);
+                        ExtractEntry(archiveModOption, entryToExtract);
+                    } catch (Exception x) {
+                        _backgroundWorker.ReportMessage(x.Message, false);
+                    }
+                }
             }
         }
 
