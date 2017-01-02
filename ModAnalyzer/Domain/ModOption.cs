@@ -121,6 +121,10 @@ namespace ModAnalyzer.Domain {
             Plugins.Add(dump);
         }
         
+        public string GetExtractedEntryPath(IArchiveEntry entry) {
+            return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.GetPath());
+        }
+
         // BAIN ARCHIVE HANDLING
         public bool GetIsBainArchive() {
             string BaseBainPath = BainArchiveService.GetBasePath(Archive);
@@ -146,10 +150,6 @@ namespace ModAnalyzer.Domain {
             }
 
             return IsFomodArchive;
-        }
-
-        public string GetExtractedEntryPath(IArchiveEntry entry) {
-            return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.GetPath());
         }
     }
 }
