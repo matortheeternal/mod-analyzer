@@ -117,15 +117,12 @@ namespace ModAnalyzer.Domain {
                 string dataPath = GameService.GetCurrentGamePath();
                 string pluginFileName = Path.GetFileName(pluginPath);
                 string pluginDataPath = Path.Combine(dataPath, pluginFileName);
-                string oldPluginDataPath = pluginPath + ".bak";
+                string oldPluginDataPath = pluginDataPath + ".bak";
 
-                if (File.Exists(pluginDataPath)) {
+                if (File.Exists(pluginDataPath))
                     File.Delete(pluginDataPath);
-                }
-
-                if (File.Exists(oldPluginDataPath)) {
+                if (File.Exists(oldPluginDataPath))
                     File.Move(oldPluginDataPath, pluginDataPath);
-                }
             }
             catch (Exception e) {
                 _backgroundWorker.ReportMessage("Failed to revert plugin!", false);
