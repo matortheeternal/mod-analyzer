@@ -37,6 +37,7 @@ namespace ModAnalyzer.Domain {
         }
 
         public bool MatchesPath(string path) {
+            if (Source == "") return false;
             return path.StartsWith(IsFolder ? Path.Combine(Source, "") : Source);
         }
 
