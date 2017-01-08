@@ -1,5 +1,4 @@
 ﻿using ModAnalyzer.Utils;
-using SevenZip;
 using SharpCompress.Archive;
 using System;
 using System.Collections.Generic;
