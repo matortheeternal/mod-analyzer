@@ -92,9 +92,11 @@ namespace ModAnalyzer.Domain {
 
         private void ExtractEntry(ModOption archiveModOption, IArchiveEntry entry) {
             string destinationPath = archiveModOption.GetExtractedEntryPath(entry);
-            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-            entry.WriteToFile(destinationPath);
             string entryExt = Path.GetExtension(destinationPath);
+            if (!File.Exists(destinationPath)) {
+                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                entry.WriteToFile(destinationPath);
+            }
             if (pluginExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
                 archiveModOption.PluginPaths.Add(destinationPath);
             } else if (archiveExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
