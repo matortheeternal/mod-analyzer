@@ -9,7 +9,7 @@
         }
 
         public void AddRequiredBy(string pluginPath) {
-            RequiredBy += ";" + pluginPath;
+            RequiredBy += ", " + pluginPath;
         }
     }
 }

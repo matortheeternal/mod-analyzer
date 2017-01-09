@@ -38,7 +38,7 @@
                     <DataGridTemplateColumn Header="Required by">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
-                                <Label Content="{Binding RequiredBy, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0" />
+                                <TextBlock Text="{Binding RequiredBy, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0" TextWrapping="Wrap" />
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
