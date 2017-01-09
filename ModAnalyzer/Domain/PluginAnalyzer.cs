@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using ModAnalyzer.Utils;
+using System.Windows.Forms;
 
 namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
@@ -23,20 +24,31 @@ namespace ModAnalyzer.Domain {
         }
 
         public PluginDump GetPluginDump(string pluginPath) {
+            DialogResult response;
             try {
                 _backgroundWorker.ReportMessage(" ", false);
                 _backgroundWorker.ReportMessage("Getting plugin dump for " + pluginPath + "...", true);
                 MovePluginToData(pluginPath);
                 return AnalyzePlugin(Path.GetFileName(pluginPath));
-            }
-            catch (Exception exception) {
+            } catch (Exception exception) {
                 _backgroundWorker.ReportMessage("Failed to analyze plugin.", false);
                 _backgroundWorker.ReportMessage("Exception: " + exception.Message, false);
-                return null;
-            }
-            finally {
+                string title = "Failed to analyze plugin";
+                string message = string.Format("{0}: {1}\n\nRetry?", title, exception.Message);
+                response = MessageBox.Show(message, title, MessageBoxButtons.AbortRetryIgnore);
+            } finally {
                 RevertPlugin(pluginPath);
                 _backgroundWorker.ReportMessage(" ", false);
+            }
+
+            if (response == DialogResult.Retry) {
+                return GetPluginDump(pluginPath);
+            }
+            else if (response == DialogResult.Abort) {
+                throw new Exception("User aborted analysis.");
+            }
+            else {
+                return null;
             }
         }
 
