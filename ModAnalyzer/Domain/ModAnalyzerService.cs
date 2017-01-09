@@ -209,7 +209,7 @@ namespace ModAnalyzer.Domain {
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
-            fomodOptions = fomodConfig.BuildModOptions(archiveModOption.BaseInstallerPath);
+            fomodOptions = fomodConfig.BuildModOptions();
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);

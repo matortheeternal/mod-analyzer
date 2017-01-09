@@ -67,7 +67,7 @@ namespace ModAnalyzer.Domain {
             }
         }
 
-        public List<ModOption> BuildModOptions(string fomodBasePath) {
+        public List<ModOption> BuildModOptions() {
             List<ModOption> options = new List<ModOption>();
             if (BaseFiles != null) {
                 ModOption baseOption = new ModOption("Base FOMOD Files", true, true);
