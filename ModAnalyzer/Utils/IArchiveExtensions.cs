@@ -36,8 +36,8 @@ namespace ModAnalyzer.Utils {
 
         public static IArchiveEntry FindArchiveEntry(this IArchive archive, string path) {
             foreach (IArchiveEntry entry in archive.Entries) {
-                string fixedKey = entry.GetPath();
-                if (fixedKey.EndsWith(path, StringComparison.CurrentCultureIgnoreCase)) {
+                string entryPath = entry.GetPath();
+                if (entryPath.EndsWith(path, StringComparison.OrdinalIgnoreCase)) {
                     return entry;
                 }
             }
