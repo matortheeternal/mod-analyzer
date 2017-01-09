@@ -4,9 +4,6 @@ using System.IO;
 using System.Xml;
 
 namespace ModAnalyzer.Domain {
-    /// <summary>
-    /// TODO
-    /// </summary>
     public class FomodConfig {
         public string GroupType { get; set; }
         public List<FomodPlugin> Plugins { get; set; }
@@ -21,6 +18,7 @@ namespace ModAnalyzer.Domain {
             Plugins = FomodPlugin.FromDocument(xmlDoc);
             Patterns = FomodPattern.FromDocument(xmlDoc);
             FileMap = new List<Tuple<FomodFile, ModOption>>();
+            BaseFiles = new List<FomodFile>();
             GetBaseFiles(xmlDoc);
             MapPluginPatterns();
         }
@@ -32,13 +30,15 @@ namespace ModAnalyzer.Domain {
             }
         }
 
-        private List<FomodPattern> GetMatchingPatterns(FomodFlag flag) {
-            List<FomodPattern> results = new List<FomodPattern>();
+        private List<FomodFile> GetMatchingPatternFiles(FomodFlag flag) {
+            List<FomodFile> results = new List<FomodFile>();
             foreach (FomodPattern pattern in Patterns) {
-                if (pattern.Dependencies != null) {
+                if (pattern.HasComplexDependencies) {
+                    BaseFiles.AddRange(pattern.Files);
+                } else if (pattern.Dependencies != null) {
                     foreach (FomodFlagDependency dependency in pattern.Dependencies) {
                         if (flag.Matches(dependency)) {
-                            results.Add(pattern);
+                            results.AddRange(pattern.Files);
                         }
                     }
                 }
@@ -48,12 +48,9 @@ namespace ModAnalyzer.Domain {
 
         private void MapPluginPatterns() {
             foreach (FomodPlugin plugin in Plugins) {
-                if (plugin.Flags != null) {
-                    foreach (FomodFlag flag in plugin.Flags) {
-                        foreach (FomodPattern pattern in GetMatchingPatterns(flag)) {
-                            plugin.Files.AddRange(pattern.Files);
-                        }
-                    }
+                if (plugin.Flags == null) return;
+                foreach (FomodFlag flag in plugin.Flags) {
+                    plugin.Files.AddRange(GetMatchingPatternFiles(flag));
                 }
             }
         }
@@ -69,7 +66,7 @@ namespace ModAnalyzer.Domain {
 
         public List<ModOption> BuildModOptions() {
             List<ModOption> options = new List<ModOption>();
-            if (BaseFiles != null) {
+            if (BaseFiles.Count > 0) {
                 ModOption baseOption = new ModOption("Base FOMOD Files", true, true);
                 AddFileMappings(baseOption, BaseFiles);
                 options.Add(baseOption);
