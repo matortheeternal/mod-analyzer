@@ -5,6 +5,7 @@ namespace ModAnalyzer.Domain {
     public class PluginDump {
         public string filename { get; set; }
         public bool is_esm { get; set; }
+        public bool used_dummy_plugins { get; set; }
         public string description { get; set; }
         public string author { get; set; }
         public string crc_hash { get; set; }

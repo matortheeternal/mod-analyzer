@@ -108,7 +108,8 @@ namespace ModAnalyzer.Domain {
             }
         }
 
-        public void AddArchiveAssetPaths(string archiveFileName, List<string> archiveAssetPaths) {
+        public void AddArchiveAssetPaths(string archiveFilePath, List<string> archiveAssetPaths) {
+            string archiveFileName = Path.GetFileName(archiveFilePath);
             string archivePath = Assets.Find(asset => Path.GetFileName(asset) == archiveFileName);
             if (archivePath == null) return;
             foreach (string archiveAssetPath in archiveAssetPaths) {
