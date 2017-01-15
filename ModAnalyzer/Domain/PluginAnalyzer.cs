@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using ModAnalyzer.Utils;
 using System.Windows.Forms;
+using System.Threading;
 
 namespace ModAnalyzer.Domain {
     internal class PluginAnalyzer {
@@ -81,7 +82,6 @@ namespace ModAnalyzer.Domain {
             if (File.Exists(dataPluginPath) && !File.Exists(dataPluginPath + ".bak")) {
                 File.Move(dataPluginPath, dataPluginPath + ".bak");
             }
-            
             string fullPluginPath = Path.Combine(PathExtensions.GetProgramPath(), pluginPath);
             File.Copy(fullPluginPath, dataPluginPath);
         }
@@ -89,6 +89,7 @@ namespace ModAnalyzer.Domain {
         // TODO: refactor
         public PluginDump AnalyzePlugin(string pluginFileName) {
             _backgroundWorker.ReportMessage("Analyzing " + pluginFileName + "...\n", true);
+            Thread.Sleep(300);
             StringBuilder message = new StringBuilder(4 * 1024 * 1024);
 
             // prepare plugin file for dumping
