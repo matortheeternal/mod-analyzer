@@ -83,7 +83,7 @@ namespace ModAnalyzer.Domain {
             }
             
             string fullPluginPath = Path.Combine(PathExtensions.GetProgramPath(), pluginPath);
-            File.Move(fullPluginPath, dataPluginPath);
+            File.Copy(fullPluginPath, dataPluginPath);
         }
 
         // TODO: refactor
