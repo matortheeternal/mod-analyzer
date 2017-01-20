@@ -91,16 +91,10 @@ namespace ModAnalyzer.Domain {
                     mapping.Item2.AddArchiveAssetPaths(archivePath, assets);
         }
 
-        private bool InvalidPluginPath(string pluginPath) {
-            bool IsMacOSX = pluginPath.IndexOf("__MACOSX", StringComparison.OrdinalIgnoreCase) > -1;
-            bool IsFaceGen = pluginPath.IndexOf(@"actors\character\FaceGenData\", StringComparison.OrdinalIgnoreCase) > -1;
-            return IsMacOSX || IsFaceGen;
-        }
-
         // performs the enqueued entry analysis jobs
         private void AnalyzeEntries(ModOption archiveModOption) {
             foreach (string pluginPath in archiveModOption.PluginPaths) {
-                if (InvalidPluginPath(pluginPath)) continue;
+                if (PathExtensions.InvalidPluginPath(pluginPath)) continue;
                 PluginDump dump = _pluginAnalyzer.GetPluginDump(pluginPath);
                 if (dump != null) MapPluginDump(pluginPath, dump);
             }

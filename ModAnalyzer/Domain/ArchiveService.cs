@@ -110,6 +110,7 @@ namespace ModAnalyzer.Domain {
                 foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
                     string entryExt = modArchiveEntry.GetEntryExtension();
                     if (jobFileExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
+                        if (PathExtensions.InvalidPluginPath(modArchiveEntry.GetPath())) continue;
                         archiveModOption.EntriesToExtract.Add(modArchiveEntry);
                     }
                 }

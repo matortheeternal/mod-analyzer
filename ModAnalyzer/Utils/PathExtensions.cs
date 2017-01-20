@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 
 namespace ModAnalyzer.Utils {
@@ -23,6 +24,13 @@ namespace ModAnalyzer.Utils {
 
         public static string GetProgramPath() {
             return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        }
+
+        public static bool InvalidPluginPath(string pluginPath) {
+            bool IsMacOSX = pluginPath.IndexOf("__MACOSX", System.StringComparison.OrdinalIgnoreCase) > -1;
+            bool IsLODGen = pluginPath.IndexOf(@"textures\terrain\LODGen", StringComparison.OrdinalIgnoreCase) > -1;
+            bool IsFaceGen = pluginPath.IndexOf(@"actors\character\FaceGenData\", StringComparison.OrdinalIgnoreCase) > -1;
+            return IsLODGen || IsMacOSX || IsFaceGen;
         }
     }
 }
