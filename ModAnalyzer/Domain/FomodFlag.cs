@@ -18,6 +18,7 @@ namespace ModAnalyzer.Domain {
         public static List<FomodFlag> FromNodes(XmlNodeList nodes) {
             List<FomodFlag> flags = new List<FomodFlag>();
             foreach (XmlNode node in nodes) {
+                if (node.Name != "flag") continue;
                 flags.Add(new FomodFlag(node));
             }
             return flags;
