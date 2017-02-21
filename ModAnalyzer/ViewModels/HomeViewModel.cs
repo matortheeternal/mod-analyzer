@@ -55,7 +55,7 @@ namespace ModAnalyzer.ViewModels {
         private void OpenDownloadPage() {
             string url = "https://github.com/matortheeternal/mod-analyzer/releases";
             try {
-                Process.Start("url");
+                Process.Start(url);
             } catch (Exception exception) {
                 string errorMessage = "Failed to open download page. Please check " + url + "for updates.\n\n" + exception.ToString();
                 System.Windows.Forms.MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);

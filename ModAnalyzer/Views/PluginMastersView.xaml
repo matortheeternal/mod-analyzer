@@ -35,7 +35,7 @@
                             </DataTemplate>
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Required by">
+                    <DataGridTemplateColumn Header="Required by" Width="*">
                         <DataGridTemplateColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding RequiredBy, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0" TextWrapping="Wrap" />
