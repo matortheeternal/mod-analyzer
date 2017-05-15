@@ -8,6 +8,7 @@ using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
 using ModAnalyzer.Domain.Services;
+using System;
 
 namespace ModAnalyzer.ViewModels {
     public class ClassifyArchivesViewModel : ViewModelBase {
@@ -46,7 +47,12 @@ namespace ModAnalyzer.ViewModels {
             foreach (string filePath in message.FilePaths) {
                 string fileName = Path.GetFileName(filePath);
                 if (ArchiveModOptionExists(filePath)) continue;
-                ArchiveModOptions.Add(new ModOption(fileName, filePath, oneFilePath));
+                LogService.GroupMessage("analysis", "Selected file " + filePath);
+                try {
+                    ArchiveModOptions.Add(new ModOption(fileName, filePath, oneFilePath));
+                } catch (Exception x) {
+                    LogService.GroupMessage("analysis", "Exception creating mod option, " + x.Message);
+                }
             }
         }
 

@@ -5,6 +5,7 @@ using ModAnalyzer.Analysis.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using ModAnalyzer.Domain.Services;
 
 namespace ModAnalyzer.ViewModels {
     public class PluginMastersViewModel : ViewModelBase {
@@ -18,7 +19,10 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public void InitMissingMasters(List<MissingMaster> MissingMasters, List<ModOption> ModOptions) {
-            foreach (var item in MissingMasters) this.MissingMasters.Add(item);
+            foreach (var item in MissingMasters) {
+                LogService.GroupMessage("analysis", "Missing master: " + item.FileName);
+                this.MissingMasters.Add(item);
+            }
             ModOptions = this.ModOptions;
         }
 

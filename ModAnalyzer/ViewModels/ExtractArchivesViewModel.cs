@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using ModAnalyzer.Analysis.Services;
 using ModAnalyzer.Analysis.Models;
+using ModAnalyzer.Domain.Services;
 
 namespace ModAnalyzer.ViewModels {
     public class ExtractArchivesViewModel : ViewModelBase {
@@ -25,6 +26,7 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void _archiveService_MessageReported(object sender, MessageReportedEventArgs e) {
+            LogService.GroupMessage("analysis", e.Message);
             if (e.IsStatusMessage) {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
             }

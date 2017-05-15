@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Windows.Input;
 using System.Collections.Generic;
+using ModAnalyzer.Domain.Services;
 
 namespace ModAnalyzer.ViewModels {
     public class AnalysisViewModel : ViewModelBase {
@@ -44,13 +45,16 @@ namespace ModAnalyzer.ViewModels {
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
             App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
-
+            if (!string.IsNullOrWhiteSpace(e.Message)) {
+                LogService.GroupMessage("analysis", e.Message);
+            }
             if (e.IsStatusMessage) {
                 App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
             }
         }
 
         private void _modAnalyzerService_AnalysisComplete(object sender, EventArgs e) {
+            LogService.GroupMessage("analysis", "Analysis complete.");
             CanReset = true;
             RaisePropertyChanged("CanReset");
         }

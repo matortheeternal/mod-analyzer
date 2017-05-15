@@ -19,19 +19,19 @@ namespace ModAnalyzer.Domain.Services {
 
         public static void LoadSettings() {
             if (File.Exists("settings.json")) {
-                //LogService.GroupMessage("settings", "Found settings file.");
+                LogService.GroupMessage("settings", "Found settings file.");
                 try {
                     string json = File.ReadAllText("settings.json");
                     Settings = JsonConvert.DeserializeObject<ProgramSetting>(json);
                 }
                 catch (Exception x) {
-                    //LogService.GroupMessage("settings", "Exception loading settings: " + x.Message);
+                    LogService.GroupMessage("settings", "Exception loading settings: " + x.Message);
                     DialogUtils.ShowError(x.Message, "Exception loading settings");
                     DefaultSettings();
                 }
             }
             else {
-                //LogService.GroupMessage("settings", "No settings file found, initializing defaults.");
+                LogService.GroupMessage("settings", "No settings file found, initializing defaults.");
                 NewSettings = true;
                 DefaultSettings();
             }
@@ -39,7 +39,7 @@ namespace ModAnalyzer.Domain.Services {
 
         public static void SaveSettings() {
             if (NewSettings) NewSettings = false;
-            //LogService.GroupMessage("settings", "Saved.");
+            LogService.GroupMessage("settings", "Saved.");
             string json = JsonConvert.SerializeObject(Settings);
             File.WriteAllText("settings.json", json);
         }

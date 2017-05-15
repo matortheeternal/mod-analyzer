@@ -15,8 +15,9 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public MainViewModel() {
-            _viewModelLocator = ViewModelLocator.Instance();
+            LogService.StartLogging();
             SettingsService.LoadSettings();
+            _viewModelLocator = ViewModelLocator.Instance();
             CurrentViewModel = _viewModelLocator.HomeViewModel;
             if (SettingsService.NewSettings) {
                 HandleSettings();
@@ -26,17 +27,17 @@ namespace ModAnalyzer.ViewModels {
 
         public void HandleSettings() {
             try {
-                //LogService.GroupMessage("settings", "Navigated to SettingsView for initial set up.");
+                LogService.GroupMessage("settings", "Navigated to SettingsView for initial set up.");
                 CurrentViewModel = _viewModelLocator.SettingsViewModel;
                 _viewModelLocator.SettingsViewModel.CreateNewSettings();
             }
             catch (Exception x) {
-                //LogService.GroupMessage("settings", "Exception navigating to settings view, " + x.Message);
+                LogService.GroupMessage("settings", "Exception navigating to settings view, " + x.Message);
             }
         }
 
         private void OnNavigationMessageReceived(NavigationMessage message) {
-            //LogService.GroupMessage("views", "Navigated to " + message.ViewModelName);
+            LogService.GroupMessage("views", "Navigated to " + message.ViewModelName);
             CurrentViewModel = _viewModelLocator.ViewModelByName(message.ViewModelName);
         }
     }
