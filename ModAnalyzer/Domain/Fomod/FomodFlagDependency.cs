@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
-    /// <summary>
-    /// TODO
-    /// </summary>
+namespace ModAnalyzer.Domain.Fomod {
     public class FomodFlagDependency {
         public string Flag { get; set; }
         public string Value { get; set; }

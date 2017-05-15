@@ -1,15 +1,14 @@
-﻿using ModAnalyzer.Analysis.Events;
-using ModAnalyzer.Analysis.Models;
-using ModAnalyzer.Domain.Fomod;
-using ModAnalyzer.Utils;
+﻿using ModAnalyzer.Analysis.Models;
 using Newtonsoft.Json;
-using SharpCompress.Archive;
-using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using SevenZipExtractor;
+using ModAnalyzer.Analysis.Events;
+using ModAnalyzer.Utils;
+using ModAnalyzer.Domain.Fomod;
 
 namespace ModAnalyzer.Analysis.Services {
     public class ModAnalyzerService {
@@ -17,7 +16,7 @@ namespace ModAnalyzer.Analysis.Services {
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
         private readonly PluginAnalyzer _pluginAnalyzer;
         private ModAnalysis _modAnalysis;
-        private List<Tuple<string,ModOption>> EntryOptionMap;
+        private List<Tuple<string, ModOption>> EntryOptionMap;
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         public event EventHandler<EventArgs> AnalysisCompleted;
@@ -49,7 +48,7 @@ namespace ModAnalyzer.Analysis.Services {
             }
             return baseOption.Name;
         }
-         
+
         // Background job to analyze a mod
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             _modAnalysis = new ModAnalysis();
@@ -68,7 +67,8 @@ namespace ModAnalyzer.Analysis.Services {
 
                 // save output
                 SaveOutputFile(GetOutputFilename(archiveModOptions));
-            } catch (Exception x) {
+            }
+            catch (Exception x) {
                 _backgroundWorker.ReportMessage(Environment.NewLine + x.Message, false);
                 _backgroundWorker.ReportMessage(x.StackTrace, false);
                 _backgroundWorker.ReportMessage("Analysis failed.", true);
@@ -92,11 +92,12 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         // performs the enqueued entry analysis jobs
+        // TODO: Raise exception if job fails
         private void AnalyzeEntries(ModOption archiveModOption) {
             foreach (string pluginPath in archiveModOption.PluginPaths) {
-                if (PathExtensions.InvalidPluginPath(pluginPath)) continue;
                 PluginDump dump = _pluginAnalyzer.GetPluginDump(pluginPath);
-                if (dump != null) MapPluginDump(pluginPath, dump);
+                if (dump == null) throw new Exception("Plugin dump failed.");
+                MapPluginDump(pluginPath, dump);
             }
             foreach (string archivePath in archiveModOption.ArchivePaths) {
                 List<string> assets = _assetArchiveAnalyzer.GetAssetPaths(archivePath);
@@ -114,17 +115,19 @@ namespace ModAnalyzer.Analysis.Services {
                 });
                 _modAnalysis.ModOptions.Add(modOption);
                 _modAnalysis.ModOptions.AddRange(fomodOptions);
-            } else if (modOption.IsBainArchive) {
+            }
+            else if (modOption.IsBainArchive || modOption.IsFlexArchive) {
                 List<ModOption> bainOptions = AnalyzeBainArchive(modOption);
                 bainOptions.ForEach(mo => { mo.MD5Hash = modOption.MD5Hash; });
                 _modAnalysis.ModOptions.Add(modOption);
                 _modAnalysis.ModOptions.AddRange(bainOptions);
-            } else {
+            }
+            else {
                 AnalyzeNormalArchive(modOption);
             }
         }
 
-        private void MapEntryToFomodOption(List<Tuple<FomodFile, ModOption>> map, IArchiveEntry entry, ModOption archiveModOption) {
+        private void MapEntryToFomodOption(List<Tuple<FomodFile, ModOption>> map, Entry entry, ModOption archiveModOption) {
             string entryPath = entry.GetPath();
             string fomodBasePath = archiveModOption.BaseInstallerPath;
             if (fomodBasePath.Length > 0) {
@@ -139,7 +142,7 @@ namespace ModAnalyzer.Analysis.Services {
                     if (mappedPath == "") continue;
                     if (option.Assets.IndexOf(mappedPath) > -1) continue;
                     option.Assets.Add(mappedPath);
-                    option.Size += entry.Size;
+                    option.Size += (long)entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // enqueue jobs for analyzing archives and plugins
@@ -148,7 +151,7 @@ namespace ModAnalyzer.Analysis.Services {
             }
         }
 
-        private void MapEntryToBainOption(List<Tuple<string, ModOption>> map, IArchiveEntry entry, ModOption archiveModOption) {
+        private void MapEntryToBainOption(List<Tuple<string, ModOption>> map, Entry entry, ModOption archiveModOption) {
             string entryPath = entry.GetPath();
             foreach (Tuple<string, ModOption> mapping in map) {
                 string bainPath = mapping.Item1 + @"\";
@@ -158,7 +161,7 @@ namespace ModAnalyzer.Analysis.Services {
                     string mappedPath = entryPath.Replace(bainPath, "");
                     if (mappedPath == "") continue;
                     option.Assets.Add(mappedPath);
-                    option.Size += entry.Size;
+                    option.Size += (long)entry.Size;
                     _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // enqueue jobs for analyzing archives and plugins
@@ -168,51 +171,56 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         private List<ModOption> AnalyzeBainArchive(ModOption archiveModOption) {
-            IArchive archive = archiveModOption.Archive;
-            _backgroundWorker.ReportMessage("Parsing BAIN Options", true);
+            ArchiveFile archive = archiveModOption.Archive;
+            bool flex = archiveModOption.IsFlexArchive;
+            if (flex) {
+                archiveModOption.BaseInstallerPath = archiveModOption.Archive.GetBaseDirectory();
+            }
+            string bainType = flex ? "FLEX" : "BAIN";
+            _backgroundWorker.ReportMessage("Parsing " + bainType + " Options", true);
             List<ModOption> bainOptions = new List<ModOption>();
             List<Tuple<string, ModOption>> bainMap = new List<Tuple<string, ModOption>>();
 
             // STEP 1. Find BAIN directories and build mod options for them
-            foreach (string bainDirectory in archiveModOption.GetValidBainDirectories()) {
+            foreach (string bainDirectory in archiveModOption.GetInstallerDirectories(!flex)) {
                 string bainOptionName = Path.GetFileName(bainDirectory);
-                _backgroundWorker.ReportMessage("Found BAIN Option " + bainOptionName, false);
+                _backgroundWorker.ReportMessage("Found " + bainType + " Option " + bainOptionName, false);
                 ModOption bainOption = new ModOption(bainOptionName, false, true);
                 bainMap.Add(new Tuple<string, ModOption>(bainDirectory, bainOption));
                 bainOptions.Add(bainOption);
             }
 
             // STEP 2: Map entries to bain options
-            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to BAIN Options", true);
-            foreach (IArchiveEntry entry in archive.Entries) {
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to " + bainType + " Options", true);
+            foreach (Entry entry in archive.FileEntries()) {
                 MapEntryToBainOption(bainMap, entry, archiveModOption);
             }
 
             // Return the mod options we built
-            _backgroundWorker.ReportMessage("Done.  " + bainOptions.Count + " BAIN Options found.", true);
+            _backgroundWorker.ReportMessage("Done.  " + bainOptions.Count + " " + bainType + " Options found.", true);
             return bainOptions.OrderBy(x => x.Name).ToList();
         }
 
         private List<ModOption> AnalyzeFomodArchive(ModOption archiveModOption) {
-            IArchive archive = archiveModOption.Archive;
+            ArchiveFile archive = archiveModOption.Archive;
             _backgroundWorker.ReportMessage("Parsing FOMOD Options", true);
             List<ModOption> fomodOptions = new List<ModOption>();
 
             // STEP 1: Find the fomod/ModuleConfig.xml file and extract it
-            IArchiveEntry configEntry = archive.FindArchiveEntry(@"fomod\ModuleConfig.xml");
+            Entry configEntry = archive.FindArchiveEntry(@"fomod\ModuleConfig.xml");
             _backgroundWorker.ReportMessage("Found FOMOD Config at " + configEntry.GetPath(), false);
 
             Directory.CreateDirectory(@".\fomod");
-            configEntry.WriteToDirectory(@".\fomod", ExtractOptions.Overwrite);
+            configEntry.ExtractToDirectory(@".\fomod");
             _backgroundWorker.ReportMessage("FOMOD Config Extracted", true);
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
-            fomodOptions = fomodConfig.BuildModOptions();
+            fomodOptions = fomodConfig.BuildModOptions(archiveModOption.BaseInstallerPath);
 
             // STEP 3: Loop through the archive's assets appending them to mod options per mapping
             _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
-            foreach (IArchiveEntry entry in archive.Entries) {
+            foreach (Entry entry in archive.FileEntries()) {
                 MapEntryToFomodOption(fomodConfig.FileMap, entry, archiveModOption);
             }
 
@@ -226,11 +234,8 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         private void AnalyzeNormalArchive(ModOption archiveModOption) {
-            IArchive archive = archiveModOption.Archive;
-            foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
-                if (modArchiveEntry.IsDirectory)
-                    continue;
-
+            ArchiveFile archive = archiveModOption.Archive;
+            foreach (Entry modArchiveEntry in archive.FileEntries()) {
                 // append entry path to option assets
                 string entryPath = modArchiveEntry.GetPath();
                 archiveModOption.Assets.Add(entryPath);
@@ -247,7 +252,7 @@ namespace ModAnalyzer.Analysis.Services {
             _backgroundWorker.RunWorkerAsync(archiveModOptions);
         }
 
-        private void MapEntryToOption(IArchiveEntry entry, ModOption option, ModOption archiveModOption) {
+        private void MapEntryToOption(Entry entry, ModOption option, ModOption archiveModOption) {
             string extractedEntryPath = archiveModOption.GetExtractedEntryPath(entry);
             EntryOptionMap.Add(new Tuple<string, ModOption>(extractedEntryPath, option));
         }

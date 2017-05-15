@@ -87,7 +87,7 @@
     <ManifestKeyFile>ModAnalyzer_1_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
-    <GenerateManifests>true</GenerateManifests>
+    <GenerateManifests>false</GenerateManifests>
   </PropertyGroup>
   <PropertyGroup>
     <TargetZone>LocalIntranet</TargetZone>
@@ -145,8 +145,8 @@
       <HintPath>..\packages\Octokit.0.22.0\lib\net45\Octokit.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="SharpCompress, Version=0.11.6.0, Culture=neutral, PublicKeyToken=beaf6f427e128133, processorArchitecture=MSIL">
-      <HintPath>..\packages\sharpcompress.0.11.6\lib\net40\SharpCompress.dll</HintPath>
+    <Reference Include="SevenZipExtractor, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\SevenZipExtractor.1.0.5\lib\net45\SevenZipExtractor.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -174,40 +174,36 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Domain\ArchiveService.cs" />
-    <Compile Include="Domain\AssetArchiveAnalyzer.cs" />
-    <Compile Include="Domain\BainArchiveService.cs" />
-    <Compile Include="Domain\EntryAnalysisJob.cs" />
-    <Compile Include="Domain\FomodArchiveService.cs" />
-    <Compile Include="Domain\FomodFlagDependency.cs" />
-    <Compile Include="Domain\FomodFlag.cs" />
-    <Compile Include="Domain\FomodPattern.cs" />
-    <Compile Include="Domain\FomodConfig.cs" />
-    <Compile Include="Domain\FomodPlugin.cs" />
-    <Compile Include="Domain\FomodFile.cs" />
-    <Compile Include="Domain\BackgroundWorkerExtensions.cs" />
-    <Compile Include="Domain\GameService.cs" />
-    <Compile Include="Domain\MasterPlugin.cs" />
-    <Compile Include="Domain\Game.cs" />
-    <Compile Include="Domain\ArchivesExtractedEventArgs.cs" />
-    <Compile Include="Domain\ModAnalysis.cs" />
-    <Compile Include="Domain\ModAnalyzerService.cs" />
-    <Compile Include="Domain\ModDump.cs" />
-    <Compile Include="Domain\ModOption.cs" />
-    <Compile Include="Domain\OverrideRecord.cs" />
-    <Compile Include="Domain\PluginAnalyzer.cs" />
-    <Compile Include="Domain\PluginDump.cs" />
-    <Compile Include="Domain\PluginError.cs" />
-    <Compile Include="Domain\PluginRecordGroup.cs" />
-    <Compile Include="Domain\MessageReportedEventArgs.cs" />
-    <Compile Include="Messages\AnalysisCompleteMessage.cs" />
-    <Compile Include="Messages\AnalyzeArchivesMessage.cs" />
-    <Compile Include="Messages\MissingMastersMessage.cs" />
+    <Compile Include="Analysis\Services\ArchiveService.cs" />
+    <Compile Include="Analysis\Services\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\Services\BainArchiveService.cs" />
+    <Compile Include="Analysis\Models\EntryAnalysisJob.cs" />
+    <Compile Include="Domain\Services\FomodArchiveService.cs" />
+    <Compile Include="Domain\Fomod\FomodFlagDependency.cs" />
+    <Compile Include="Domain\Fomod\FomodFlag.cs" />
+    <Compile Include="Domain\Fomod\FomodPattern.cs" />
+    <Compile Include="Domain\Fomod\FomodConfig.cs" />
+    <Compile Include="Domain\Fomod\FomodPlugin.cs" />
+    <Compile Include="Domain\Fomod\FomodFile.cs" />
+    <Compile Include="Utils\BackgroundWorkerExtensions.cs" />
+    <Compile Include="Domain\Services\GameService.cs" />
+    <Compile Include="Analysis\Models\MasterPlugin.cs" />
+    <Compile Include="Domain\Models\Game.cs" />
+    <Compile Include="Analysis\Events\ArchivesExtractedEventArgs.cs" />
+    <Compile Include="Analysis\Models\ModAnalysis.cs" />
+    <Compile Include="Analysis\Services\ModAnalyzerService.cs" />
+    <Compile Include="Analysis\Services\ModDump.cs" />
+    <Compile Include="Analysis\Models\ModOption.cs" />
+    <Compile Include="Analysis\Models\OverrideRecord.cs" />
+    <Compile Include="Analysis\Services\PluginAnalyzer.cs" />
+    <Compile Include="Analysis\Models\PluginDump.cs" />
+    <Compile Include="Analysis\Models\PluginError.cs" />
+    <Compile Include="Analysis\Models\PluginRecordGroup.cs" />
+    <Compile Include="Analysis\Events\MessageReportedEventArgs.cs" />
     <Compile Include="Messages\FilesSelectedMessage.cs" />
-    <Compile Include="Messages\ArchivesClassifiedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
-    <Compile Include="Utils\IArchiveEntryExtensions.cs" />
-    <Compile Include="Utils\IArchiveExtensions.cs" />
+    <Compile Include="Utils\ArchiveExtensions.cs" />
+    <Compile Include="Utils\EntryExtensions.cs" />
     <Compile Include="Utils\PathExtensions.cs" />
     <Compile Include="Utils\UpdateUtil.cs" />
     <Compile Include="ViewModels\AnalysisViewModel.cs" />
@@ -215,7 +211,7 @@
     <Compile Include="ViewModels\ExtractArchivesViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
-    <Compile Include="Domain\MissingMaster.cs" />
+    <Compile Include="Analysis\Models\MissingMaster.cs" />
     <Compile Include="ViewModels\PluginMastersViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\AnalysisView.xaml.cs">
@@ -291,7 +287,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="ModAnalyzer_1_TemporaryKey.pfx" />
     <None Include="ModAnalyzer_TemporaryKey.pfx" />
     <None Include="packages.config" />
     <None Include="Properties\app.manifest" />
@@ -305,13 +300,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="lib\BA2Lib.dll">
+    <None Include="BA2Lib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="lib\libbsa.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="ModDumpLib.dll">
+    <None Include="libbsa.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <Resource Include="Views\mod-picker256.png" />
@@ -329,10 +321,19 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="7z-x64.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="7z-x86.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="borlndmm.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="lib\zlib.dll">
+    <Content Include="ModDump.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="zlib.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <!--<Resource Include="FodyWeavers.xml" />-->

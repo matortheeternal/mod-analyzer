@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Domain.Fomod {
     /// <summary>
     /// Used to store information on a fomod file or folder node
     /// </summary>
@@ -37,12 +37,11 @@ namespace ModAnalyzer.Domain {
         }
 
         public bool MatchesPath(string path) {
-            if (Source == "") return false;
             return path.StartsWith(IsFolder ? Path.Combine(Source, "") : Source);
         }
 
         public string ReplaceFolderPath(string path) {
-            if (Destination != "") {
+            if (!string.IsNullOrEmpty(Destination)) {
                 return path.Replace(PathExtensions.AppendDelimiter(Source), PathExtensions.AppendDelimiter(Destination));
             } else {
                 return path.Replace(PathExtensions.AppendDelimiter(Source), Destination);
@@ -52,10 +51,8 @@ namespace ModAnalyzer.Domain {
         public string MappedPath(string path) {
             if (IsFolder) {
                 return ReplaceFolderPath(path).Replace("/", @"\");
-            } else if (Destination != "") {
-                return path.Replace(Source, Destination).Replace("/", @"\");
             } else {
-                return path;
+                return path.Replace(Source, Destination).Replace("/", @"\");
             }
         }
     }

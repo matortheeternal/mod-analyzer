@@ -3,9 +3,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Security.Cryptography;
-using SharpCompress.Archive;
-using System.Linq;
-using ModAnalyzer.Utils;
+using SevenZipExtractor;
 using ModAnalyzer.Analysis.Models;
 using ModAnalyzer.Domain.Services;
 
@@ -14,12 +12,17 @@ namespace ModAnalyzer.Analysis.Models {
     /// Represents a logical component of a mod, e.g. the base mod, a patch, or a fomod option.
     /// </summary>
     public class ModOption {
+        [JsonIgnore]
+        private ArchiveFile _archive;
 
         // PROPERTIES
         [JsonProperty(PropertyName = "name")]
         public string Name { get; set; }
         [JsonProperty(PropertyName = "size")]
         public long Size { get; set; }
+        //[JsonProperty(PropertyName = "unpacked_size")]
+        [JsonIgnore]
+        public long UnpackedSize { get; set; }
         [JsonProperty(PropertyName = "md5_hash")]
         public string MD5Hash { get; set; }
         [JsonProperty(PropertyName = "default")]
@@ -33,11 +36,20 @@ namespace ModAnalyzer.Analysis.Models {
         [JsonIgnore]
         public string SourceFilePath { get; set; }
         [JsonIgnore]
-        public IArchive Archive { get; set; }
+        public ArchiveFile Archive {
+            get {
+                if (_archive == null) {
+                    _archive = new ArchiveFile(SourceFilePath);
+                }
+                return _archive;
+            }
+        }
         [JsonIgnore]
         public bool IsArchiveInstaller { get; set; }
         [JsonIgnore]
         public bool IsBainArchive { get; set; }
+        [JsonIgnore]
+        public bool IsFlexArchive { get; set; }
         [JsonIgnore]
         public bool IsFomodArchive { get; set; }
         [JsonIgnore]
@@ -45,7 +57,7 @@ namespace ModAnalyzer.Analysis.Models {
         [JsonIgnore]
         public string BaseInstallerPath { get; set; }
         [JsonIgnore]
-        public List<IArchiveEntry> EntriesToExtract { get; set; }
+        public List<Entry> EntriesToExtract { get; set; }
         [JsonIgnore]
         public List<string> PluginPaths { get; set; }
         [JsonIgnore]
@@ -62,8 +74,7 @@ namespace ModAnalyzer.Analysis.Models {
             this.Name = Name;
             this.Default = Default;
             this.SourceFilePath = SourceFilePath;
-            Archive = ArchiveFactory.Open(SourceFilePath);
-            Size = Archive.TotalUncompressSize;
+            Size = (new FileInfo(SourceFilePath)).Length;
             CreateLists();
             GetInstallerType();
         }
@@ -80,7 +91,7 @@ namespace ModAnalyzer.Analysis.Models {
         public void CreateLists() {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
-            EntriesToExtract = new List<IArchiveEntry>();
+            EntriesToExtract = new List<Entry>();
             PluginPaths = new List<string>();
             ArchivePaths = new List<string>();
         }
@@ -105,13 +116,13 @@ namespace ModAnalyzer.Analysis.Models {
             int index = archiveAssetPath.IndexOf(archiveFileName);
             if (index > -1) {
                 return archivePath + archiveAssetPath.Substring(index + archiveFileName.Length);
-            } else {
+            }
+            else {
                 return archiveAssetPath;
             }
         }
 
-        public void AddArchiveAssetPaths(string archiveFilePath, List<string> archiveAssetPaths) {
-            string archiveFileName = Path.GetFileName(archiveFilePath);
+        public void AddArchiveAssetPaths(string archiveFileName, List<string> archiveAssetPaths) {
             string archivePath = Assets.Find(asset => Path.GetFileName(asset) == archiveFileName);
             if (archivePath == null) return;
             foreach (string archiveAssetPath in archiveAssetPaths) {
@@ -123,9 +134,20 @@ namespace ModAnalyzer.Analysis.Models {
         public void AddPluginDump(PluginDump dump) {
             Plugins.Add(dump);
         }
-        
-        public string GetExtractedEntryPath(IArchiveEntry entry) {
-            return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.GetPath());
+
+        public string GetExtractedEntryPath(Entry entry) {
+            return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.FileName);
+        }
+
+        public void CloseArchive() {
+            if (_archive != null) {
+                _archive.Dispose();
+                _archive = null;
+            }
+        }
+
+        public List<string> GetInstallerDirectories(bool data = true) {
+            return BainArchiveService.GetDirectories(Archive, BaseInstallerPath, data);
         }
 
         // BAIN ARCHIVE HANDLING
@@ -139,19 +161,14 @@ namespace ModAnalyzer.Analysis.Models {
             return IsBainArchive;
         }
 
-        public List<string> GetValidBainDirectories() {
-            return BainArchiveService.GetValidDirectories(Archive, BaseInstallerPath);
-        }
-
         // FOMOD ARCHIVE HANDLING
         private bool GetIsFomodArchive() {
-            IArchiveEntry FomodConfigEntry = FomodArchiveService.GetFomodConfig(Archive);
+            Entry FomodConfigEntry = FomodArchiveService.GetFomodConfig(Archive);
             if (FomodConfigEntry != null) {
                 IsFomodArchive = true;
-                FomodConfigPath = FomodConfigEntry.GetPath();
+                FomodConfigPath = FomodConfigEntry.FileName;
                 BaseInstallerPath = FomodArchiveService.GetBasePath(FomodConfigPath);
             }
-
             return IsFomodArchive;
         }
     }

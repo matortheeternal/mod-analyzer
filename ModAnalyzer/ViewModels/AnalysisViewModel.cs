@@ -1,12 +1,13 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
-using ModAssetMapper;
+using ModAnalyzer.Analysis.Events;
+using ModAnalyzer.Analysis.Services;
+using ModAnalyzer.Analysis.Models;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows.Input;
+using System.Collections.Generic;
 
 namespace ModAnalyzer.ViewModels {
     public class AnalysisViewModel : ViewModelBase {
@@ -33,14 +34,12 @@ namespace ModAnalyzer.ViewModels {
         public AnalysisViewModel() {
             CanReset = false;
 
-            _modAnalyzerService = new ModAnalyzerService();
-            _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
-            _modAnalyzerService.AnalysisCompleted += _modAnalyzerService_AnalysisComplete;
-
-            ResetCommand = new RelayCommand(() => MessengerInstance.Send(new AnalysisCompleteMessage()));
+            ResetCommand = new RelayCommand(Reset);
             ViewOutputCommand = new RelayCommand(() => Process.Start("output"));
+        }
 
-            MessengerInstance.Register<AnalyzeArchivesMessage>(this, OnAnalyzeArchives);
+        private void Reset() {
+            MessengerInstance.Send(new NavigationMessage("Home"));
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
@@ -56,9 +55,17 @@ namespace ModAnalyzer.ViewModels {
             RaisePropertyChanged("CanReset");
         }
 
-        private void OnAnalyzeArchives(AnalyzeArchivesMessage message) {
+        private void StartModAnalyzerService() {
+            if (_modAnalyzerService != null) return;
+            _modAnalyzerService = new ModAnalyzerService();
+            _modAnalyzerService.MessageReported += _modAnalyzerService_MessageReported;
+            _modAnalyzerService.AnalysisCompleted += _modAnalyzerService_AnalysisComplete;
+        }
+
+        public void StartAnalysis(List<ModOption> ModOptions) {
             Log = string.Empty;
-            _modAnalyzerService.AnalyzeMod(message.ModOptions);
+            StartModAnalyzerService();
+            _modAnalyzerService.AnalyzeMod(ModOptions);
         }
     }
 }

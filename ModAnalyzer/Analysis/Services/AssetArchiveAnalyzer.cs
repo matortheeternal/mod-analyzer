@@ -35,7 +35,8 @@ namespace ModAnalyzer.Analysis.Services {
             string archiveExt = Path.GetExtension(archivePath);
             if (archiveExt.Equals(".bsa", StringComparison.InvariantCultureIgnoreCase)) {
                 assets = GetBSAAssets(archivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
-            } else {
+            }
+            else {
                 assets = GetBA2Assets(archivePath).Select(asset => PrepareAssetPath(assetArchiveKey, asset)).ToList();
             }
 

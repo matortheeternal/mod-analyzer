@@ -1,3 +1,4 @@
+using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Ioc;
 
 namespace ModAnalyzer.ViewModels {
@@ -17,5 +18,13 @@ namespace ModAnalyzer.ViewModels {
         public ClassifyArchivesViewModel ClassifyArchivesViewModel { get { return SimpleIoc.Default.GetInstance<ClassifyArchivesViewModel>(); } }
         public ExtractArchivesViewModel ExtractArchivesViewModel { get { return SimpleIoc.Default.GetInstance<ExtractArchivesViewModel>(); } }
         public PluginMastersViewModel PluginMastersViewModel { get { return SimpleIoc.Default.GetInstance<PluginMastersViewModel>(); } }
+
+        public ViewModelBase ViewModelByName(string viewModelName) {
+            return (ViewModelBase)GetType().GetProperty(viewModelName).GetValue(this, null);
+        }
+
+        public static ViewModelLocator Instance() {
+            return (ViewModelLocator)App.Current.Resources["ViewModelLocator"];
+        }
     }
 }

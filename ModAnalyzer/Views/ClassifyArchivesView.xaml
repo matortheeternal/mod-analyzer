@@ -7,67 +7,91 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ClassifyArchivesViewModel}" 
-              AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
-    <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="10">
-            <TextBlock TextWrapping="Wrap">
-            Please review the archives to be analyzed and make certain that all archives excluding old versions are listed below.  You can drag and drop or click the "Add Archives" button to add additional archives.  Check "Default" for required base archives.
-            </TextBlock>
-            <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
-                    IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="FullRow">
-                <DataGrid.RowStyle>
-                    <Style TargetType="DataGridRow">
-                        <Setter Property="Background" Value="#FF444444"/>
-                    </Style>
-                </DataGrid.RowStyle>
-                <DataGrid.CellStyle>
-                    <Style TargetType="DataGridCell">
-                        <Setter Property="Focusable" Value="False" />
-                        <Setter Property="BorderBrush" Value="Transparent"/>
-                        <Setter Property="Background" Value="#FF444444"/>
-                        <Setter Property="MinHeight" Value="40"/>
-                    </Style>
-                </DataGrid.CellStyle>
-                <DataGrid.Columns>
-                    <DataGridTemplateColumn Header="Default">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox x:Name="Default" IsChecked="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="FOMOD">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"                                      IsEnabled="{Binding IsArchiveInstaller}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="BAIN">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsArchiveInstaller}"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                    <DataGridTemplateColumn Header="Filename">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Label Content="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0"></Label>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
-            <DockPanel>
-                <StackPanel Orientation="Horizontal" Margin="0 10">
+             AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
+    <DockPanel>
+        <Border DockPanel.Dock="Bottom" BorderThickness="0,1,0,0" BorderBrush="Gray">
+            <DockPanel Margin="10">
+                <StackPanel Orientation="Horizontal" Margin="0 10" DockPanel.Dock="Left">
                     <Button Command="{Binding AddArchiveCommand}" Content="ADD ARCHIVES" HorizontalAlignment="Left" />
-                    <Button Command="{Binding AnalyzeCommand}" Content="ANALYZE" HorizontalAlignment="Left" Margin="5 0 0 0" />
+                    <Button Command="{Binding AnalyzeCommand}" Style="{StaticResource MaterialDesignRaisedAccentButton}"  Content="ANALYZE" HorizontalAlignment="Left" Margin="5 0 0 0" />
                 </StackPanel>
-                <StackPanel Margin="0 10" HorizontalAlignment="Right">
+                <StackPanel Margin="0 10" DockPanel.Dock="Right" HorizontalAlignment="Right">
                     <materialDesign:PackIcon Kind="ArrowLeftBoldCircleOutline" Foreground="LightGray" Background="Transparent" Cursor="Hand" Width="32" Height="32" VerticalAlignment="Top" MouseDown="PackIcon_MouseDown" />
                 </StackPanel>
             </DockPanel>
-        </StackPanel>
-    </ScrollViewer>
+        </Border>
+        <ScrollViewer VerticalScrollBarVisibility="Auto" DockPanel.Dock="Top">
+            <StackPanel Margin="10">
+                <TextBlock TextWrapping="Wrap">
+                    Set the game mode for this analysis and review the archives to be analyzed.  Make certain that all archives excluding old versions are listed below.  You can drag and drop or click the "Add Archives" button to add additional archives.  Check "Default" for required base archives.
+                </TextBlock>
+                <StackPanel Orientation="Horizontal" Margin="10">
+                    <Label>Game Mode</Label>
+                    <ComboBox Width="100" SelectedIndex="{Binding SelectedGameIndex, Mode=TwoWay}" IsReadOnly="True" Padding="5,6" Margin="15 0 0 0" SelectionChanged="comboBox_SelectionChanged">
+                        <!-- Untested game modes are hidden -->
+                        <ComboBoxItem Content="FalloutNV" Visibility="Collapsed"/>
+                        <ComboBoxItem Content="Fallout3" Visibility="Collapsed"/>
+                        <ComboBoxItem Content="Oblivion" Visibility="Collapsed"/>
+                        <ComboBoxItem Content="Skyrim"/>
+                        <ComboBoxItem Content="Fallout4" Visibility="Collapsed"/>
+                        <ComboBoxItem Content="SkyrimSE"/>
+                    </ComboBox>
+                </StackPanel>
+                <DataGrid ItemsSource="{Binding ArchiveModOptions, Mode=OneWay}" Margin="0 10 0 0" 
+                    IsReadOnly="True" AutoGenerateColumns="False" SelectionUnit="FullRow">
+                    <!-- TODO: Put this into a shared style resource. -->
+                    <DataGrid.RowStyle>
+                        <Style TargetType="DataGridRow">
+                            <Setter Property="Background" Value="#FF444444"/>
+                        </Style>
+                    </DataGrid.RowStyle>
+                    <DataGrid.CellStyle>
+                        <Style TargetType="DataGridCell">
+                            <Setter Property="Focusable" Value="False" />
+                            <Setter Property="BorderBrush" Value="Transparent"/>
+                            <Setter Property="Background" Value="#FF444444"/>
+                            <Setter Property="MinHeight" Value="40"/>
+                        </Style>
+                    </DataGrid.CellStyle>
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Default">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="Default" IsChecked="{Binding Default, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="FOMOD">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="FOMOD" IsChecked="{Binding IsFomodArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"                                      IsEnabled="{Binding IsArchiveInstaller}" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="BAIN">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="BAIN" IsChecked="{Binding IsBainArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" IsEnabled="{Binding IsArchiveInstaller}"  VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="FLEX">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <CheckBox x:Name="FLEX" IsChecked="{Binding IsFlexArchive, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center" HorizontalAlignment="Center" ToolTip="BAIN structure with no data requirement."/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                        <DataGridTemplateColumn Header="Filename">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Label Content="{Binding Name, Mode=OneWay}" VerticalAlignment="Center" Margin="10,0,0,0"></Label>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+                    </DataGrid.Columns>
+                </DataGrid>
+            </StackPanel>
+        </ScrollViewer>
+    </DockPanel>
 </UserControl>

@@ -9,7 +9,7 @@ namespace ModAnalyzer.Messages {
         public bool ReplaceSelection { get; set; }
         private static readonly string[] archiveExts = { ".zip", ".7z", ".rar" };
 
-        public FilesSelectedMessage(List<string> filePaths, bool replace) : base(Page.ClassifyArchives) {
+        public FilesSelectedMessage(List<string> filePaths, bool replace) : base("ClassifyArchives") {
             FilePaths = filePaths;
             ReplaceSelection = replace;
         }
@@ -19,7 +19,6 @@ namespace ModAnalyzer.Messages {
                 fileName => archiveExts.Contains(Path.GetExtension(fileName))
             ).ToList();
             if (validArchives.Count == 0) return;
-
             MessengerInstance.Send(new FilesSelectedMessage(validArchives, replace));
         }
     }

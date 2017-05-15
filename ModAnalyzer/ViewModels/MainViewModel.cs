@@ -1,6 +1,5 @@
 using GalaSoft.MvvmLight;
 using ModAnalyzer.Messages;
-using ModAssetMapper;
 
 namespace ModAnalyzer.ViewModels {
     public class MainViewModel : ViewModelBase {
@@ -14,31 +13,14 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public MainViewModel() {
-            _viewModelLocator = (ViewModelLocator)App.Current.Resources["ViewModelLocator"];
-
+            _viewModelLocator = ViewModelLocator.Instance();
             CurrentViewModel = _viewModelLocator.HomeViewModel;
-
             MessengerInstance.Register<NavigationMessage>(this, true, OnNavigationMessageReceived);
         }
 
         private void OnNavigationMessageReceived(NavigationMessage message) {
-            switch (message.Page) {
-                case Page.Analysis:
-                    CurrentViewModel = _viewModelLocator.AnalysisViewModel;
-                    break;
-                case Page.Home:
-                    CurrentViewModel = _viewModelLocator.HomeViewModel;
-                    break;
-                case Page.ClassifyArchives:
-                    CurrentViewModel = _viewModelLocator.ClassifyArchivesViewModel;
-                    break;
-                case Page.ExtractArchives:
-                    CurrentViewModel = _viewModelLocator.ExtractArchivesViewModel;
-                    break;
-                case Page.PluginMasters:
-                    CurrentViewModel = _viewModelLocator.PluginMastersViewModel;
-                    break;
-            }
+            //LogService.GroupMessage("views", "Navigated to " + message.ViewModelName);
+            CurrentViewModel = _viewModelLocator.ViewModelByName(message.ViewModelName);
         }
     }
 }

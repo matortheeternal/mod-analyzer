@@ -1,9 +1,10 @@
 ﻿using GalaSoft.MvvmLight;
 using ModAnalyzer.Messages;
-using ModAnalyzer.Domain;
-using ModAssetMapper;
+using ModAnalyzer.Analysis.Events;
 using System;
 using System.Collections.Generic;
+using ModAnalyzer.Analysis.Services;
+using ModAnalyzer.Analysis.Models;
 
 namespace ModAnalyzer.ViewModels {
     public class ExtractArchivesViewModel : ViewModelBase {
@@ -21,8 +22,6 @@ namespace ModAnalyzer.ViewModels {
             _archiveService = new ArchiveService();
             _archiveService.MessageReported += _archiveService_MessageReported;
             _archiveService.ArchivesExtracted += _archiveService_ArchivesExtracted;
-
-            MessengerInstance.Register<ArchivesClassifiedMessage>(this, OnArchivesClassified);
         }
 
         private void _archiveService_MessageReported(object sender, MessageReportedEventArgs e) {
@@ -33,14 +32,17 @@ namespace ModAnalyzer.ViewModels {
 
         private void _archiveService_ArchivesExtracted(object sender, ArchivesExtractedEventArgs e) {
             if (e.HasMissingMasters) {
-                MessengerInstance.Send(new MissingMastersMessage(e.MissingMasters, ModOptions));
-            } else {
-                MessengerInstance.Send(new AnalyzeArchivesMessage(ModOptions));
+                MessengerInstance.Send(new NavigationMessage("PluginMasters"));
+                ViewModelLocator.Instance().PluginMastersViewModel.InitMissingMasters(e.MissingMasters, ModOptions);
+            }
+            else {
+                MessengerInstance.Send(new NavigationMessage("Analysis"));
+                ViewModelLocator.Instance().AnalysisViewModel.StartAnalysis(ModOptions);
             }
         }
 
-        private void OnArchivesClassified(ArchivesClassifiedMessage message) {
-            ModOptions = message.ModOptions;
+        public void OnArchivesClassified(List<ModOption> ModOptions) {
+            this.ModOptions = ModOptions;
             _archiveService.ExtractArchives(ModOptions);
         }
     }

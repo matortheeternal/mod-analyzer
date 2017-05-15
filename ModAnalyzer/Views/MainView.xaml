@@ -6,7 +6,7 @@
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
         xmlns:viewModels="clr-namespace:ModAnalyzer.ViewModels"
         xmlns:views="clr-namespace:ModAnalyzer.Views"
-        xmlns:local="clr-namespace:ModAssetMapper"
+        xmlns:local="clr-namespace:ModAnalyzer"
         mc:Ignorable="d"
         TextElement.Foreground="{DynamicResource MaterialDesignBody}"
         Background="#FF292929"

@@ -1,6 +1,5 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
 using ModAnalyzer.Utils;
 using System;
@@ -11,15 +10,10 @@ using System.Windows.Input;
 
 namespace ModAnalyzer.ViewModels {
     public class HomeViewModel : ViewModelBase {
-
         public ICommand BrowseCommand { get; set; }
         public ICommand UpdateCommand { get; set; }
-        public Visibility LockVisibility { get; set; } = Visibility.Collapsed;
         public int SelectedGameIndex { get; set; } = 3; // default to Skyrim game mode
         public bool CanChangeGameMode { get; set; } = true;
-        public string GameToolTip { get; set; } = 
-            "You must restart the program to change the" + Environment.NewLine + 
-            "game mode after analyzing a plugin file.";
 
         private bool _isUpdateAvailable;
 
@@ -35,21 +29,6 @@ namespace ModAnalyzer.ViewModels {
 
             // initialize game combobox and check for program updates
             CheckForUpdate();
-
-            // set up message listeners
-            MessengerInstance.Register<AnalysisCompleteMessage>(this, OnAnalysisComplete);
-        }
-
-        private void OnAnalysisComplete(AnalysisCompleteMessage message) {
-            UpdateGameComboBox();
-        }
-
-        public void UpdateGameComboBox() {
-            if (GameService.currentGame != null) {
-                SelectedGameIndex = GameService.currentGame.gameMode;
-            }
-            CanChangeGameMode = !ModDump.started;
-            LockVisibility = CanChangeGameMode ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void OpenDownloadPage() {

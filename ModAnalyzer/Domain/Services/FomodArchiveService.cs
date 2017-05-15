@@ -1,10 +1,10 @@
 ﻿using System;
-using SharpCompress.Archive;
 using ModAnalyzer.Utils;
+using SevenZipExtractor;
 
 namespace ModAnalyzer.Domain.Services {
     public static class FomodArchiveService {
-        public static IArchiveEntry GetFomodConfig(IArchive archive) {
+        public static Entry GetFomodConfig(ArchiveFile archive) {
             return archive.FindArchiveEntry(@"fomod\ModuleConfig.xml");
         }
 

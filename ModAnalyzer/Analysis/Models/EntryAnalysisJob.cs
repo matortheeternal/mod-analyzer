@@ -1,4 +1,4 @@
-﻿using SharpCompress.Archive;
+﻿using SevenZipExtractor;
 using System;
 using System.Collections.Generic;
 
@@ -7,10 +7,10 @@ namespace ModAnalyzer.Analysis.Models {
     /// A job to analyze a BSA, BA2, ESP, or ESM in a mod.
     /// </summary>
     public class EntryAnalysisJob {
-        public IArchiveEntry Entry { get; set; }
+        public Entry Entry { get; set; }
         public List<ModOption> Options { get; set; }
 
-        public EntryAnalysisJob(IArchiveEntry Entry, ModOption Option) {
+        public EntryAnalysisJob(Entry Entry, ModOption Option) {
             this.Entry = Entry;
             Options = new List<ModOption>();
             Options.Add(Option);

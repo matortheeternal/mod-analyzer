@@ -1,12 +1,12 @@
-﻿using ModAnalyzer.Analysis.Events;
+﻿using ModAnalyzer.Utils;
 using ModAnalyzer.Analysis.Models;
-using ModAnalyzer.Utils;
-using SharpCompress.Archive;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using SevenZipExtractor;
+using ModAnalyzer.Analysis.Events;
 
 namespace ModAnalyzer.Analysis.Services {
     class ArchiveService {
@@ -49,6 +49,7 @@ namespace ModAnalyzer.Analysis.Services {
         // Background job to extract an archive
         private void BackgroundWork(object sender, DoWorkEventArgs e) {
             ArchiveModOptions = e.Argument as List<ModOption>;
+            ArchiveModOptions.ForEach(x => x.CloseArchive());
 
             try {
                 // find plugins and BSAs from each archive, extract them, and check for missing masters
@@ -63,6 +64,7 @@ namespace ModAnalyzer.Analysis.Services {
             }
 
             // tell the view model we're done extracting things
+            ArchiveModOptions.ForEach(x => x.CloseArchive());
             ArchivesExtracted?.Invoke(this, new ArchivesExtractedEventArgs(MissingMasters));
         }
 
@@ -70,7 +72,8 @@ namespace ModAnalyzer.Analysis.Services {
             MissingMaster existingEntry = MissingMasters.Find(x => x.FileName == missingMasterFile);
             if (existingEntry != null) {
                 existingEntry.AddRequiredBy(pluginFileName);
-            } else {
+            }
+            else {
                 MissingMasters.Add(new MissingMaster(missingMasterFile, pluginFileName));
             }
         }
@@ -92,27 +95,26 @@ namespace ModAnalyzer.Analysis.Services {
             }
         }
 
-        private void ExtractEntry(ModOption archiveModOption, IArchiveEntry entry) {
+        private void ExtractEntry(ModOption archiveModOption, Entry entry) {
             string destinationPath = archiveModOption.GetExtractedEntryPath(entry);
+            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+            entry.Extract(destinationPath);
             string entryExt = Path.GetExtension(destinationPath);
-            if (!File.Exists(destinationPath)) {
-                Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-                entry.WriteToFile(destinationPath);
-            }
             if (pluginExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
                 archiveModOption.PluginPaths.Add(destinationPath);
-            } else if (archiveExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
+            }
+            else if (archiveExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
                 archiveModOption.ArchivePaths.Add(destinationPath);
             }
         }
 
         private void FindEntriesToExtract() {
             foreach (ModOption archiveModOption in ArchiveModOptions) {
-                IArchive archive = archiveModOption.Archive;
-                foreach (IArchiveEntry modArchiveEntry in archive.Entries) {
+                ArchiveFile archive = archiveModOption.Archive;
+                foreach (Entry modArchiveEntry in archive.Entries) {
+                    if (modArchiveEntry.IsFolder) continue;
                     string entryExt = modArchiveEntry.GetEntryExtension();
                     if (jobFileExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
-                        if (PathExtensions.InvalidPluginPath(modArchiveEntry.GetPath())) continue;
                         archiveModOption.EntriesToExtract.Add(modArchiveEntry);
                     }
                 }
@@ -127,12 +129,13 @@ namespace ModAnalyzer.Analysis.Services {
                 for (int i = 0; i < archiveModOption.EntriesToExtract.Count; i++) {
                     try {
                         tracker += 1;
-                        IArchiveEntry entryToExtract = archiveModOption.EntriesToExtract[i];
-                        string fileName = Path.GetFileName(entryToExtract.GetPath());
+                        Entry entryToExtract = archiveModOption.EntriesToExtract[i];
+                        string fileName = Path.GetFileName(entryToExtract.FileName);
                         string countString = " (" + tracker + "/" + total + ")";
                         _backgroundWorker.ReportMessage("Extracting " + fileName + countString, true);
                         ExtractEntry(archiveModOption, entryToExtract);
-                    } catch (Exception x) {
+                    }
+                    catch (Exception x) {
                         _backgroundWorker.ReportMessage(x.Message, false);
                     }
                 }

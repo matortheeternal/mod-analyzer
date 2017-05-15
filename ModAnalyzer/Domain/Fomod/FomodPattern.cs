@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Domain.Fomod {
     public class FomodPattern {
         public List<FomodFile> Files { get; }
         public List<FomodFlagDependency> Dependencies { get; }
-        public bool HasComplexDependencies { get; }
 
-        public FomodPattern(XmlNode node){ 
+        public FomodPattern(XmlNode node) {
             XmlNode filesNode = node["files"];
             if (filesNode != null) {
                 Files = FomodFile.FromNodes(filesNode.ChildNodes);
@@ -16,7 +14,6 @@ namespace ModAnalyzer.Domain {
 
             XmlNode dependenciesNode = node["dependencies"];
             if (dependenciesNode != null) {
-                HasComplexDependencies = GetHasComplexDependencies(dependenciesNode);
                 Dependencies = FomodFlagDependency.FromNodes(dependenciesNode.ChildNodes);
             }
         }
@@ -29,23 +26,6 @@ namespace ModAnalyzer.Domain {
                 }
             }
             return patterns;
-        }
-
-        private bool GetHasComplexDependencies(XmlNode dependenciesNode) {
-            XmlAttribute operatorAttribute = dependenciesNode.Attributes["operator"];
-            bool usesAndOperator = (operatorAttribute != null) && (operatorAttribute.Value == "And");
-            bool hasMultipleDependencies = dependenciesNode.ChildNodes.Count > 1;
-            bool hasNestedDependencies = GetHasNestedDependencies(dependenciesNode.ChildNodes);
-            return hasNestedDependencies || (usesAndOperator && hasMultipleDependencies);
-        }
-
-        private bool GetHasNestedDependencies(XmlNodeList nodes) {
-            foreach (XmlNode node in nodes) {
-                if (node.Name.Equals("dependencies", StringComparison.OrdinalIgnoreCase)) {
-                    return true;
-                }
-            }
-            return false;
         }
     }
 }

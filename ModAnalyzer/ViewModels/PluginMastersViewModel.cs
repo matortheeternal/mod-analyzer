@@ -1,7 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
-using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
+using ModAnalyzer.Analysis.Models;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
@@ -15,20 +15,20 @@ namespace ModAnalyzer.ViewModels {
         public PluginMastersViewModel() {
             MissingMasters = new ObservableCollection<MissingMaster>();
             ContinueCommand = new RelayCommand(Continue);
-            MessengerInstance.Register<MissingMastersMessage>(this, OnMissingMasters);
         }
 
-        private void OnMissingMasters(MissingMastersMessage message) {
-            foreach (var item in message.MissingMasters) MissingMasters.Add(item);
-            ModOptions = message.ModOptions;
+        public void InitMissingMasters(List<MissingMaster> MissingMasters, List<ModOption> ModOptions) {
+            foreach (var item in MissingMasters) this.MissingMasters.Add(item);
+            ModOptions = this.ModOptions;
         }
 
         private void Continue() {
-            MessengerInstance.Send(new AnalyzeArchivesMessage(ModOptions));
+            MessengerInstance.Send(new NavigationMessage("Analysis"));
+            ViewModelLocator.Instance().AnalysisViewModel.StartAnalysis(ModOptions);
         }
 
         public void Back() {
-            MessengerInstance.Send(new NavigationMessage(Page.ClassifyArchives));
+            MessengerInstance.Send(new NavigationMessage("ClassifyArchives"));
         }
     }
 }

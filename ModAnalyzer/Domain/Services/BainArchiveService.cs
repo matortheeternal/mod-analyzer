@@ -1,9 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using SharpCompress.Archive;
 using System.Collections.Generic;
 using ModAnalyzer.Utils;
+using SevenZipExtractor;
 
 namespace ModAnalyzer.Domain.Services {
     public static class BainArchiveService {
@@ -16,7 +16,7 @@ namespace ModAnalyzer.Domain.Services {
         private static readonly string[] dataExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
 
         // METHODS
-        private static bool IsValidDataDirectory(IArchive archive, string directory) {
+        private static bool IsDataDirectory(ArchiveFile archive, string directory) {
             List<string> childrenDirectories = archive.GetImmediateChildren(directory, true);
             foreach (string childDirectory in childrenDirectories) {
                 if (dataDirectories.Contains(Path.GetFileName(childDirectory), StringComparer.OrdinalIgnoreCase)) {
@@ -38,28 +38,30 @@ namespace ModAnalyzer.Domain.Services {
             return dirName == "fomod" || dirName == "omod conversion data" || dirName.StartsWith("--");
         }
 
-        public static List<string> GetValidDirectories(IArchive archive, string directoryPath) {
+        public static List<string> GetDirectories(ArchiveFile archive, string directoryPath, bool data = true) {
             List<string> bainDirectories;
             if (directoryPath == "") {
                 bainDirectories = archive.GetLevelDirectories(1);
-            } else {
+            }
+            else {
                 string directoryName = Path.GetDirectoryName(directoryPath);
                 bainDirectories = archive.GetImmediateChildren(directoryName, true);
             }
 
             return bainDirectories.FindAll(d => {
-                return !SkipBainDirectory(Path.GetFileName(d)) && IsValidDataDirectory(archive, d);
+                return !SkipBainDirectory(Path.GetFileName(d)) && (!data || IsDataDirectory(archive, d));
             });
         }
 
-        public static bool IsBainDirectory(IArchive archive, string directoryPath) {
+        public static bool IsBainDirectory(ArchiveFile archive, string directoryPath) {
             int validDirectories = 0;
             int invalidDirectories = 0;
             foreach (string childDirectory in archive.GetImmediateChildren(directoryPath, true)) {
                 if (SkipBainDirectory(childDirectory)) continue;
-                if (IsValidDataDirectory(archive, childDirectory)) {
+                if (IsDataDirectory(archive, childDirectory)) {
                     validDirectories++;
-                } else {
+                }
+                else {
                     invalidDirectories++;
                 }
             }
@@ -67,7 +69,7 @@ namespace ModAnalyzer.Domain.Services {
             return validDirectories > 1;
         }
 
-        public static string GetBasePath(IArchive archive) {
+        public static string GetBasePath(ArchiveFile archive) {
             // check if top level directory is a BAIN installer
             if (IsBainDirectory(archive, "")) {
                 return "";

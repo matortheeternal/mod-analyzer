@@ -1,31 +1,34 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.CommandWpf;
-using ModAnalyzer.Domain;
 using ModAnalyzer.Messages;
-using System;
+using ModAnalyzer.Analysis.Models;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Windows;
-using System.Windows.Data;
 using System.Windows.Forms;
 using System.Windows.Input;
+using ModAnalyzer.Domain.Services;
 
 namespace ModAnalyzer.ViewModels {
     public class ClassifyArchivesViewModel : ViewModelBase {
         public ObservableCollection<ModOption> ArchiveModOptions { get; set; }
-        public VisibilityConverter VisibilityConverter1 { get; set; }
         public ICommand AnalyzeCommand { get; set; }
         public ICommand AddArchiveCommand { get; set; }
+        public int SelectedGameIndex { get; set; } = 3; // default to Skyrim game mode
 
         public ClassifyArchivesViewModel() {
             ArchiveModOptions = new ObservableCollection<ModOption>();
             AnalyzeCommand = new RelayCommand(AnalyzeMod);
             AddArchiveCommand = new RelayCommand(AddArchive);
-            VisibilityConverter1 = new VisibilityConverter();
 
             MessengerInstance.Register<FilesSelectedMessage>(this, OnFilesSelected);
+        }
+
+        public void UpdateGameComboBox() {
+            if (GameService.currentGame == null) {
+                GameService.SetGame("Skyrim");
+            }
+            SelectedGameIndex = GameService.currentGame.gameMode;
         }
 
         private bool ArchiveModOptionExists(string filePath) {
@@ -34,8 +37,9 @@ namespace ModAnalyzer.ViewModels {
             ).FirstOrDefault();
             return existingArchiveOption != null;
         }
-                
+
         private void OnFilesSelected(FilesSelectedMessage message) {
+            UpdateGameComboBox();
             if (message.ReplaceSelection) ArchiveModOptions.Clear();
             bool oneFilePath = message.FilePaths.Count == 1;
 
@@ -47,11 +51,12 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public void Back() {
-            MessengerInstance.Send(new NavigationMessage(Page.Home));
+            MessengerInstance.Send(new NavigationMessage("Home"));
         }
 
         private void AnalyzeMod() {
-            MessengerInstance.Send(new ArchivesClassifiedMessage(ArchiveModOptions.ToList()));
+            MessengerInstance.Send(new NavigationMessage("ExtractArchives"));
+            ViewModelLocator.Instance().ExtractArchivesViewModel.OnArchivesClassified(ArchiveModOptions.ToList());
         }
 
         private void AddArchive() {
@@ -68,19 +73,6 @@ namespace ModAnalyzer.ViewModels {
 
         public void AnalyzeArchives(string[] fileNames) {
             FilesSelectedMessage.SelectArchives(fileNames, MessengerInstance, false);
-        }
-    }
-
-    public class VisibilityConverter : IValueConverter {
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            bool visibility = (bool)value;
-            return visibility ? Visibility.Visible : Visibility.Collapsed;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) {
-            Visibility visibility = (Visibility)value;
-            return (visibility == Visibility.Visible);
         }
     }
 }

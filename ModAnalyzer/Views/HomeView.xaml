@@ -8,18 +8,6 @@
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop" Width="700">
     <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="700">
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,20,-20">
-            <materialDesign:PackIcon Kind="Lock" Margin="0,5,10,0" Visibility="{Binding LockVisibility}" ToolTip="{Binding GameToolTip}" Foreground="White"/>
-            <ComboBox x:Name="GameComboBox" VerticalAlignment="Stretch" Width="100" SelectedIndex="{Binding SelectedGameIndex, Mode=TwoWay}" IsEnabled="{Binding CanChangeGameMode}" Foreground="White" IsReadOnly="True" Padding="0,4,0,5" Background="#00000000" SelectionChanged="comboBox_SelectionChanged">
-                <!-- Untested game modes are hidden -->
-                <ComboBoxItem Content="FalloutNV" Visibility="Collapsed"/>
-                <ComboBoxItem Content="Fallout3" Visibility="Collapsed"/>
-                <ComboBoxItem Content="Oblivion" Visibility="Collapsed"/>
-                <ComboBoxItem Content="Skyrim"/>
-                <ComboBoxItem Content="Fallout4" Visibility="Collapsed"/>
-                <ComboBoxItem Content="SkyrimSE"/>
-            </ComboBox>
-        </StackPanel>
         <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
