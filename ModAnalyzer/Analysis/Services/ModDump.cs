@@ -13,7 +13,7 @@ namespace ModAnalyzer.Analysis.Services {
 
         private static string GameArg {
             get {
-                return GameService.currentGame.abbrName;
+                return GameService.CurrentGame.abbrName;
             }
         }
         private static string LastOutputLine;

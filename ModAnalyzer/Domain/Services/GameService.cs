@@ -5,9 +5,12 @@ using System.IO;
 
 namespace ModAnalyzer.Domain.Services {
     public static class GameService {
-        public static string gamePath { get; set; }
-        public static string dataPath { get; set; }
-        public static Game currentGame { get; set; }
+        public static Game CurrentGame { get; set; }
+        public static string DataPath {
+            get {
+                return SettingsService.GamePath(CurrentGame.gameName);
+            }
+        }
 
         // TODO: Move this to a JSON file that is loaded at runtime
         // (even better if it can be packaged with the executable as a resource)
@@ -21,12 +24,14 @@ namespace ModAnalyzer.Domain.Services {
                 new Game { longName = "Skyrim Special Edition", gameName = "SkyrimSE", abbrName = "sse", regName = "Skyrim Special Edition", gameMode = 5, gameId = 7, exeName = "SkyrimSE.exe", appIDs = "489830" }
             };
 
-        public static string GetCurrentGameAppDataPath() {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), currentGame.regName);
-        }
-
         public static Game GetGame(string gameName) {
             return _games.FirstOrDefault(game => game.gameName.Equals(gameName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
+        public static string GetGameDataPath(string gameName) {
+            Game game = GetGame(gameName);
+            string gamePath = game.GetGamePath();
+            return string.IsNullOrEmpty(gamePath) ? string.Empty : Path.Combine(gamePath, "Data");
         }
 
         public static Game GetGameById(int game_id) {
@@ -34,11 +39,11 @@ namespace ModAnalyzer.Domain.Services {
         }
 
         public static void SetGameById(int game_id) {
-            currentGame = GetGameById(game_id);
+            CurrentGame = GetGameById(game_id);
         }
 
         public static void SetGame(string gameName) {
-            currentGame = GetGame(gameName);
+            CurrentGame = GetGame(gameName);
         }
 
         public static string GetAbbrName(int gameMode) {

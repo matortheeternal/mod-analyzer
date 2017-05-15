@@ -53,6 +53,10 @@ namespace ModAnalyzer.ViewModels {
             }
         }
 
+        public void GoToSettings() {
+            MessengerInstance.Send(new NavigationMessage("Settings"));
+        }
+
         public void AnalyzeArchives(string[] fileNames) {
             FilesSelectedMessage.SelectArchives(fileNames, MessengerInstance, true);
         }
@@ -64,7 +68,7 @@ namespace ModAnalyzer.ViewModels {
                 IsUpdateAvailable = false;
                 string errorMessage = "Failed to check for updates. If this error persists, please check " +
                     "https://github.com/matortheeternal/mod-analyzer/releases for updates.\n\n" + exception.ToString();
-                System.Windows.Forms.MessageBox.Show(errorMessage);
+                DialogUtils.ShowError("Update check failed", errorMessage);
             }
         }
     }

@@ -10,6 +10,7 @@ namespace ModAnalyzer.ViewModels {
             SimpleIoc.Default.Register<ClassifyArchivesViewModel>();
             SimpleIoc.Default.Register<ExtractArchivesViewModel>();
             SimpleIoc.Default.Register<PluginMastersViewModel>();
+            SimpleIoc.Default.Register<SettingsViewModel>();
         }
 
         public MainViewModel MainViewModel { get { return SimpleIoc.Default.GetInstance<MainViewModel>(); } }
@@ -18,6 +19,7 @@ namespace ModAnalyzer.ViewModels {
         public ClassifyArchivesViewModel ClassifyArchivesViewModel { get { return SimpleIoc.Default.GetInstance<ClassifyArchivesViewModel>(); } }
         public ExtractArchivesViewModel ExtractArchivesViewModel { get { return SimpleIoc.Default.GetInstance<ExtractArchivesViewModel>(); } }
         public PluginMastersViewModel PluginMastersViewModel { get { return SimpleIoc.Default.GetInstance<PluginMastersViewModel>(); } }
+        public SettingsViewModel SettingsViewModel { get { return SimpleIoc.Default.GetInstance<SettingsViewModel>(); } }
 
         public ViewModelBase ViewModelByName(string viewModelName) {
             return (ViewModelBase)GetType().GetProperty(viewModelName).GetValue(this, null);

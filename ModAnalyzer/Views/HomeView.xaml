@@ -6,23 +6,28 @@
              xmlns:local="clr-namespace:ModAnalyzer.Views"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
-             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop" Width="700">
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" Width="700">
-        <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
-
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-            <Label Content="Drag and drop a mod archive or" FontSize="16" />
-            <Button Content="BROWSE" Command="{Binding BrowseCommand, Mode=OneTime}" />
-        </StackPanel>
-
-        <Button HorizontalAlignment="Center" Margin="40" 
-        	Style="{StaticResource MaterialDesignRaisedAccentButton}"
-        	Command="{Binding UpdateCommand, Mode=OneTime}"
-        	Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
-            <StackPanel Orientation="Horizontal">
-                <materialDesign:PackIcon Kind="Sync" VerticalAlignment="Center"  />
-                <TextBlock Margin="2 0 3 0" VerticalAlignment="Center">UPDATE</TextBlock>
+             DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=HomeViewModel}" AllowDrop="True" DragEnter="UserControl_DragEnter" Drop="UserControl_Drop">
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom" Margin="10">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Background="#FF292929" Cursor="Hand" MouseDown="Settings_MouseDown">
+                <materialDesign:PackIcon Kind="Settings" Width="24" Height="24"></materialDesign:PackIcon>
+                <Label Content="Settings"></Label>
             </StackPanel>
-        </Button>
-    </StackPanel>
+        </StackPanel>
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="logo" Source="mod-picker256.png" Stretch="Fill" Margin="0 20 0 10" Height="160" Width="160" />
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Label Content="Drag and drop a mod archive or" FontSize="16" />
+                <Button Content="BROWSE" Style="{StaticResource MaterialDesignRaisedAccentButton}" Command="{Binding BrowseCommand, Mode=OneTime}" />
+            </StackPanel>
+
+            <Button HorizontalAlignment="Center" Margin="40" Command="{Binding UpdateCommand, Mode=OneTime}" Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <materialDesign:PackIcon Kind="Sync" VerticalAlignment="Center"  />
+                    <TextBlock Margin="2 0 3 0" VerticalAlignment="Center">UPDATE</TextBlock>
+                </StackPanel>
+            </Button>
+        </StackPanel>
+    </DockPanel>
 </UserControl>

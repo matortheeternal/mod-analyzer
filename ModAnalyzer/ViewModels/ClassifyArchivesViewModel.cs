@@ -25,10 +25,10 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public void UpdateGameComboBox() {
-            if (GameService.currentGame == null) {
+            if (GameService.CurrentGame == null) {
                 GameService.SetGame("Skyrim");
             }
-            SelectedGameIndex = GameService.currentGame.gameMode;
+            SelectedGameIndex = GameService.CurrentGame.gameMode;
         }
 
         private bool ArchiveModOptionExists(string filePath) {

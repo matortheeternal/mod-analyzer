@@ -176,6 +176,7 @@
     </ApplicationDefinition>
     <Compile Include="Analysis\Services\ArchiveService.cs" />
     <Compile Include="Analysis\Services\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\Models\ProgramSetting.cs" />
     <Compile Include="Domain\Services\BainArchiveService.cs" />
     <Compile Include="Analysis\Models\EntryAnalysisJob.cs" />
     <Compile Include="Domain\Services\FomodArchiveService.cs" />
@@ -185,6 +186,7 @@
     <Compile Include="Domain\Fomod\FomodConfig.cs" />
     <Compile Include="Domain\Fomod\FomodPlugin.cs" />
     <Compile Include="Domain\Fomod\FomodFile.cs" />
+    <Compile Include="Domain\Services\SettingsService.cs" />
     <Compile Include="Utils\BackgroundWorkerExtensions.cs" />
     <Compile Include="Domain\Services\GameService.cs" />
     <Compile Include="Analysis\Models\MasterPlugin.cs" />
@@ -203,6 +205,7 @@
     <Compile Include="Messages\FilesSelectedMessage.cs" />
     <Compile Include="Messages\NavigationMessage.cs" />
     <Compile Include="Utils\ArchiveExtensions.cs" />
+    <Compile Include="Utils\DialogUtils.cs" />
     <Compile Include="Utils\EntryExtensions.cs" />
     <Compile Include="Utils\PathExtensions.cs" />
     <Compile Include="Utils\UpdateUtil.cs" />
@@ -213,6 +216,7 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="Analysis\Models\MissingMaster.cs" />
     <Compile Include="ViewModels\PluginMastersViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ViewModelLocator.cs" />
     <Compile Include="Views\AnalysisView.xaml.cs">
       <DependentUpon>AnalysisView.xaml</DependentUpon>
@@ -222,6 +226,9 @@
     </Compile>
     <Compile Include="Views\PluginMastersView.xaml.cs">
       <DependentUpon>PluginMastersView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SettingsView.xaml.cs">
+      <DependentUpon>SettingsView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Spinner.xaml.cs">
       <DependentUpon>Spinner.xaml</DependentUpon>
@@ -261,6 +268,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\PluginMastersView.xaml">
+      <SubType>Form</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\SettingsView.xaml">
       <SubType>Form</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -43,7 +43,7 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         public List<string> GetMissingMasterFiles(string pluginPath) {
-            string gameDataPath = GameService.dataPath;
+            string gameDataPath = GameService.DataPath;
             string exePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
             string fullPluginPath = Path.Combine(exePath, pluginPath);
             string str = ModDump.DumpMasters(fullPluginPath);
@@ -52,7 +52,7 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         private void MovePluginToData(string pluginPath) {
-            string dataPath = GameService.dataPath;
+            string dataPath = GameService.DataPath;
             string pluginFileName = Path.GetFileName(pluginPath);
             string dataPluginPath = Path.Combine(dataPath, pluginFileName);
             if (File.Exists(dataPluginPath) && !File.Exists(dataPluginPath + ".bak")) {
@@ -83,7 +83,7 @@ namespace ModAnalyzer.Analysis.Services {
 
         public void RevertPlugin(string pluginPath) {
             try {
-                string dataPath = GameService.dataPath;
+                string dataPath = GameService.DataPath;
                 string pluginFileName = Path.GetFileName(pluginPath);
                 string pluginDataPath = Path.Combine(dataPath, pluginFileName);
                 string oldPluginDataPath = pluginDataPath + ".bak";
