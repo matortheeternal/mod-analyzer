@@ -1,5 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Weavers>
-	<Costura/>
-  
+  <Costura>
+    <Unmanaged32Assemblies>
+      libbsa
+    </Unmanaged32Assemblies>
+    <IncludeAssemblies>
+      BA2Lib
+      GalaSoft.MvvmLight
+      GalaSoft.MvvmLight.Extras
+      GalaSoft.MvvmLight.Platform
+      INIFileParser
+      MaterialDesignColors
+      MaterialDesignThemes.Wpf
+      Microsoft.Practices.ServiceLocation
+      Newtonsoft.Json
+      SevenZipExtractor
+      System.Windows.Interactivity
+    </IncludeAssemblies>
+  </Costura>
 </Weavers>
