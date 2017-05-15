@@ -1,4 +1,4 @@
-﻿namespace ModAnalyzer {
+﻿namespace ModAnalyzer.Analysis.Models {
     public class MissingMaster {
         public string FileName { get; set; }
         public string RequiredBy { get; set; }

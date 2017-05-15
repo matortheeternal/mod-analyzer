@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Models {
     /// <summary>
     /// A job to analyze a BSA, BA2, ESP, or ESM in a mod.
     /// </summary>

@@ -1,4 +1,4 @@
-﻿namespace ModAnalyzer.Domain {
+﻿namespace ModAnalyzer.Analysis.Events {
     public class MessageReportedEventArgs {
         public string Message { get; set; }
         public bool IsStatusMessage { get; set; }

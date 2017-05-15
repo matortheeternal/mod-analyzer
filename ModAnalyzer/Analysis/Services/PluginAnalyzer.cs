@@ -9,9 +9,11 @@ using System.Reflection;
 using ModAnalyzer.Utils;
 using System.Windows.Forms;
 using System.Threading;
+using ModAnalyzer.Domain.Services;
+using ModAnalyzer.Analysis.Models;
 
-namespace ModAnalyzer.Domain {
-    internal class PluginAnalyzer {
+namespace ModAnalyzer.Analysis.Services {
+    public class PluginAnalyzer {
         private readonly BackgroundWorker _backgroundWorker;
 
         public PluginAnalyzer(BackgroundWorker backgroundWorker) {

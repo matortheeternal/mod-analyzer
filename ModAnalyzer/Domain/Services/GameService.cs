@@ -3,7 +3,7 @@ using IniParser;
 using IniParser.Model;
 using System.Linq;
 
-namespace ModAnalyzer {
+namespace ModAnalyzer.Domain.Services {
     public static class GameService {
         public static string dataPath { get; set; }
         public static Game currentGame { get; set; }

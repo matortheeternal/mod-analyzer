@@ -5,7 +5,7 @@ using SharpCompress.Archive;
 using System.Collections.Generic;
 using ModAnalyzer.Utils;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Domain.Services {
     public static class BainArchiveService {
 
         // CONSTANTS

@@ -1,15 +1,13 @@
 ﻿using BA2Lib;
 using libbsa;
 using ModAnalyzer.Utils;
-using SharpCompress.Archive;
-using SharpCompress.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Services {
     internal class AssetArchiveAnalyzer {
         private readonly BackgroundWorker _backgroundWorker;
 

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace ModAnalyzer {
+﻿namespace ModAnalyzer.Domain {
     public class Game {
         public string longName { get; set; }
         public string gameName { get; set; }

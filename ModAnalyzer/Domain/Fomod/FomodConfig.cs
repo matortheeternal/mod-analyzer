@@ -1,9 +1,10 @@
-﻿using System;
+﻿using ModAnalyzer.Analysis.Models;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Domain.Fomod {
     public class FomodConfig {
         public string GroupType { get; set; }
         public List<FomodPlugin> Plugins { get; set; }

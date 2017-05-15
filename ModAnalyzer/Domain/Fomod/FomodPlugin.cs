@@ -2,10 +2,7 @@
 using System.Collections.Generic;
 using System.Xml;
 
-namespace ModAnalyzer.Domain {
-    /// <summary>
-    /// TODO
-    /// </summary>
+namespace ModAnalyzer.Domain.Fomod {
     public class FomodPlugin {
         public string GroupType { get; set; }
         public int SiblingCount { get; set; }

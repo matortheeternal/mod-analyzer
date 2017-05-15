@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json;
+﻿using ModAnalyzer.Analysis.Models;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Models {
     public class ModAnalysis {
         [JsonProperty(PropertyName = "mod_options")]
         public List<ModOption> ModOptions { get; set; }

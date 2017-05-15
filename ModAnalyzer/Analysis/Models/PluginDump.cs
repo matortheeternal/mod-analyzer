@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Models {
     public class PluginDump {
         public string filename { get; set; }
         public bool is_esm { get; set; }

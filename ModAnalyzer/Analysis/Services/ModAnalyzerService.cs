@@ -1,4 +1,7 @@
-﻿using ModAnalyzer.Utils;
+﻿using ModAnalyzer.Analysis.Events;
+using ModAnalyzer.Analysis.Models;
+using ModAnalyzer.Domain.Fomod;
+using ModAnalyzer.Utils;
 using Newtonsoft.Json;
 using SharpCompress.Archive;
 using SharpCompress.Common;
@@ -8,16 +11,13 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Services {
     public class ModAnalyzerService {
         private readonly BackgroundWorker _backgroundWorker;
         private readonly AssetArchiveAnalyzer _assetArchiveAnalyzer;
         private readonly PluginAnalyzer _pluginAnalyzer;
         private ModAnalysis _modAnalysis;
         private List<Tuple<string,ModOption>> EntryOptionMap;
-        private readonly string[] entryJobExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
-        private readonly string[] archiveExtensions = { ".BA2", ".BSA" };
-        private readonly string[] pluginExtensions = { ".ESP", ".ESM" };
 
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         public event EventHandler<EventArgs> AnalysisCompleted;

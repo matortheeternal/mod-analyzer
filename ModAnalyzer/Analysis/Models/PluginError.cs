@@ -1,4 +1,4 @@
-﻿namespace ModAnalyzer.Domain {
+﻿namespace ModAnalyzer.Analysis.Models {
     public class PluginError {
         public int group { get; set; }
         public string signature { get; set; }

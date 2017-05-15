@@ -6,8 +6,10 @@ using System.Security.Cryptography;
 using SharpCompress.Archive;
 using System.Linq;
 using ModAnalyzer.Utils;
+using ModAnalyzer.Analysis.Models;
+using ModAnalyzer.Domain.Services;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Models {
     /// <summary>
     /// Represents a logical component of a mod, e.g. the base mod, a patch, or a fomod option.
     /// </summary>

@@ -1,4 +1,6 @@
-﻿using ModAnalyzer.Utils;
+﻿using ModAnalyzer.Analysis.Events;
+using ModAnalyzer.Analysis.Models;
+using ModAnalyzer.Utils;
 using SharpCompress.Archive;
 using System;
 using System.Collections.Generic;
@@ -6,7 +8,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 
-namespace ModAnalyzer.Domain {
+namespace ModAnalyzer.Analysis.Services {
     class ArchiveService {
         private readonly BackgroundWorker _backgroundWorker;
         private PluginAnalyzer _pluginAnalyzer;
