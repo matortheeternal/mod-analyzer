@@ -44,6 +44,10 @@ namespace ModAnalyzer.ViewModels {
             }
         }
 
+        public void CreateNewSettings() {
+            DialogUtils.ShowMessage("New Settings", "This appears to be your first time starting the application.  The application has attempted to detect installed game paths.  Please verify automatically detected paths and manually configure them as necessary.");
+        }
+
         private void Save() {
             SettingsService.SaveSettings();
             MessengerInstance.Send(new NavigationMessage("Home"));

@@ -1,11 +1,9 @@
-﻿using ModAnalyzer.Domain.Services;
-using System.Windows;
+﻿using System.Windows;
 
 namespace ModAnalyzer {
     public partial class MainWindow : Window {
         public MainWindow() {
             InitializeComponent();
-            SettingsService.LoadSettings();
         } 
     }
 }
