@@ -31,21 +31,11 @@ namespace ModAnalyzer.Utils {
         }
 
         public static Entry FindArchiveEntry(this ArchiveFile archive, string path) {
-            foreach (Entry entry in archive.Entries) {
-                if (entry.FileName.EndsWith(path, StringComparison.OrdinalIgnoreCase)) {
-                    return entry;
-                }
-            }
-            return null;
+            return archive.Entries.FirstOrDefault(entry => entry.FileName.EndsWith(path, StringComparison.OrdinalIgnoreCase));
         }
 
         public static Entry FindExactArchiveEntry(this ArchiveFile archive, string path) {
-            foreach (Entry entry in archive.Entries) {
-                if (entry.FileName.Equals(path, StringComparison.OrdinalIgnoreCase)) {
-                    return entry;
-                }
-            }
-            return null;
+            return archive.Entries.FirstOrDefault(entry => entry.FileName.Equals(path, StringComparison.OrdinalIgnoreCase));
         }
 
         public static List<string> GetImmediateChildren(this ArchiveFile archive, string path, bool targetDirectories) {
