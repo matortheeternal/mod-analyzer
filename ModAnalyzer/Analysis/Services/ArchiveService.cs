@@ -16,7 +16,6 @@ namespace ModAnalyzer.Analysis.Services {
         private readonly string[] pluginExtensions = { ".ESP", ".ESM" };
         private readonly string[] archiveExtensions = { ".BA2", ".BSA" };
         public List<MissingMaster> MissingMasters;
-        private List<string> PluginPaths;
         private List<ModOption> ArchiveModOptions;
         public event EventHandler<MessageReportedEventArgs> MessageReported;
         public event EventHandler<ArchivesExtractedEventArgs> ArchivesExtracted;
@@ -29,7 +28,6 @@ namespace ModAnalyzer.Analysis.Services {
 
             // prepare lists
             MissingMasters = new List<MissingMaster>();
-            PluginPaths = new List<string>();
 
             // prepare directories
             Directory.CreateDirectory("extracted");
@@ -143,6 +141,7 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         public void ExtractArchives(List<ModOption> archiveModOptions) {
+            MissingMasters.Clear();
             _backgroundWorker.RunWorkerAsync(archiveModOptions);
         }
     }
