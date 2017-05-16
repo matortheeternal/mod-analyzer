@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SevenZipExtractor;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -7,8 +8,9 @@ namespace ModAnalyzer.Analysis.Services {
         public static readonly string[] PluginExtensions = { ".ESP", ".ESM" };
         public static readonly string[] ArchiveExtensions = { ".BA2", ".BSA" };
 
-        public static bool ShouldExtract(string fileName) {
-            string ext = Path.GetExtension(fileName);
+        public static bool ShouldExtract(Entry entry) {
+            if (entry.IsFolder) return false;
+            string ext = Path.GetExtension(entry.FileName);
             return PluginExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase) ||
                     ArchiveExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase);
         }

@@ -92,7 +92,7 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         private string GetDestinationPath(ModOption archiveModOption, Entry entry) {
-            if (ArchiveHelpers.ShouldExtract(entry.FileName)) {
+            if (ArchiveHelpers.ShouldExtract(entry)) {
                 return archiveModOption.GetExtractedEntryPath(entry);
             } else {
                 return null;
