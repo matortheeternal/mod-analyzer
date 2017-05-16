@@ -23,7 +23,7 @@ namespace ModAnalyzer.ViewModels {
                 LogService.GroupMessage("analysis", "Missing master: " + item.FileName);
                 this.MissingMasters.Add(item);
             }
-            ModOptions = this.ModOptions;
+            this.ModOptions = ModOptions;
         }
 
         private void Continue() {
