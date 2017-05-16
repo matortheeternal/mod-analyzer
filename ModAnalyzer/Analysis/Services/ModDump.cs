@@ -71,6 +71,11 @@ namespace ModAnalyzer.Analysis.Services {
             StartModDump(arguments);
         }
 
+        public static void InitSettings() {
+            StartModDump("-dumpGroups -sk");
+            Process.WaitForExit();
+        }
+
         public static bool GetProcessExited() {
             return Process != null ? Process.HasExited : true;
         }

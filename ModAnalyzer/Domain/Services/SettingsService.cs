@@ -1,4 +1,7 @@
-﻿using ModAnalyzer.Domain.Models;
+﻿using IniParser;
+using IniParser.Model;
+using ModAnalyzer.Analysis.Services;
+using ModAnalyzer.Domain.Models;
 using ModAnalyzer.Utils;
 using Newtonsoft.Json;
 using System;
@@ -42,6 +45,23 @@ namespace ModAnalyzer.Domain.Services {
             LogService.GroupMessage("settings", "Saved.");
             string json = JsonConvert.SerializeObject(Settings);
             File.WriteAllText("settings.json", json);
+            SaveIniSettings();
+        }
+
+        public static void SaveIniSettings() {
+            try {
+                if (!File.Exists("settings.ini")) {
+                    LogService.GroupMessage("settings", "Initializing ModDump setting.ini");
+                    ModDump.InitSettings();
+                }
+                FileIniDataParser parser = new FileIniDataParser();
+                IniData data = parser.ReadFile("settings.ini");
+                data.Sections["Games"]["skyrimPath"] = PathExtensions.AppendDelimiter(Settings.SkyrimPath);
+                data.Sections["Games"]["skyrimSEPath"] = PathExtensions.AppendDelimiter(Settings.SkyrimSEPath);
+                parser.WriteFile("settings.ini", data);
+            } catch (Exception x) {
+                LogService.GroupMessage("settings", "Error settings ModDump settings: " + x.Message);
+            }
         }
     }
 }
