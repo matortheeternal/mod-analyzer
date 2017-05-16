@@ -51,7 +51,6 @@ namespace ModAnalyzer.Analysis.Services {
 
             try {
                 // find plugins and BSAs from each archive, extract them, and check for missing masters
-                FindEntriesToExtract();
                 ExtractEntries();
                 GetMissingMasters();
             }
@@ -93,50 +92,27 @@ namespace ModAnalyzer.Analysis.Services {
             }
         }
 
-        private void ExtractEntry(ModOption archiveModOption, Entry entry) {
+        private string GetDestinationPath(ModOption archiveModOption, Entry entry, string ext) {
             string destinationPath = archiveModOption.GetExtractedEntryPath(entry);
-            Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
-            entry.Extract(destinationPath);
-            string entryExt = Path.GetExtension(destinationPath);
-            if (pluginExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
+            if (pluginExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
+                archiveModOption.PluginPaths.Add(destinationPath);
+            } else if (archiveExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
                 archiveModOption.PluginPaths.Add(destinationPath);
             }
-            else if (archiveExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
-                archiveModOption.ArchivePaths.Add(destinationPath);
-            }
-        }
-
-        private void FindEntriesToExtract() {
-            foreach (ModOption archiveModOption in ArchiveModOptions) {
-                ArchiveFile archive = archiveModOption.Archive;
-                foreach (Entry modArchiveEntry in archive.Entries) {
-                    if (modArchiveEntry.IsFolder) continue;
-                    string entryExt = modArchiveEntry.GetEntryExtension();
-                    if (jobFileExtensions.Contains(entryExt, StringComparer.OrdinalIgnoreCase)) {
-                        archiveModOption.EntriesToExtract.Add(modArchiveEntry);
-                    }
-                }
-            }
+            return destinationPath;
         }
 
         private void ExtractEntries() {
-            int total = 0, tracker = 0;
-            foreach (ModOption archiveModOption in ArchiveModOptions)
-                total += archiveModOption.EntriesToExtract.Count;
             foreach (ModOption archiveModOption in ArchiveModOptions) {
-                for (int i = 0; i < archiveModOption.EntriesToExtract.Count; i++) {
-                    try {
-                        tracker += 1;
-                        Entry entryToExtract = archiveModOption.EntriesToExtract[i];
-                        string fileName = Path.GetFileName(entryToExtract.FileName);
-                        string countString = " (" + tracker + "/" + total + ")";
-                        _backgroundWorker.ReportMessage("Extracting " + fileName + countString, true);
-                        ExtractEntry(archiveModOption, entryToExtract);
+                _backgroundWorker.ReportMessage("Extracting plugins and archives from " + archiveModOption.Name, true);
+                archiveModOption.Archive.Extract(entry => {
+                    string ext = Path.GetExtension(entry.FileName);
+                    if (jobFileExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
+                        return GetDestinationPath(archiveModOption, entry, ext);
+                    } else {
+                        return null;
                     }
-                    catch (Exception x) {
-                        _backgroundWorker.ReportMessage(x.Message, false);
-                    }
-                }
+                });
             }
         }
 
