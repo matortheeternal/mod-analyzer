@@ -101,6 +101,7 @@ namespace ModAnalyzer.Analysis.Services {
 
         private void FindEntries() {
             foreach (ModOption archiveModOption in ArchiveModOptions) {
+                archiveModOption.ClearExtractPaths();
                 archiveModOption.Archive.Entries.ToList().ForEach(entry => {
                     archiveModOption.SetExtractPath(entry, GetDestinationPath(archiveModOption, entry));
                 });

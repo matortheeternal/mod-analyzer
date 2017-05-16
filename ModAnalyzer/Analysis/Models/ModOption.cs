@@ -152,7 +152,7 @@ namespace ModAnalyzer.Analysis.Models {
                 if (ArchiveHelpers.IsPlugin(destinationPath)) {
                     PluginPaths.Add(destinationPath);
                 } else if (ArchiveHelpers.IsArchive(destinationPath)) {
-                    PluginPaths.Add(destinationPath);
+                    ArchivePaths.Add(destinationPath);
                 }
             }
         }
@@ -164,6 +164,12 @@ namespace ModAnalyzer.Analysis.Models {
             } else {
                 return null;
             }
+        }
+
+        public void ClearExtractPaths() {
+            ExtractPaths.Clear();
+            PluginPaths.Clear();
+            ArchivePaths.Clear();
         }
 
         public void CloseArchive() {
