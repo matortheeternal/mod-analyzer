@@ -79,12 +79,9 @@ namespace ModAnalyzer.Analysis.Services {
             File.Move(fullPluginPath, dataPluginPath);
         }
 
-        // TODO: refactor
         public PluginDump AnalyzePlugin(string pluginFileName) {
             _backgroundWorker.ReportMessage("Analyzing " + pluginFileName + "...\n", true);
             ModDump.DumpPlugin(pluginFileName);
-
-            // get any remaining messages
             ModDump.RaiseLastModDumpError();
 
             // throw exception if dump json is empty
