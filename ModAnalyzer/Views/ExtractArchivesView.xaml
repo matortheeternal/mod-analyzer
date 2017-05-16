@@ -8,7 +8,7 @@
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              mc:Ignorable="d"
              DataContext="{Binding Source={StaticResource ViewModelLocator}, Path=ExtractArchivesViewModel}">
-    <StackPanel Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center" Width="500">
+    <StackPanel Margin="10" VerticalAlignment="Center" HorizontalAlignment="Center">
         <Viewbox Width="200" Height="200" HorizontalAlignment="Center" VerticalAlignment="Center">
             <threadingComponent:Spinner NumNodes="17" Delay="65" NodeWidth="10" NodeHeight="10" NodeColor="White" UseRectangles="True" />
         </Viewbox>

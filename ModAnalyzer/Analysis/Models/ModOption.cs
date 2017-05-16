@@ -1,11 +1,12 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using SevenZipExtractor;
-using ModAnalyzer.Analysis.Models;
 using ModAnalyzer.Domain.Services;
+using ModAnalyzer.Analysis.Services;
 
 namespace ModAnalyzer.Analysis.Models {
     /// <summary>
@@ -57,11 +58,17 @@ namespace ModAnalyzer.Analysis.Models {
         [JsonIgnore]
         public string BaseInstallerPath { get; set; }
         [JsonIgnore]
-        public List<Entry> EntriesToExtract { get; set; }
+        public Dictionary<Entry,string> ExtractPaths { get; set; }
         [JsonIgnore]
         public List<string> PluginPaths { get; set; }
         [JsonIgnore]
         public List<string> ArchivePaths { get; set; }
+        [JsonIgnore]
+        public bool HasFilesToExtract {
+            get {
+                return ExtractPaths.Any(x => x.Value != null && !File.Exists(x.Value));
+            }
+        }
 
 
         // CONSTRUCTORS
@@ -91,7 +98,7 @@ namespace ModAnalyzer.Analysis.Models {
         public void CreateLists() {
             Assets = new List<string>();
             Plugins = new List<PluginDump>();
-            EntriesToExtract = new List<Entry>();
+            ExtractPaths = new Dictionary<Entry, string>();
             PluginPaths = new List<string>();
             ArchivePaths = new List<string>();
         }
@@ -137,6 +144,26 @@ namespace ModAnalyzer.Analysis.Models {
 
         public string GetExtractedEntryPath(Entry entry) {
             return Path.Combine("extracted", Path.GetFileName(SourceFilePath), entry.FileName);
+        }
+
+        public void SetExtractPath(Entry entry, string destinationPath) {
+            if (destinationPath != null) {
+                ExtractPaths.Add(entry, destinationPath);
+                if (ArchiveHelpers.IsPlugin(destinationPath)) {
+                    PluginPaths.Add(destinationPath);
+                } else if (ArchiveHelpers.IsArchive(destinationPath)) {
+                    PluginPaths.Add(destinationPath);
+                }
+            }
+        }
+
+        public string GetExtractPath(Entry entry) {
+            if (ExtractPaths.ContainsKey(entry)) {
+                string path = ExtractPaths[entry];
+                return File.Exists(path) ? null : path;
+            } else {
+                return null;
+            }
         }
 
         public void CloseArchive() {

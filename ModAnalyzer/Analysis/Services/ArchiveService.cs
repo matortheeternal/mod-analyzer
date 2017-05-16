@@ -9,12 +9,9 @@ using SevenZipExtractor;
 using ModAnalyzer.Analysis.Events;
 
 namespace ModAnalyzer.Analysis.Services {
-    class ArchiveService {
+    public class ArchiveService {
         private readonly BackgroundWorker _backgroundWorker;
         private PluginAnalyzer _pluginAnalyzer;
-        private readonly string[] jobFileExtensions = { ".BA2", ".BSA", ".ESP", ".ESM" };
-        private readonly string[] pluginExtensions = { ".ESP", ".ESM" };
-        private readonly string[] archiveExtensions = { ".BA2", ".BSA" };
         public List<MissingMaster> MissingMasters;
         private List<ModOption> ArchiveModOptions;
         public event EventHandler<MessageReportedEventArgs> MessageReported;
@@ -51,6 +48,7 @@ namespace ModAnalyzer.Analysis.Services {
 
             try {
                 // find plugins and BSAs from each archive, extract them, and check for missing masters
+                FindEntries();
                 ExtractEntries();
                 GetMissingMasters();
             }
@@ -87,31 +85,34 @@ namespace ModAnalyzer.Analysis.Services {
             foreach (ModOption archiveModOption in ArchiveModOptions) {
                 if (archiveModOption.PluginPaths.Count > 0) CreatePluginAnalyzer();
                 foreach (string pluginPath in archiveModOption.PluginPaths) {
+                    _backgroundWorker.ReportMessage("Getting missing masters for: " + pluginPath, true);
                     GetPluginMissingMasters(pluginPath);
                 }
             }
         }
 
-        private string GetDestinationPath(ModOption archiveModOption, Entry entry, string ext) {
-            string destinationPath = archiveModOption.GetExtractedEntryPath(entry);
-            if (pluginExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
-                archiveModOption.PluginPaths.Add(destinationPath);
-            } else if (archiveExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
-                archiveModOption.PluginPaths.Add(destinationPath);
+        private string GetDestinationPath(ModOption archiveModOption, Entry entry) {
+            if (ArchiveHelpers.ShouldExtract(entry.FileName)) {
+                return archiveModOption.GetExtractedEntryPath(entry);
+            } else {
+                return null;
             }
-            return destinationPath;
+        }
+
+        private void FindEntries() {
+            foreach (ModOption archiveModOption in ArchiveModOptions) {
+                archiveModOption.Archive.Entries.ToList().ForEach(entry => {
+                    archiveModOption.SetExtractPath(entry, GetDestinationPath(archiveModOption, entry));
+                });
+            }
         }
 
         private void ExtractEntries() {
             foreach (ModOption archiveModOption in ArchiveModOptions) {
+                if (!archiveModOption.HasFilesToExtract) continue;
                 _backgroundWorker.ReportMessage("Extracting plugins and archives from " + archiveModOption.Name, true);
                 archiveModOption.Archive.Extract(entry => {
-                    string ext = Path.GetExtension(entry.FileName);
-                    if (jobFileExtensions.Contains(ext, StringComparer.OrdinalIgnoreCase)) {
-                        return GetDestinationPath(archiveModOption, entry, ext);
-                    } else {
-                        return null;
-                    }
+                    return archiveModOption.GetExtractPath(entry);
                 });
             }
         }

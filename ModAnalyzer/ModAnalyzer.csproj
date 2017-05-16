@@ -170,6 +170,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Analysis\Services\ArchiveHelpers.cs" />
     <Compile Include="Analysis\Services\ArchiveService.cs" />
     <Compile Include="Analysis\Services\AssetArchiveAnalyzer.cs" />
     <Compile Include="Domain\Models\ProgramSetting.cs" />
