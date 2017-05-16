@@ -332,6 +332,7 @@
     <Content Include="borlndmm.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="FodyWeavers.xml" />
     <Content Include="ModDump.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
