@@ -96,8 +96,7 @@ namespace ModAnalyzer.Analysis.Services {
         private void AnalyzeEntries(ModOption archiveModOption) {
             foreach (string pluginPath in archiveModOption.PluginPaths) {
                 PluginDump dump = _pluginAnalyzer.GetPluginDump(pluginPath);
-                if (dump == null) throw new Exception("Plugin dump failed.");
-                MapPluginDump(pluginPath, dump);
+                if (dump != null) MapPluginDump(pluginPath, dump);
             }
             foreach (string archivePath in archiveModOption.ArchivePaths) {
                 List<string> assets = _assetArchiveAnalyzer.GetAssetPaths(archivePath);

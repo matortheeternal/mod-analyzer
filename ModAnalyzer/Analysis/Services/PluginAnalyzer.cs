@@ -9,6 +9,7 @@ using ModAnalyzer.Utils;
 using ModAnalyzer.Analysis.Models;
 using ModAnalyzer.Domain.Services;
 using ModAnalyzer.Analysis.Events;
+using System.Windows.Forms;
 
 namespace ModAnalyzer.Analysis.Services {
     public class PluginAnalyzer {
@@ -23,6 +24,7 @@ namespace ModAnalyzer.Analysis.Services {
         }
 
         public PluginDump GetPluginDump(string pluginPath) {
+            DialogResult response;
             try {
                 ModDump.MessageReported += ModDump_MessageReported;
                 _backgroundWorker.ReportMessage(" ", false);
@@ -30,16 +32,30 @@ namespace ModAnalyzer.Analysis.Services {
                 MovePluginToData(pluginPath);
                 return AnalyzePlugin(Path.GetFileName(pluginPath));
             }
-            catch (Exception exception) {
+            catch (Exception x) {
                 _backgroundWorker.ReportMessage("Failed to analyze plugin.", false);
-                _backgroundWorker.ReportMessage("Exception: " + exception.Message, false);
-                return null;
+                _backgroundWorker.ReportMessage("Exception: " + x.Message, false);
+                response = RetryPluginBox(x);
             }
             finally {
                 ModDump.MessageReported -= ModDump_MessageReported;
                 RevertPlugin(pluginPath);
                 _backgroundWorker.ReportMessage(" ", false);
             }
+
+            if (response == DialogResult.Retry) {
+                return GetPluginDump(pluginPath);
+            } else if (response == DialogResult.Abort) {
+                throw new Exception("User aborted analysis.");
+            } else {
+                return null;
+            }
+        }
+
+        private DialogResult RetryPluginBox(Exception exception) {
+            string title = "Failed to analyze plugin";
+            string message = string.Format("{0}: {1}\n\nRetry?", title, exception.Message);
+            return MessageBox.Show(message, title, MessageBoxButtons.AbortRetryIgnore);
         }
 
         public List<string> GetMissingMasterFiles(string pluginPath) {
