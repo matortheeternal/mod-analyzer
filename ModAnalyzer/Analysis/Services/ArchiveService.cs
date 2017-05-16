@@ -85,7 +85,7 @@ namespace ModAnalyzer.Analysis.Services {
             foreach (ModOption archiveModOption in ArchiveModOptions) {
                 if (archiveModOption.PluginPaths.Count > 0) CreatePluginAnalyzer();
                 foreach (string pluginPath in archiveModOption.PluginPaths) {
-                    _backgroundWorker.ReportMessage("Getting missing masters for: " + pluginPath, true);
+                    _backgroundWorker.ReportMessage("Getting masters for: " + pluginPath, true);
                     GetPluginMissingMasters(pluginPath);
                 }
             }
