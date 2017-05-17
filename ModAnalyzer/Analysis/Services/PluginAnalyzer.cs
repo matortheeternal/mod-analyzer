@@ -29,7 +29,7 @@ namespace ModAnalyzer.Analysis.Services {
                 ModDump.MessageReported += ModDump_MessageReported;
                 _backgroundWorker.ReportMessage(" ", false);
                 _backgroundWorker.ReportMessage("Getting plugin dump for " + pluginPath + "...", true);
-                MovePluginToData(pluginPath);
+                CopyPluginToData(pluginPath);
                 return AnalyzePlugin(Path.GetFileName(pluginPath));
             }
             catch (Exception x) {
@@ -67,16 +67,15 @@ namespace ModAnalyzer.Analysis.Services {
             return masterFileNames.FindAll(fileName => !File.Exists(Path.Combine(gameDataPath, fileName)));
         }
 
-        private void MovePluginToData(string pluginPath) {
+        private void CopyPluginToData(string pluginPath) {
             string dataPath = GameService.DataPath;
             string pluginFileName = Path.GetFileName(pluginPath);
             string dataPluginPath = Path.Combine(dataPath, pluginFileName);
             if (File.Exists(dataPluginPath) && !File.Exists(dataPluginPath + ".bak")) {
                 File.Move(dataPluginPath, dataPluginPath + ".bak");
             }
-
             string fullPluginPath = Path.Combine(PathExtensions.GetProgramPath(), pluginPath);
-            File.Move(fullPluginPath, dataPluginPath);
+            File.Copy(fullPluginPath, dataPluginPath);
         }
 
         public PluginDump AnalyzePlugin(string pluginFileName) {
