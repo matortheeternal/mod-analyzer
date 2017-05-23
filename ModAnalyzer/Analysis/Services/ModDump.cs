@@ -82,7 +82,7 @@ namespace ModAnalyzer.Analysis.Services {
 
         public static void RaiseLastModDumpError() {
             if (!string.IsNullOrEmpty(LastError)) {
-                throw new Exception(Process.StandardError.ReadToEnd().Split('\n').Last());
+                throw new Exception(LastError);
             }
         }
 
