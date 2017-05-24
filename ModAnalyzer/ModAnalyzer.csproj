@@ -185,6 +185,8 @@
     <Compile Include="Domain\Fomod\FomodFile.cs" />
     <Compile Include="Domain\Services\LogService.cs" />
     <Compile Include="Domain\Services\SettingsService.cs" />
+    <Compile Include="UIFixes\FolderSelectDialog.cs" />
+    <Compile Include="UIFixes\Reflector.cs" />
     <Compile Include="Utils\BackgroundWorkerExtensions.cs" />
     <Compile Include="Domain\Services\GameService.cs" />
     <Compile Include="Analysis\Models\MasterPlugin.cs" />

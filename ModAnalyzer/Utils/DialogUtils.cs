@@ -1,16 +1,15 @@
-﻿using System;
+﻿using ModAnalyzer.UIFixes;
+using System;
 using System.Windows.Forms;
 
 namespace ModAnalyzer.Utils {
     public static class DialogUtils {
         public static string BrowseFolder(string prompt) {
-            using (var folderDialog = new FolderBrowserDialog()) {
-                folderDialog.Description = prompt;
-                DialogResult result = folderDialog.ShowDialog();
-                bool noSelection = string.IsNullOrWhiteSpace(folderDialog.SelectedPath);
-                if (result == DialogResult.OK && !noSelection) {
-                    return folderDialog.SelectedPath;
-                }
+            var folderDialog = new FolderSelectDialog();
+            folderDialog.Title = prompt;
+            if (folderDialog.ShowDialog(IntPtr.Zero)) {
+                bool noSelection = string.IsNullOrWhiteSpace(folderDialog.FileName);
+                return noSelection ? null : folderDialog.FileName;
             }
             return null;
         }
