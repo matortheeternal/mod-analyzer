@@ -14,16 +14,16 @@ namespace ModAnalyzer.ViewModels {
         public ICommand ContinueCommand { get; set; }
 
         public PluginMastersViewModel() {
-            MissingMasters = new ObservableCollection<MissingMaster>();
             ContinueCommand = new RelayCommand(Continue);
         }
 
-        public void InitMissingMasters(List<MissingMaster> MissingMasters, List<ModOption> ModOptions) {
-            foreach (var item in MissingMasters) {
+        public void InitMissingMasters(List<MissingMaster> masters, List<ModOption> options) {
+            MissingMasters = new ObservableCollection<MissingMaster>();
+            foreach (var item in masters) {
                 LogService.GroupMessage("analysis", "Missing master: " + item.FileName);
-                this.MissingMasters.Add(item);
+                MissingMasters.Add(item);
             }
-            this.ModOptions = ModOptions;
+            ModOptions = options;
         }
 
         private void Continue() {
