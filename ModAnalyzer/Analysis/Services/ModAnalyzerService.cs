@@ -141,6 +141,7 @@ namespace ModAnalyzer.Analysis.Services {
                     if (mappedPath == "") continue;
                     if (option.Assets.IndexOf(mappedPath) > -1) continue;
                     option.Assets.Add(mappedPath);
+                    option.Size += (long)entry.Size;
 
                     // enqueue jobs for analyzing archives and plugins
                     MapEntryToOption(entry, option, archiveModOption);
