@@ -15,7 +15,6 @@ namespace ModAnalyzer.ViewModels {
         }
 
         public MainViewModel() {
-            LogService.StartLogging();
             SettingsService.LoadSettings();
             _viewModelLocator = ViewModelLocator.Instance();
             CurrentViewModel = _viewModelLocator.HomeViewModel;
