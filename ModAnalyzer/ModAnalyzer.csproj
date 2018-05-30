@@ -172,6 +172,7 @@
     <Compile Include="Analysis\Services\ArchiveHelpers.cs" />
     <Compile Include="Analysis\Services\ArchiveService.cs" />
     <Compile Include="Analysis\Services\AssetArchiveAnalyzer.cs" />
+    <Compile Include="Domain\Fomod\FomodFileEqualityComparer.cs" />
     <Compile Include="Domain\Models\ProgramSetting.cs" />
     <Compile Include="Domain\Services\BainArchiveService.cs" />
     <Compile Include="Analysis\Models\EntryAnalysisJob.cs" />

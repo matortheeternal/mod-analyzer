@@ -9,6 +9,7 @@ namespace ModAnalyzer.Domain.Fomod {
         public string Name { get; set; }
         public List<FomodFile> Files { get; }
         public List<FomodFlag> Flags { get; }
+        public XmlNode VisibleNode { get; set; }
 
         public FomodPlugin(XmlNode node) {
             XmlAttribute nameAttribute = node.Attributes["name"];
@@ -16,6 +17,7 @@ namespace ModAnalyzer.Domain.Fomod {
                 Name = nameAttribute.Value;
             }
 
+            GetVisibleNode(node);
             XmlNode groupNode = node.ParentNode.ParentNode;
             if (groupNode != null) {
                 // parse group information for determining whether or not the mod option is default
@@ -54,6 +56,39 @@ namespace ModAnalyzer.Domain.Fomod {
         public bool IsDefault() {
             return GroupType.Equals("SelectAll") || (!HasSiblings() &&
                 (GroupType.Equals("SelectAtLeastOne") || GroupType.Equals("SelectExactlyOne")));
+        }
+
+        private XmlNode GetInstallStepNode(XmlNode node) {
+            while (node != null) {
+                if (node.Name.Equals("installStep")) return node;
+                node = node.ParentNode;
+            }
+            return null;
+        }
+
+        private void GetVisibleNode(XmlNode node) {
+            XmlNode InstallStep = GetInstallStepNode(node);
+            if (InstallStep == null) return;
+            foreach (XmlNode child in InstallStep.ChildNodes) {
+                if (child.Name.Equals("visible")) {
+                    VisibleNode = child;
+                    break;
+                }
+            }
+        }
+
+        public Dictionary<string, string> GetFlags() {
+            if (VisibleNode == null) return null;
+            var flags = new Dictionary<string, string>();
+            foreach (XmlNode child in VisibleNode.ChildNodes) {
+                if (child.Name.Equals("flagDependency")) {
+                    XmlAttribute flagName = child.Attributes["flag"];
+                    XmlAttribute flagValue = child.Attributes["value"];
+                    if (flagName == null || flagValue == null) continue;
+                    flags.Add(flagName.Value, flagValue.Value);
+                }
+            }
+            return flags;
         }
     }
 }

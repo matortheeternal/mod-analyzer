@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using ModAnalyzer.Analysis.Models;
 
@@ -71,6 +72,7 @@ namespace ModAnalyzer.Domain.Fomod {
         }
 
         private void AddFileMappings(ModOption option, List<FomodFile> files) {
+            option.FomodFiles.AddRange(files);
             foreach (FomodFile file in files) {
                 Tuple<FomodFile, ModOption> mapping = new Tuple<FomodFile, ModOption>(file, option);
                 if (FileMap.IndexOf(mapping) == -1) {
@@ -90,8 +92,7 @@ namespace ModAnalyzer.Domain.Fomod {
                 if (foundPlugin != null) {
                     filesToInstall.AddRange(foundPlugin.Files);
                     foundPlugin.Flags.ForEach(f => flags[f.Name] = f.Value);
-                }
-                else {
+                } else {
                     if (!ignoreMissing) throw new Exception("Mod Option " + name + " not found.");
                 }
             }
@@ -99,6 +100,43 @@ namespace ModAnalyzer.Domain.Fomod {
                 filesToInstall.AddRange(pattern.Files);
             }
             return filesToInstall;
+        }
+
+        private List<string> GetChangedFlags(List<ModOption> options) {
+            List<string> changedFlags = new List<string>();
+            var dependencies = new Dictionary<String, String>();
+            foreach (ModOption option in options) {
+                if (option.Flags == null) continue;
+                foreach (KeyValuePair<string, string> flag in option.Flags) {
+                    if (dependencies.ContainsKey(flag.Key)) {
+                        if (!dependencies[flag.Key].Equals(flag.Value) && !changedFlags.Contains(flag.Key))
+                            changedFlags.Add(flag.Key);
+                    } else {
+                        dependencies.Add(flag.Key, flag.Value);
+                    }
+                }
+            }
+            return changedFlags;
+        }
+
+        private bool DisplayFlag(string value) {
+            if (value.Equals("Off", StringComparison.CurrentCultureIgnoreCase) ||
+                string.IsNullOrEmpty(value) || value.Equals("0")) return false;
+            return true;
+        }
+
+        private void SpecifyModOptionNames(List<ModOption> options) {
+            List<string> changedFlags = GetChangedFlags(options);
+            if (changedFlags.Count == 0) return;
+            foreach (ModOption option in options) {
+                if (option.Flags == null || option.Flags.Count == 0) continue;
+                string[] flags = changedFlags
+                    .FindAll(f => option.Flags.ContainsKey(f) && DisplayFlag(option.Flags[f]))
+                    .Select(f => option.Flags[f].Equals("On", StringComparison.CurrentCultureIgnoreCase) ?
+                        f : f + "=" + option.Flags[f]).ToArray();
+                if (flags.Length == 0) return;
+                option.Name = string.Format("[{0}] {1}", string.Join(", ", flags), option.Name);
+            }
         }
 
         public List<ModOption> BuildModOptions(string fomodBasePath) {
@@ -109,11 +147,15 @@ namespace ModAnalyzer.Domain.Fomod {
                 options.Add(baseOption);
             }
             foreach (FomodPlugin plugin in Plugins) {
-                ModOption option = new ModOption(plugin.Name, plugin.IsDefault(), true);
-                if (plugin.Files != null) {
+                ModOption option = new ModOption(plugin);
+                if (plugin.Files != null)
                     AddFileMappings(option, plugin.Files);
-                }
-                options.Add(option);
+                if (!options.Exists(o => o.Matches(option)))
+                    options.Add(option);
+            }
+            foreach (ModOption option in options) {
+                List<ModOption> matchingOpts = options.FindAll(o => o.Name.Equals(option.Name));
+                if (matchingOpts.Count > 1) SpecifyModOptionNames(matchingOpts);
             }
             return options;
         }

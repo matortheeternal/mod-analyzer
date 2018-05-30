@@ -7,6 +7,8 @@ using System.Security.Cryptography;
 using SevenZipExtractor;
 using ModAnalyzer.Domain.Services;
 using ModAnalyzer.Analysis.Services;
+using ModAnalyzer.Domain.Fomod;
+using System.Xml;
 
 namespace ModAnalyzer.Analysis.Models {
     /// <summary>
@@ -58,6 +60,8 @@ namespace ModAnalyzer.Analysis.Models {
         [JsonIgnore]
         public string BaseInstallerPath { get; set; }
         [JsonIgnore]
+        public Dictionary<string, string> Flags { get; set; }
+        [JsonIgnore]
         public Dictionary<Entry,string> ExtractPaths { get; set; }
         [JsonIgnore]
         public List<string> PluginPaths { get; set; }
@@ -69,10 +73,21 @@ namespace ModAnalyzer.Analysis.Models {
                 return ExtractPaths.Any(x => x.Value != null && !File.Exists(x.Value));
             }
         }
+        [JsonIgnore]
+        public List<FomodFile> FomodFiles { get; set; }
 
 
         // CONSTRUCTORS
         public ModOption() {
+            Size = 0;
+            CreateLists();
+        }
+
+        public ModOption(FomodPlugin plugin) {
+            Name = plugin.Name;
+            Default = plugin.IsDefault();
+            IsInstallerOption = true;
+            Flags = plugin.GetFlags();
             Size = 0;
             CreateLists();
         }
@@ -101,6 +116,7 @@ namespace ModAnalyzer.Analysis.Models {
             ExtractPaths = new Dictionary<Entry, string>();
             PluginPaths = new List<string>();
             ArchivePaths = new List<string>();
+            FomodFiles = new List<FomodFile>();
         }
 
         public void GetMD5Hash() {
@@ -181,6 +197,26 @@ namespace ModAnalyzer.Analysis.Models {
 
         public List<string> GetInstallerDirectories(bool data = true) {
             return BainArchiveService.GetDirectories(Archive, BaseInstallerPath, data);
+        }
+
+        public bool FomodFilesMatch(List<FomodFile> FomodFiles) {
+            var cnt = new Dictionary<FomodFile, int>(new FomodFileEqualityComparer());
+            foreach (FomodFile f in FomodFiles) {
+                if (cnt.ContainsKey(f)) {
+                    cnt[f]++;
+                } else {
+                    cnt.Add(f, 1);
+                }
+            }
+            foreach (FomodFile f in this.FomodFiles) {
+                if (!cnt.ContainsKey(f)) return false;
+                cnt[f]--;
+            }
+            return cnt.Values.All(c => c == 0);
+        }
+
+        public bool Matches(ModOption option) {
+            return option.Name.Equals(Name) && FomodFilesMatch(option.FomodFiles);
         }
 
         // BAIN ARCHIVE HANDLING

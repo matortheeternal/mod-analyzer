@@ -141,8 +141,6 @@ namespace ModAnalyzer.Analysis.Services {
                     if (mappedPath == "") continue;
                     if (option.Assets.IndexOf(mappedPath) > -1) continue;
                     option.Assets.Add(mappedPath);
-                    option.Size += (long)entry.Size;
-                    _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // enqueue jobs for analyzing archives and plugins
                     MapEntryToOption(entry, option, archiveModOption);
@@ -161,7 +159,6 @@ namespace ModAnalyzer.Analysis.Services {
                     if (mappedPath == "") continue;
                     option.Assets.Add(mappedPath);
                     option.Size += (long)entry.Size;
-                    _backgroundWorker.ReportMessage("  " + option.Name + " -> " + mappedPath, false);
 
                     // enqueue jobs for analyzing archives and plugins
                     MapEntryToOption(entry, option, archiveModOption);
@@ -190,14 +187,29 @@ namespace ModAnalyzer.Analysis.Services {
             }
 
             // STEP 2: Map entries to bain options
-            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to " + bainType + " Options", true);
-            foreach (Entry entry in archive.FileEntries()) {
+            IList<Entry> fileEntries = archive.FileEntries();
+            _backgroundWorker.ReportMessage(string.Format("{0}Mapping {1} assets to {2} {3} Options",
+                Environment.NewLine, fileEntries.Count, bainOptions.Count, bainType), true);
+            foreach (Entry entry in fileEntries) {
                 MapEntryToBainOption(bainMap, entry, archiveModOption);
             }
 
             // Return the mod options we built
             _backgroundWorker.ReportMessage("Done.  " + bainOptions.Count + " " + bainType + " Options found.", true);
             return bainOptions.OrderBy(x => x.Name).ToList();
+        }
+
+        private void ReportFomodOption(ModOption option) {
+            _backgroundWorker.ReportMessage(option.Name, true);
+            foreach (FomodFile fomodFile in option.FomodFiles) {
+                if (string.IsNullOrEmpty(fomodFile.Destination)) {
+                    _backgroundWorker.ReportMessage("  " + fomodFile.Source, false);
+                }
+                else {
+                    _backgroundWorker.ReportMessage(string.Format("  {0} -> {1}",
+                        fomodFile.Source, fomodFile.Destination), false);
+                }
+            }
         }
 
         private List<ModOption> AnalyzeFomodArchive(ModOption archiveModOption) {
@@ -211,24 +223,30 @@ namespace ModAnalyzer.Analysis.Services {
 
             Directory.CreateDirectory(@".\fomod");
             configEntry.ExtractToDirectory(@".\fomod");
-            _backgroundWorker.ReportMessage("FOMOD Config Extracted", true);
+            _backgroundWorker.ReportMessage("FOMOD Config Extracted", false);
 
             // STEP 2: Parse ModuleConfig.xml and determine what the mod options are
             FomodConfig fomodConfig = new FomodConfig(@".\fomod\ModuleConfig.xml");
+            _backgroundWorker.ReportMessage("Detecting FOMOD options" + Environment.NewLine, true);
             fomodOptions = fomodConfig.BuildModOptions(archiveModOption.BaseInstallerPath);
+            foreach (ModOption option in fomodOptions) {
+                ReportFomodOption(option);
+            }
 
-            // STEP 3: Loop through the archive's assets appending them to mod options per mapping
-            _backgroundWorker.ReportMessage(Environment.NewLine + "Mapping assets to FOMOD Options", true);
-            foreach (Entry entry in archive.FileEntries()) {
+            // STEP 4: Loop through the archive's assets appending them to mod options per mapping
+            IList<Entry> fileEntries = archive.FileEntries();
+            _backgroundWorker.ReportMessage(string.Format("{0}Mapping {1} assets to {2} FOMOD Options",
+                Environment.NewLine, fileEntries.Count, fomodOptions.Count), true);
+            foreach (Entry entry in fileEntries) {
                 MapEntryToFomodOption(fomodConfig.FileMap, entry, archiveModOption);
             }
 
-            // STEP 4: Delete any options that have no assets or plugins in them
+            // STEP 5: Delete any options that have no assets or plugins in them
             _backgroundWorker.ReportMessage(Environment.NewLine + "Cleaning up...", true);
             fomodOptions.RemoveAll(ModOption.IsEmpty);
 
             // Return the mod options we built
-            _backgroundWorker.ReportMessage("Done.  " + fomodOptions.Count + " FOMOD Options found.", true);
+            _backgroundWorker.ReportMessage(Environment.NewLine + "Done.  " + fomodOptions.Count + " FOMOD Options found.", true);
             return fomodOptions;
         }
 
