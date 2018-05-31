@@ -119,10 +119,10 @@ namespace ModAnalyzer.Domain.Fomod {
             return changedFlags;
         }
 
-        private string DisplayFlagValue(string value) {
+        private bool DisplayFlag(string value) {
             if (value.Equals("Off", StringComparison.CurrentCultureIgnoreCase) ||
-                string.IsNullOrEmpty(value) || value.Equals("0")) return "Off";
-            return "On";
+                string.IsNullOrEmpty(value) || value.Equals("0")) return false;
+            return true;
         }
 
         private void SpecifyModOptionNames(List<ModOption> options) {
@@ -131,8 +131,8 @@ namespace ModAnalyzer.Domain.Fomod {
             foreach (ModOption option in options) {
                 if (option.Flags == null || option.Flags.Count == 0) continue;
                 string[] flags = changedFlags
-                    .FindAll(f => option.Flags.ContainsKey(f))
-                    .Select(f =>f + "=" + DisplayFlagValue(option.Flags[f])).ToArray();
+                    .FindAll(f => option.Flags.ContainsKey(f) && 
+                        DisplayFlag(option.Flags[f])).ToArray();
                 if (flags.Length == 0) return;
                 option.Name = string.Format("[{0}] {1}", string.Join(", ", flags), option.Name);
             }
