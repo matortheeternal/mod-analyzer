@@ -44,19 +44,21 @@ namespace ModAnalyzer.ViewModels {
         }
 
         private void _modAnalyzerService_MessageReported(object sender, MessageReportedEventArgs e) {
-            App.Current.Dispatcher.BeginInvoke((Action)(() => Log += e.Message + Environment.NewLine));
-            if (!string.IsNullOrWhiteSpace(e.Message)) {
-                LogService.GroupMessage("analysis", e.Message);
-            }
-            if (e.IsStatusMessage) {
-                App.Current.Dispatcher.BeginInvoke((Action)(() => ProgressMessage = e.Message.Trim()));
-            }
+            App.Current.Dispatcher.BeginInvoke((Action)(() => {
+                Log += e.Message + Environment.NewLine;
+                if (!string.IsNullOrWhiteSpace(e.Message))
+                    LogService.GroupMessage("analysis", e.Message);
+                if (e.IsStatusMessage)
+                    ProgressMessage = e.Message.Trim();
+            }));
         }
 
         private void _modAnalyzerService_AnalysisComplete(object sender, EventArgs e) {
-            LogService.GroupMessage("analysis", "Analysis complete.");
-            CanReset = true;
-            RaisePropertyChanged("CanReset");
+            App.Current.Dispatcher.BeginInvoke((Action)(() => {
+                LogService.GroupMessage("analysis", "Analysis complete.");
+                CanReset = true;
+                RaisePropertyChanged("CanReset");
+            }));
         }
 
         private void StartModAnalyzerService() {
