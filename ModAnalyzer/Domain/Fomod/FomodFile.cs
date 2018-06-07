@@ -50,6 +50,7 @@ namespace ModAnalyzer.Domain.Fomod {
         }
 
         public string MappedPath(string path) {
+            if (string.IsNullOrEmpty(Destination)) return path.Replace("/", @"\");
             return Expr.Replace(path, Destination).Replace("/", @"\");
         }
     }
